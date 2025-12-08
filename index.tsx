@@ -4,8 +4,19 @@ import { createRoot } from "react-dom/client";
 import { GoogleGenAI, Modality } from "@google/genai";
 
 // --- Configuration ---
-const API_KEY = process.env.API_KEY as string;
-const ai = new GoogleGenAI({ apiKey: API_KEY });
+// --- Configuration ---
+const API_KEY = process.env.API_KEY || "";
+let ai: GoogleGenAI;
+
+try {
+    if (API_KEY) {
+        ai = new GoogleGenAI({ apiKey: API_KEY });
+    } else {
+        console.warn("Gemini API Key is missing");
+    }
+} catch (e) {
+    console.error("Failed to initialize Gemini AI", e);
+}
 
 // --- Audio System ---
 const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
@@ -13,7 +24,7 @@ let currentAudioSource: AudioBufferSourceNode | null = null;
 
 const stopCurrentAudio = () => {
     if (currentAudioSource) {
-        try { currentAudioSource.stop(); } catch(e) {}
+        try { currentAudioSource.stop(); } catch (e) { }
         currentAudioSource = null;
     }
 };
@@ -24,7 +35,7 @@ const playSound = (type: 'pop' | 'win' | 'magic' | 'error') => {
     const gain = audioCtx.createGain();
     osc.connect(gain);
     gain.connect(audioCtx.destination);
-    
+
     const now = audioCtx.currentTime;
     if (type === 'pop') {
         osc.frequency.setValueAtTime(600, now);
@@ -50,7 +61,7 @@ const playSound = (type: 'pop' | 'win' | 'magic' | 'error') => {
             o.type = 'sine';
             o.frequency.value = f;
             g.gain.setValueAtTime(0, now);
-            g.gain.linearRampToValueAtTime(0.1, now + 0.1 + i*0.05);
+            g.gain.linearRampToValueAtTime(0.1, now + 0.1 + i * 0.05);
             g.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
             o.start(now);
             o.stop(now + 1.5);
@@ -69,7 +80,7 @@ async function playPCM(base64: string) {
         for (let i = 0; i < len; i++) bytes[i] = bin.charCodeAt(i);
         const int16 = new Int16Array(bytes.buffer);
         const buf = audioCtx.createBuffer(1, int16.length, 24000);
-        
+
         const channelData = buf.getChannelData(0);
         for (let i = 0; i < int16.length; i++) {
             channelData[i] = int16[i] / 32768.0;
@@ -79,7 +90,7 @@ async function playPCM(base64: string) {
         src.buffer = buf;
         src.connect(audioCtx.destination);
         src.onended = () => { if (currentAudioSource === src) currentAudioSource = null; };
-        
+
         currentAudioSource = src;
         src.start(0);
     } catch (e) { console.error("Audio playback failed", e); }
@@ -87,16 +98,16 @@ async function playPCM(base64: string) {
 
 // --- Roster Data (Colors instead of Avatars) ---
 const STUDENTS = [
-  { id: 1, name: "Kyngston", icon: "👑", color: "#ef4444" }, // Red
-  { id: 2, name: "Carter", icon: "🚀", color: "#3b82f6" },   // Blue
-  { id: 3, name: "Nazir", icon: "🧭", color: "#10b981" },    // Green
-  { id: 4, name: "Derick", icon: "⚡", color: "#f59e0b" },   // Amber
-  { id: 5, name: "Desmond", icon: "🛡️", color: "#8b5cf6" },  // Violet
-  { id: 6, name: "James", icon: "🐸", color: "#06b6d4" },    // Cyan
-  { id: 7, name: "Ana", icon: "🌟", color: "#ec4899" },      // Pink
-  { id: 8, name: "Teacher", icon: "🎓", color: "#64748b" },  // Slate
-  { id: 9, name: "Guest 1", icon: "👤", color: "#d946ef" },  // Fuchsia
-  { id: 10, name: "Guest 2", icon: "👤", color: "#f97316" }, // Orange
+    { id: 1, name: "Kyngston", icon: "👑", color: "#ef4444" }, // Red
+    { id: 2, name: "Carter", icon: "🚀", color: "#3b82f6" },   // Blue
+    { id: 3, name: "Nazir", icon: "🧭", color: "#10b981" },    // Green
+    { id: 4, name: "Derick", icon: "⚡", color: "#f59e0b" },   // Amber
+    { id: 5, name: "Desmond", icon: "🛡️", color: "#8b5cf6" },  // Violet
+    { id: 6, name: "James", icon: "🐸", color: "#06b6d4" },    // Cyan
+    { id: 7, name: "Ana", icon: "🌟", color: "#ec4899" },      // Pink
+    { id: 8, name: "Teacher", icon: "🎓", color: "#64748b" },  // Slate
+    { id: 9, name: "Guest 1", icon: "👤", color: "#d946ef" },  // Fuchsia
+    { id: 10, name: "Guest 2", icon: "👤", color: "#f97316" }, // Orange
 ];
 
 // --- Components ---
@@ -112,7 +123,7 @@ const Mic = ({ onResult, hint }: { onResult: (txt: string) => void, hint: string
             setListening(false);
         } else {
             if (audioCtx.state === 'suspended') await audioCtx.resume();
-            
+
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 const r = new MediaRecorder(stream);
@@ -166,7 +177,7 @@ const FeedbackModal = ({ message, type, onClose }: { message: string, type: 'suc
             <p style={{ fontSize: '1.8rem', margin: '30px 0', lineHeight: 1.4, color: '#f8fafc', fontWeight: 600 }}>
                 {message}
             </p>
-            <button className="pro-btn active" onClick={onClose} style={{margin:'0 auto', fontSize: '1.2rem', padding: '15px 40px'}}>
+            <button className="pro-btn active" onClick={onClose} style={{ margin: '0 auto', fontSize: '1.2rem', padding: '15px 40px' }}>
                 {type === 'success' ? 'Continue' : 'Try Again'}
             </button>
         </div>
@@ -174,11 +185,28 @@ const FeedbackModal = ({ message, type, onClose }: { message: string, type: 'suc
 );
 
 const App = () => {
+    if (!API_KEY) {
+        return (
+            <div style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                height: '100vh', color: '#f8fafc', textAlign: 'center', padding: '20px'
+            }}>
+                <h1 style={{ fontSize: '2rem', marginBottom: '20px' }}>⚠️ Configuration Error</h1>
+                <p style={{ fontSize: '1.2rem', maxWidth: '600px', lineHeight: '1.6' }}>
+                    The Gemini API Key is missing. <br />
+                    Please go to your Netlify Dashboard &gt; Site Configuration &gt; Environment Variables and add <code>GEMINI_API_KEY</code>.
+                    <br /><br />
+                    Then trigger a new deploy.
+                </p>
+            </div>
+        );
+    }
+
     const [student, setStudent] = useState<any>(null);
     const [mode, setMode] = useState<'menu' | 'digraph' | 'spell' | 'story'>('menu');
     const [challenge, setChallenge] = useState<any>(null);
     const [loading, setLoading] = useState(false);
-    const [modalData, setModalData] = useState<{msg: string, type: 'success' | 'error'} | null>(null);
+    const [modalData, setModalData] = useState<{ msg: string, type: 'success' | 'error' } | null>(null);
     const [cuudoos, setCuudoos] = useState(0);
     const [timer, setTimer] = useState(600);
     const [showConfetti, setShowConfetti] = useState(false);
@@ -204,7 +232,7 @@ const App = () => {
         setLoading(true);
         setModalData(null);
         let prompt = "";
-        
+
         if (selectedMode === 'digraph') {
             prompt = `Generate a digraph challenge for a 2nd grader named ${student.name}. 
             Pick a word with 'sh', 'ch', 'th', or 'wh'. 
@@ -226,7 +254,7 @@ const App = () => {
             });
             const data = JSON.parse(resp.text || "{}");
             setChallenge(data);
-            
+
             if (selectedMode === 'digraph') {
                 speak(`Okay ${student.name}. Listen carefully. The word is ${data.word}. ${data.context}. What sound starts the word ${data.word}?`);
             } else if (selectedMode === 'spell') {
@@ -305,13 +333,13 @@ const App = () => {
                     <div className="app-title">WORD WHIZ KIDS</div>
                 </div>
                 <div className="scrollable-content">
-                    <div className="mission-bar" style={{marginTop: '20px', marginBottom: '20px'}}>SELECT YOUR PROFILE</div>
+                    <div className="mission-bar" style={{ marginTop: '20px', marginBottom: '20px' }}>SELECT YOUR PROFILE</div>
                     <div className="roster-grid">
                         {STUDENTS.map(s => (
-                            <div key={s.id} 
-                                 className="student-card" 
-                                 style={{backgroundColor: s.color, boxShadow: `0 6px 0 rgba(0,0,0,0.3)`}}
-                                 onClick={() => { setStudent(s); playSound('pop'); }}>
+                            <div key={s.id}
+                                className="student-card"
+                                style={{ backgroundColor: s.color, boxShadow: `0 6px 0 rgba(0,0,0,0.3)` }}
+                                onClick={() => { setStudent(s); playSound('pop'); }}>
                                 <div className="card-icon">{s.icon}</div>
                                 <div className="card-name">{s.name}</div>
                             </div>
@@ -326,8 +354,8 @@ const App = () => {
     // --- Main Activity View ---
     return (
         <div className="main-stage">
-            {showConfetti && Array(20).fill(0).map((_,i) => <div key={i} className="confetti" style={{left:`${Math.random()*100}%`, background: ['#f00','#0f0','#00f'][i%3], animationDuration:`${2+Math.random()}s`}}/>)}
-            
+            {showConfetti && Array(20).fill(0).map((_, i) => <div key={i} className="confetti" style={{ left: `${Math.random() * 100}%`, background: ['#f00', '#0f0', '#00f'][i % 3], animationDuration: `${2 + Math.random()}s` }} />)}
+
             <div className="top-bar">
                 <div className="app-title">WORD WHIZ KIDS</div>
                 <div className="mission-bar">Mission: {student.name}</div>
@@ -338,17 +366,17 @@ const App = () => {
             </div>
 
             {modalData && (
-                <FeedbackModal 
-                    message={modalData.msg} 
-                    type={modalData.type} 
-                    onClose={() => setModalData(null)} 
+                <FeedbackModal
+                    message={modalData.msg}
+                    type={modalData.type}
+                    onClose={() => setModalData(null)}
                 />
             )}
 
             <div className="scrollable-content centered-content">
                 {mode === 'menu' ? (
-                    <div className="glass-panel" style={{maxWidth: '800px', width: '100%'}}>
-                        <h2 style={{textAlign:'center', marginBottom: '30px', color: '#94a3b8'}}>SELECT TRAINING MODULE</h2>
+                    <div className="glass-panel" style={{ maxWidth: '800px', width: '100%' }}>
+                        <h2 style={{ textAlign: 'center', marginBottom: '30px', color: '#94a3b8' }}>SELECT TRAINING MODULE</h2>
                         <div className="menu-grid">
                             <button className="pro-btn btn-accent" onClick={() => handleModeSelect('digraph')}>
                                 <span className="btn-icon">🔍</span> Digraph Detective
@@ -374,7 +402,7 @@ const App = () => {
                         </div>
 
                         {loading ? (
-                            <div style={{padding:'60px', fontSize:'1.5rem'}}>Initializing Mission...</div>
+                            <div style={{ padding: '60px', fontSize: '1.5rem' }}>Initializing Mission...</div>
                         ) : (
                             <>
                                 {mode === 'story' ? (
@@ -385,9 +413,9 @@ const App = () => {
                                         {mode === 'spell' && "👂 Listen"}
                                     </div>
                                 )}
-                                
-                                <div style={{margin:'20px', color:'#94a3b8', fontSize:'1.2rem', textAlign:'center'}}>{challenge?.context}</div>
-                                
+
+                                <div style={{ margin: '20px', color: '#94a3b8', fontSize: '1.2rem', textAlign: 'center' }}>{challenge?.context}</div>
+
                                 <Mic onResult={checkAnswer} hint={mode === 'story' ? "Continue the story" : `Say the ${mode === 'digraph' ? 'missing sound' : 'word'}`} />
                             </>
                         )}
