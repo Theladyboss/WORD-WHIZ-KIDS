@@ -206,7 +206,8 @@ const App = () => {
     }
 
     const [student, setStudent] = useState<any>(null);
-    const [mode, setMode] = useState<'menu' | 'digraph' | 'spell' | 'story'>('menu');
+    const [mode, setMode] = useState<'menu' | 'digraph' | 'spell' | 'story' | 'unit-spelling' | 'teacher-curriculum'>('menu');
+    const [unit, setUnit] = useState(1); // Default to Unit 1
     const [challenge, setChallenge] = useState<any>(null);
     const [loading, setLoading] = useState(false);
     const [modalData, setModalData] = useState<{ msg: string, type: 'success' | 'error' } | null>(null);
@@ -245,20 +246,27 @@ const App = () => {
         setModalData(null);
         let prompt = "";
 
-        if (selectedMode === 'digraph') {
-            prompt = `Generate a digraph challenge for a 2nd grader named ${student.name}. 
-            Pick a word with 'sh', 'ch', 'th', or 'wh'. 
-            Return JSON: { "word": "string", "missing": "string", "context": "sentence using the word", "phoneme": "the sound (e.g. sh)" }. 
-            Example: {"word": "ship", "missing": "sh", "context": "The ship sails on the sea.", "phoneme": "sh"}`;
-        } else if (selectedMode === 'spell') {
-            prompt = `Generate a spelling word for a 2nd grader named ${student.name}.
-            Return JSON: { "word": "string", "context": "sentence" }.`;
-        } else {
-            prompt = `Write a 2-sentence story starter about ${student.name} finding something magical in a dark blue forest. 
-            Return JSON: { "starter": "string" }.`;
-        }
-
         try {
+            if (!ai) throw new Error("AI not initialized");
+
+            if (selectedMode === 'digraph') {
+                prompt = `Generate a digraph challenge for a 2nd grader named ${student.name}. 
+                Pick a word with 'sh', 'ch', 'th', or 'wh'. 
+                Return JSON: { "word": "string", "missing": "string", "context": "sentence using the word", "phoneme": "the sound (e.g. sh)" }.`;
+            } else if (selectedMode === 'spell') {
+                prompt = `Generate a spelling word for a 2nd grader named ${student.name}.
+                Return JSON: { "word": "string", "context": "sentence" }.`;
+            } else if (selectedMode === 'unit-spelling') {
+                prompt = `Generate a spelling word from 2nd Grade Spelling Unit ${unit}.
+                Return JSON: { "word": "string", "context": "sentence using the word" }.`;
+            } else if (selectedMode === 'story') {
+                prompt = `Write a 2-sentence story starter about ${student.name} finding something magical in a dark blue forest. 
+                Return JSON: { "starter": "string" }.`;
+            } else if (selectedMode === 'teacher-curriculum') {
+                prompt = `You are a Maryland 2nd Grade Teacher Assistant. Suggest a quick 5-minute activity for the current math curriculum.
+                Return JSON: { "starter": "Activity Description", "context": "Learning Standard" }.`;
+            }
+
             const resp = await ai.models.generateContent({
                 model: 'gemini-2.5-flash',
                 contents: prompt,
@@ -269,13 +277,19 @@ const App = () => {
 
             if (selectedMode === 'digraph') {
                 speak(`Okay ${student.name}. Listen carefully. The word is ${data.word}. ${data.context}. What sound starts the word ${data.word}?`);
-            } else if (selectedMode === 'spell') {
+            } else if (selectedMode === 'spell' || selectedMode === 'unit-spelling') {
                 speak(`Spell the word ${data.word}. ${data.context}`);
-            } else {
+            } else if (selectedMode === 'story') {
                 speak(data.starter + " What happens next?");
+            } else if (selectedMode === 'teacher-curriculum') {
+                speak(`Here is a curriculum idea: ${data.starter}`);
             }
 
-        } catch (e) { console.error(e); }
+        } catch (e) {
+            console.error(e);
+            setModalData({ msg: "Connection failed. Please try again.", type: 'error' });
+            setMode('menu'); // Go back to menu on error
+        }
         setLoading(false);
     };
 
@@ -429,9 +443,29 @@ const App = () => {
                             <button className="pro-btn" onClick={() => handleModeSelect('spell')}>
                                 <span className="btn-icon">📝</span> Word Builder
                             </button>
+                            <button className="pro-btn" onClick={() => handleModeSelect('unit-spelling')}>
+                                <span className="btn-icon">📚</span> Unit Spelling
+                            </button>
                             <button className="pro-btn" onClick={() => handleModeSelect('story')}>
                                 <span className="btn-icon">📖</span> Story Spark
                             </button>
+                            {student.name === 'Teacher' && (
+                                <button className="pro-btn" style={{ borderColor: '#f59e0b', color: '#f59e0b' }} onClick={() => handleModeSelect('teacher-curriculum')}>
+                                    <span className="btn-icon">🍎</span> Curriculum Asst.
+                                </button>
+                            )}
+                        </div>
+
+                        {/* Unit Selector for Unit Spelling */}
+                        <div style={{ marginTop: '20px', textAlign: 'center' }}>
+                            <label style={{ color: '#94a3b8', marginRight: '10px' }}>Current Unit:</label>
+                            <select
+                                value={unit}
+                                onChange={(e) => setUnit(Number(e.target.value))}
+                                style={{ padding: '5px', borderRadius: '5px', background: '#1e293b', color: 'white', border: '1px solid #475569' }}
+                            >
+                                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(u => <option key={u} value={u}>Unit {u}</option>)}
+                            </select>
                         </div>
                     </div>
                 ) : (
@@ -443,25 +477,32 @@ const App = () => {
                         <div className="mode-title">
                             {mode === 'digraph' && 'Sound Decoding'}
                             {mode === 'spell' && 'Spelling Mastery'}
+                            {mode === 'unit-spelling' && `Unit ${unit} Spelling`}
                             {mode === 'story' && 'Creative Reading'}
+                            {mode === 'teacher-curriculum' && 'Teacher Assistant'}
                         </div>
 
                         {loading ? (
                             <div style={{ padding: '60px', fontSize: '1.5rem' }}>Initializing Mission...</div>
                         ) : (
                             <>
-                                {mode === 'story' ? (
+                                {mode === 'story' || mode === 'teacher-curriculum' ? (
                                     <div className="story-box">{challenge?.starter}</div>
                                 ) : (
                                     <div className="challenge-text">
                                         {mode === 'digraph' && challenge?.word?.replace(challenge?.missing, '_')}
-                                        {mode === 'spell' && "👂 Listen"}
+                                        {(mode === 'spell' || mode === 'unit-spelling') && "👂 Listen"}
                                     </div>
                                 )}
 
                                 <div style={{ margin: '20px', color: '#94a3b8', fontSize: '1.2rem', textAlign: 'center' }}>{challenge?.context}</div>
 
-                                <Mic onResult={checkAnswer} hint={mode === 'story' ? "Continue the story" : `Say the ${mode === 'digraph' ? 'missing sound' : 'word'}`} />
+                                {mode !== 'teacher-curriculum' && (
+                                    <Mic onResult={checkAnswer} hint={mode === 'story' ? "Continue the story" : `Say the ${mode === 'digraph' ? 'missing sound' : 'word'}`} />
+                                )}
+                                {mode === 'teacher-curriculum' && (
+                                    <button className="pro-btn" onClick={() => loadChallenge('teacher-curriculum')}>Generate Another Idea</button>
+                                )}
                             </>
                         )}
                     </div>
