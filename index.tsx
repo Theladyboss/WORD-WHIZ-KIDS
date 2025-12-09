@@ -109,8 +109,8 @@ const STUDENTS = [
     { id: 6, name: "James", icon: "🐸", color: "#06b6d4" },    // Cyan
     { id: 7, name: "Ana", icon: "🌟", color: "#ec4899" },      // Pink
     { id: 8, name: "Teacher", icon: "🎓", color: "#64748b" },  // Slate
-    { id: 9, name: "Guest 1", icon: "👤", color: "#d946ef" },  // Fuchsia
-    { id: 10, name: "Guest 2", icon: "👤", color: "#f97316" }, // Orange
+    { id: 9, name: "Jasmine", icon: "🌸", color: "#d946ef" },  // Fuchsia
+    { id: 10, name: "Axel", icon: "🎸", color: "#f97316" },    // Orange
 ];
 
 // --- Components ---
@@ -222,7 +222,8 @@ const App = () => {
         return () => clearInterval(i);
     }, [sessionSetup, timer]);
 
-    const handleSessionStart = (minutes: number) => {
+    const handleSessionStart = async (minutes: number) => {
+        if (audioCtx.state === 'suspended') await audioCtx.resume();
         setTimer(minutes * 60);
         setSessionSetup(true);
         playSound('magic');
@@ -231,6 +232,7 @@ const App = () => {
 
     const speak = async (text: string) => {
         try {
+            if (audioCtx.state === 'suspended') await audioCtx.resume();
             const resp = await ai.models.generateContent({
                 model: 'gemini-2.5-flash-preview-tts',
                 contents: { parts: [{ text }] },
@@ -247,8 +249,9 @@ const App = () => {
         let prompt = "";
 
         try {
-            if (!ai) throw new Error("AI not initialized");
+            if (!ai) throw new Error("AI not initialized. Check API Key.");
 
+            // ... (keep prompt logic) ...
             if (selectedMode === 'digraph') {
                 prompt = `Generate a digraph challenge for a 2nd grader named ${student.name}. 
                 Pick a word with 'sh', 'ch', 'th', or 'wh'. 
@@ -285,10 +288,10 @@ const App = () => {
                 speak(`Here is a curriculum idea: ${data.starter}`);
             }
 
-        } catch (e) {
+        } catch (e: any) {
             console.error(e);
-            setModalData({ msg: "Connection failed. Please try again.", type: 'error' });
-            setMode('menu'); // Go back to menu on error
+            setModalData({ msg: `Connection failed: ${e.message || "Unknown error"}`, type: 'error' });
+            setMode('menu');
         }
         setLoading(false);
     };

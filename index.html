@@ -447,8 +447,10 @@
             }
 
             .top-bar {
-                height: 70px;
-                padding: 0 15px;
+                height: 80px;
+                padding: 10px 15px;
+                z-index: 100;
+                position: relative;
             }
 
             .app-title {
@@ -458,6 +460,14 @@
             .mission-bar {
                 display: none;
             }
+
+            .stats-box {
+                display: flex !important;
+                font-size: 1.2rem;
+                gap: 15px;
+            }
+
+            /* Force show stats */
 
             .scrollable-content {
                 padding: 20px;
