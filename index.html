@@ -447,12 +447,12 @@
             }
 
             .top-bar {
-                height: 60px;
+                height: 70px;
                 padding: 0 15px;
             }
 
             .app-title {
-                font-size: 1.1rem;
+                font-size: 1.3rem;
             }
 
             .mission-bar {
@@ -460,12 +460,13 @@
             }
 
             .scrollable-content {
-                padding: 10px;
+                padding: 20px;
                 -webkit-overflow-scrolling: touch;
             }
 
+            /* Roster Grid - Big & Bold */
             .roster-grid {
-                gap: 10px;
+                gap: 15px;
                 display: grid;
                 grid-template-columns: repeat(2, 1fr);
                 padding-bottom: 120px;
@@ -476,53 +477,91 @@
                 width: 100%;
                 height: auto;
                 aspect-ratio: 1;
+                border-radius: 20px;
+                /* Softer corners */
             }
 
             .card-icon {
-                font-size: 3rem;
-                margin-bottom: 5px;
+                font-size: 3.5rem;
+                margin-bottom: 10px;
             }
 
             .card-name {
-                font-size: 1rem;
+                font-size: 1.1rem;
             }
 
+            /* Menu Grid - Full Width Stack */
             .menu-grid {
                 grid-template-columns: 1fr;
-                gap: 15px;
+                /* Stack buttons vertically */
+                gap: 20px;
+            }
+
+            .pro-btn {
+                padding: 20px;
+                /* Much larger touch target */
+                font-size: 1.2rem;
+                /* Bigger text */
+                border-radius: 15px;
+                justify-content: flex-start;
+                /* Align text left for list look */
+                padding-left: 30px;
+            }
+
+            .btn-icon {
+                font-size: 1.5rem;
+                margin-right: 15px;
+            }
+
+            /* Unit Selector - Big Touch Target */
+            select {
+                font-size: 1.2rem !important;
+                padding: 15px !important;
+                width: 100%;
+                margin-top: 10px;
             }
 
             .glass-panel {
                 margin: 10px 0;
-                padding: 20px;
+                padding: 25px;
                 width: 100%;
-                border-radius: 12px;
+                border-radius: 20px;
             }
 
             .challenge-text {
-                font-size: 2.5rem;
-                margin: 10px 0;
+                font-size: 3rem;
+                margin: 20px 0;
+                line-height: 1.2;
             }
 
             .mic-btn {
-                width: 80px;
-                height: 80px;
-                font-size: 2.5rem;
-                margin-top: 10px;
+                width: 100px;
+                height: 100px;
+                font-size: 3.5rem;
+                margin-top: 20px;
             }
 
+            /* Nav Dock - Taller & Bigger Buttons */
             .nav-dock {
-                height: 80px;
+                height: 90px;
                 padding: 10px;
                 gap: 10px;
                 overflow-x: auto;
-                justify-content: flex-start;
+                justify-content: space-between;
+                /* Spread them out */
             }
 
-            .pro-btn {
-                padding: 10px 15px;
-                font-size: 0.9rem;
-                white-space: nowrap;
+            .nav-dock .pro-btn {
+                padding: 0 20px;
+                height: 60px;
+                /* Fixed tall height */
+                font-size: 1rem;
+                flex: 1;
+                /* Equal width */
+                justify-content: center;
+                /* Center text */
+                padding-left: 20px;
+                /* Reset padding */
             }
         }
 
