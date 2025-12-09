@@ -5,10 +5,7 @@ import { GoogleGenAI, Modality } from "@google/genai";
 
 // --- Configuration ---
 // --- Configuration ---
-// Splitting key to avoid security scanner false positives while ensuring it works
-const PART_A = "AIzaSyBn5qjbnPmvk";
-const PART_B = "qleslyejJNVWwfbxA7A0O4";
-const API_KEY = PART_A + PART_B;
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "";
 let ai: GoogleGenAI;
 
 try {
