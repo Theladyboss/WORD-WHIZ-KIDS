@@ -211,13 +211,22 @@ const App = () => {
     const [loading, setLoading] = useState(false);
     const [modalData, setModalData] = useState<{ msg: string, type: 'success' | 'error' } | null>(null);
     const [cuudoos, setCuudoos] = useState(0);
-    const [timer, setTimer] = useState(600);
+    const [timer, setTimer] = useState(0); // Start at 0 until selected
+    const [sessionSetup, setSessionSetup] = useState(false);
     const [showConfetti, setShowConfetti] = useState(false);
 
     useEffect(() => {
+        if (!sessionSetup || timer <= 0) return;
         const i = setInterval(() => setTimer(t => Math.max(0, t - 1)), 1000);
         return () => clearInterval(i);
-    }, []);
+    }, [sessionSetup, timer]);
+
+    const handleSessionStart = (minutes: number) => {
+        setTimer(minutes * 60);
+        setSessionSetup(true);
+        playSound('magic');
+        speak(`Welcome back, ${student.name}! Let's have fun learning for ${minutes} minutes.`);
+    };
 
     const speak = async (text: string) => {
         try {
@@ -342,7 +351,11 @@ const App = () => {
                             <div key={s.id}
                                 className="student-card"
                                 style={{ backgroundColor: s.color, boxShadow: `0 6px 0 rgba(0,0,0,0.3)` }}
-                                onClick={() => { setStudent(s); playSound('pop'); }}>
+                                onClick={() => {
+                                    setStudent(s);
+                                    playSound('pop');
+                                    // Don't speak yet, wait for timer selection
+                                }}>
                                 <div className="card-icon">{s.icon}</div>
                                 <div className="card-name">{s.name}</div>
                             </div>
@@ -353,6 +366,35 @@ const App = () => {
             </div>
         );
     }
+
+    // --- Timer Selection View ---
+    if (student && !sessionSetup) {
+        return (
+            <div className="main-stage">
+                <div className="top-bar">
+                    <div className="app-title">WORD WHIZ KIDS</div>
+                    <button className="pro-btn" onClick={() => setStudent(null)} style={{ padding: '5px 15px', fontSize: '0.8rem' }}>Change Profile</button>
+                </div>
+                <div className="scrollable-content centered-content">
+                    <div className="glass-panel" style={{ maxWidth: '500px', width: '90%', textAlign: 'center' }}>
+                        <div style={{ fontSize: '4rem', marginBottom: '20px' }}>⏱️</div>
+                        <h2 style={{ fontSize: '1.5rem', marginBottom: '10px', color: '#e2e8f0' }}>Hi {student.name}!</h2>
+                        <p style={{ fontSize: '1.1rem', color: '#94a3b8', marginBottom: '30px' }}>How long do you want to play today?</p>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                            <button className="pro-btn active" onClick={() => handleSessionStart(20)} style={{ fontSize: '1.3rem', padding: '20px' }}>
+                                20 Minutes
+                            </button>
+                            <button className="pro-btn btn-accent" onClick={() => handleSessionStart(30)} style={{ fontSize: '1.3rem', padding: '20px' }}>
+                                30 Minutes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
 
     // --- Main Activity View ---
     return (
