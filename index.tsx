@@ -5,7 +5,7 @@ import { GoogleGenAI, Modality } from "@google/genai";
 
 // --- Configuration ---
 // --- Configuration ---
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "";
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || "";
 let ai: GoogleGenAI;
 
 try {
