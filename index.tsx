@@ -249,7 +249,7 @@ const App = () => {
                 prompt = `Write a 2-sentence story starter about ${student.name} finding something magical in a dark blue forest. 
                 Return JSON: { "starter": "string" }.`;
             } else if (selectedMode === 'teacher-curriculum') {
-                prompt = `You are a Maryland 2nd Grade Teacher Assistant. Suggest a quick 5-minute activity for the current math curriculum.
+                prompt = `You are a Maryland 2nd Grade Teacher Assistant. Suggest a quick 5-minute activity for the current Reading/Language Arts curriculum (Phonics, Spelling, or Vocabulary).
                 Return JSON: { "starter": "Activity Description", "context": "Learning Standard" }.`;
             }
 
