@@ -113,59 +113,43 @@ const STUDENTS = [
 
 // --- Components ---
 
-const Mic = ({ onResult, hint }: { onResult: (txt: string) => void, hint: string }) => {
-    const [listening, setListening] = useState(false);
-    const mr = useRef<MediaRecorder | null>(null);
-    const chunks = useRef<Blob[]>([]);
+const AnswerInput = ({ onResult, hint }: { onResult: (txt: string) => void, hint: string }) => {
+    const [text, setText] = useState("");
 
-    const toggle = async () => {
-        if (listening) {
-            mr.current?.stop();
-            setListening(false);
-        } else {
-            if (audioCtx.state === 'suspended') await audioCtx.resume();
-
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                const r = new MediaRecorder(stream);
-                mr.current = r;
-                chunks.current = [];
-                r.ondataavailable = e => chunks.current.push(e.data);
-                r.onstop = async () => {
-                    const blob = new Blob(chunks.current, { type: 'audio/webm' });
-                    const reader = new FileReader();
-                    reader.onloadend = async () => {
-                        const base64 = (reader.result as string).split(',')[1];
-                        try {
-                            const resp = await ai.models.generateContent({
-                                model: 'gemini-2.5-flash',
-                                contents: {
-                                    role: 'user',
-                                    parts: [
-                                        { inlineData: { mimeType: 'audio/webm', data: base64 } },
-                                        { text: `Transcribe this audio strictly. If it is silent or unintelligible, return "SILENCE". The context is: ${hint}` }
-                                    ]
-                                }
-                            });
-                            onResult(resp.text || "");
-                        } catch (e) {
-                            onResult("");
-                        }
-                    };
-                    reader.readAsDataURL(blob);
-                };
-                r.start();
-                setListening(true);
-            } catch (e) {
-                alert("Microphone access needed.");
-            }
+    const handleSubmit = () => {
+        if (text.trim()) {
+            onResult(text);
+            setText("");
         }
     };
 
     return (
-        <button className={`mic-btn ${listening ? 'listening' : ''}`} onMouseDown={toggle} onMouseUp={toggle} onTouchStart={toggle} onTouchEnd={toggle}>
-            {listening ? '🎙️' : '🎤'}
-        </button>
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
+            <input
+                type="text"
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder={hint}
+                style={{
+                    width: '90%',
+                    padding: '15px',
+                    fontSize: '1.2rem',
+                    borderRadius: '12px',
+                    border: '2px solid #475569',
+                    background: '#1e293b',
+                    color: 'white',
+                    textAlign: 'center'
+                }}
+                onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+            />
+            <button
+                className="pro-btn active"
+                onClick={handleSubmit}
+                style={{ padding: '15px 40px', fontSize: '1.2rem', width: 'auto' }}
+            >
+                Submit Answer
+            </button>
+        </div>
     );
 };
 
@@ -500,7 +484,7 @@ const App = () => {
                                 <div style={{ margin: '20px', color: '#94a3b8', fontSize: '1.2rem', textAlign: 'center' }}>{challenge?.context}</div>
 
                                 {mode !== 'teacher-curriculum' && (
-                                    <Mic onResult={checkAnswer} hint={mode === 'story' ? "Continue the story" : `Say the ${mode === 'digraph' ? 'missing sound' : 'word'}`} />
+                                    <AnswerInput onResult={checkAnswer} hint={mode === 'story' ? "Type the next part..." : `Type the ${mode === 'digraph' ? 'missing sound' : 'word'}`} />
                                 )}
                                 {mode === 'teacher-curriculum' && (
                                     <button className="pro-btn" onClick={() => loadChallenge('teacher-curriculum')}>Generate Another Idea</button>
