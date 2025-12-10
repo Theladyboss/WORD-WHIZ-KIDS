@@ -5,7 +5,8 @@ import { GoogleGenAI, Modality } from "@google/genai";
 
 // --- Configuration ---
 // --- Configuration ---
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || "";
+// --- Configuration ---
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "";
 let ai: GoogleGenAI;
 
 try {
@@ -194,10 +195,11 @@ const App = () => {
                 <h1 style={{ fontSize: '2rem', marginBottom: '20px' }}>⚠️ Configuration Error</h1>
                 <p style={{ fontSize: '1.2rem', maxWidth: '600px', lineHeight: '1.6' }}>
                     The Gemini API Key is missing. <br />
-                    Please go to your Netlify Dashboard &gt; Site Configuration &gt; Environment Variables and add <code>GEMINI_API_KEY</code>.
-                    <br /><br />
-                    Then trigger a new deploy.
+                    Please ensure <code>VITE_GEMINI_API_KEY</code> is set in Netlify Environment Variables.
                 </p>
+                <div style={{ marginTop: '20px', padding: '10px', background: '#334155', borderRadius: '8px', fontSize: '0.9rem', color: '#cbd5e1' }}>
+                    Debug Info: Mode={import.meta.env.MODE}
+                </div>
             </div>
         );
     }
