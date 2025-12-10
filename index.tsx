@@ -189,7 +189,7 @@ const App = () => {
     }
 
     const [student, setStudent] = useState<any>(null);
-    const [mode, setMode] = useState<'menu' | 'digraph' | 'spell' | 'story' | 'unit-spelling' | 'teacher-curriculum'>('menu');
+    const [mode, setMode] = useState<'menu' | 'digraph' | 'spell' | 'story' | 'unit-spelling' | 'teacher-curriculum' | 'syllable' | 'games'>('menu');
     const [unit, setUnit] = useState(1); // Default to Unit 1
     const [challenge, setChallenge] = useState<any>(null);
     const [loading, setLoading] = useState(false);
@@ -234,7 +234,6 @@ const App = () => {
         try {
             if (!ai) throw new Error("AI not initialized. Check API Key.");
 
-            // ... (keep prompt logic) ...
             if (selectedMode === 'digraph') {
                 prompt = `Generate a digraph challenge for a 2nd grader named ${student.name}. 
                 Pick a word with 'sh', 'ch', 'th', or 'wh'. 
@@ -245,6 +244,10 @@ const App = () => {
             } else if (selectedMode === 'unit-spelling') {
                 prompt = `Generate a spelling word from 2nd Grade Spelling Unit ${unit}.
                 Return JSON: { "word": "string", "context": "sentence using the word" }.`;
+            } else if (selectedMode === 'syllable') {
+                prompt = `Generate a challenge about 2nd Grade syllable types (Open, Closed, VCE) or Schwa sounds.
+                Focus on words like 'private', 'active', 'native', 'captive', 'give', 'live'.
+                Return JSON: { "word": "string", "context": "sentence using the word", "type": "VCE, Open, or Closed" }.`;
             } else if (selectedMode === 'story') {
                 prompt = `Write a 2-sentence story starter about ${student.name} finding something magical in a dark blue forest. 
                 Return JSON: { "starter": "string" }.`;
@@ -263,7 +266,7 @@ const App = () => {
 
             if (selectedMode === 'digraph') {
                 speak(`Okay ${student.name}. Listen carefully. The word is ${data.word}. ${data.context}. What sound starts the word ${data.word}?`);
-            } else if (selectedMode === 'spell' || selectedMode === 'unit-spelling') {
+            } else if (selectedMode === 'spell' || selectedMode === 'unit-spelling' || selectedMode === 'syllable') {
                 speak(`Spell the word ${data.word}. ${data.context}`);
             } else if (selectedMode === 'story') {
                 speak(data.starter + " What happens next?");
@@ -432,8 +435,14 @@ const App = () => {
                             <button className="pro-btn" onClick={() => handleModeSelect('unit-spelling')}>
                                 <span className="btn-icon">📚</span> Unit Spelling
                             </button>
+                            <button className="pro-btn" onClick={() => handleModeSelect('syllable')}>
+                                <span className="btn-icon">🧩</span> Syllable Savvy
+                            </button>
                             <button className="pro-btn" onClick={() => handleModeSelect('story')}>
                                 <span className="btn-icon">📖</span> Story Spark
+                            </button>
+                            <button className="pro-btn btn-accent" style={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' }} onClick={() => setMode('games')}>
+                                <span className="btn-icon">🎮</span> Game Room
                             </button>
                             {student.name === 'Teacher' && (
                                 <button className="pro-btn" style={{ borderColor: '#f59e0b', color: '#f59e0b' }} onClick={() => handleModeSelect('teacher-curriculum')}>
@@ -453,6 +462,22 @@ const App = () => {
                                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(u => <option key={u} value={u}>Unit {u}</option>)}
                             </select>
                         </div>
+                    </div>
+                ) : mode === 'games' ? (
+                    <div className="glass-panel" style={{ maxWidth: '800px', width: '100%' }}>
+                        <h2 style={{ textAlign: 'center', marginBottom: '30px', color: '#f093fb' }}>GAME ROOM 🎮</h2>
+                        <div className="menu-grid">
+                            <button className="pro-btn" style={{ borderColor: '#f472b6', color: '#f472b6' }} onClick={() => alert("Whack-a-Vowel Coming Soon!")}>
+                                <span className="btn-icon">🔨</span> Whack-a-Vowel
+                            </button>
+                            <button className="pro-btn" style={{ borderColor: '#34d399', color: '#34d399' }} onClick={() => alert("Word Ninja Coming Soon!")}>
+                                <span className="btn-icon">⚔️</span> Word Ninja
+                            </button>
+                            <button className="pro-btn" style={{ borderColor: '#60a5fa', color: '#60a5fa' }} onClick={() => alert("Memory Match Coming Soon!")}>
+                                <span className="btn-icon">🧠</span> Memory Match
+                            </button>
+                        </div>
+                        <button className="pro-btn" style={{ marginTop: '20px' }} onClick={() => setMode('menu')}>⬅️ Back to Menu</button>
                     </div>
                 ) : (
                     <div className="activity-container glass-panel">
