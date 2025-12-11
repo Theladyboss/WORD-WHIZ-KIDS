@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import { GoogleGenAI, Modality } from "@google/genai";
+import { OFFLINE_DATA } from "./offlineData";
 
 // --- Configuration ---
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "";
@@ -408,6 +409,14 @@ const App = () => {
         return () => clearInterval(i);
     }, [sessionSetup, timer]);
 
+    useEffect(() => {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('SW registered', reg))
+                .catch(err => console.log('SW failed', err));
+        }
+    }, []);
+
     const handleSessionStart = async (minutes: number) => {
         if (audioCtx.state === 'suspended') await audioCtx.resume();
         setTimer(minutes * 60);
@@ -430,6 +439,23 @@ const App = () => {
     };
 
     const fetchChallengeData = async (selectedMode: string) => {
+        // Check for offline status
+        if (!navigator.onLine) {
+            console.log("Offline mode active. Using fallback data.");
+            const dataList = (OFFLINE_DATA as any)[selectedMode];
+            if (dataList && dataList.length > 0) {
+                const randomItem = dataList[Math.floor(Math.random() * dataList.length)];
+                return { ...randomItem }; // Return a copy
+            }
+            // Fallback for unit spelling if offline (reuse spell list or similar)
+            if (selectedMode === 'unit-spelling') {
+                const words = UNIT_WORDS[unit] || UNIT_WORDS[1];
+                const word = words[Math.floor(Math.random() * words.length)];
+                return { word, context: `Spell the word ${word}.` };
+            }
+            return { word: "Offline", context: "You are offline. Please reconnect." };
+        }
+
         let prompt = "";
         const langInstruction = language === 'es' ? "Generate the content in Spanish." : "";
 
@@ -469,12 +495,27 @@ const App = () => {
             Return JSON: { "starter": "Activity/Plan Description", "context": "Learning Standard" }.`;
         }
 
-        const resp = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: prompt,
-            config: { responseMimeType: 'application/json' }
-        });
-        return JSON.parse(resp.text || "{}");
+        try {
+            const resp = await ai.models.generateContent({
+                model: 'gemini-2.5-flash',
+                contents: prompt,
+                config: { responseMimeType: 'application/json' }
+            });
+            return JSON.parse(resp.text || "{}");
+        } catch (e) {
+            console.error("AI Error, falling back to offline data", e);
+            // Fallback if AI fails even if online
+            const dataList = (OFFLINE_DATA as any)[selectedMode];
+            if (dataList && dataList.length > 0) {
+                return dataList[Math.floor(Math.random() * dataList.length)];
+            }
+            if (selectedMode === 'unit-spelling') {
+                const words = UNIT_WORDS[unit] || UNIT_WORDS[1];
+                const word = words[Math.floor(Math.random() * words.length)];
+                return { word, context: `Spell the word ${word}.` };
+            }
+            return { word: "Error", context: "Could not generate content." };
+        }
     };
 
     const fetchNext = async (m: string) => {
