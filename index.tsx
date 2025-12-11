@@ -723,7 +723,7 @@ const App = () => {
                             </div>
                         ))}
                     </div>
-                    <div className="footer-brand">Created by FREEDOMAi SOLUTIONS v2.0</div>
+                    <div className="footer-brand">Created by © FREEDOMAi SOLUTIONS LLC</div>
                 </div>
             </div>
         );
