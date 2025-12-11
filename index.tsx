@@ -443,11 +443,9 @@ const App = () => {
         } else if (selectedMode === 'unit-spelling') {
             const words = UNIT_WORDS[unit] || UNIT_WORDS[1];
             const word = words[Math.floor(Math.random() * words.length)];
-        } else if (selectedMode === 'unit-spelling') {
-            const words = UNIT_WORDS[unit] || UNIT_WORDS[1];
-            const word = words[Math.floor(Math.random() * words.length)];
             prompt = `Generate a sentence for a 2nd grader using the spelling word "${word}". ${langInstruction}
             Return JSON: { "word": "${word}", "context": "sentence using the word" }.`;
+        } else if (selectedMode === 'syllable') {
             prompt = `Generate a challenge about 2nd Grade syllable types (Open, Closed, VCE). ${langInstruction}
             Focus on breaking words into syllables.
             Return JSON: { "word": "string", "syllables": ["syl", "la", "ble"], "count": number, "context": "sentence using the word", "type": "VCE, Open, or Closed" }.`;
@@ -708,6 +706,9 @@ const App = () => {
                 )}
                 <div className="scrollable-content centered-content">
                     <div className="mission-bar" style={{ marginTop: '20px', marginBottom: '20px', flex: '0 0 auto' }}>SELECT YOUR PROFILE</div>
+                    <button className="pro-btn" style={{ marginBottom: '20px', fontSize: '1rem', padding: '10px 20px' }} onClick={() => speak("Hi! I am Wally, your AI learning companion. Select your profile to get started!")}>
+                        👋 Meet Wally
+                    </button>
                     <div className="roster-grid">
                         {STUDENTS.map(s => (
                             <div key={s.id}
