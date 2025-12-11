@@ -97,13 +97,13 @@ async function playPCM(base64: string) {
 
 // --- Roster Data (Colors instead of Avatars) ---
 const STUDENTS = [
-    { id: 1, name: "Kyngston", icon: "👑", color: "#ef4444", pin: "0000" }, // Red
-    { id: 2, name: "Carter", icon: "🚀", color: "#3b82f6", pin: "0000" },   // Blue
-    { id: 3, name: "Nazir", icon: "🧭", color: "#10b981", pin: "0000" },    // Green
-    { id: 4, name: "Derick", icon: "⚡", color: "#f59e0b", pin: "0000" },   // Amber
-    { id: 5, name: "Desmond", icon: "🛡️", color: "#8b5cf6", pin: "0000" },  // Violet
-    { id: 6, name: "James", icon: "🐸", color: "#06b6d4", pin: "0000" },    // Cyan
-    { id: 7, name: "Ana", icon: "🌟", color: "#ec4899", pin: "0000" },      // Pink
+    { id: 1, name: "Kyngston", icon: "👑", color: "#ef4444", pin: "201" }, // Red
+    { id: 2, name: "Carter", icon: "🚀", color: "#3b82f6", pin: "202" },   // Blue
+    { id: 3, name: "Nazir", icon: "🧭", color: "#10b981", pin: "203" },    // Green
+    { id: 4, name: "Derick", icon: "⚡", color: "#f59e0b", pin: "204" },   // Amber
+    { id: 5, name: "Desmond", icon: "🛡️", color: "#8b5cf6", pin: "205" },  // Violet
+    { id: 6, name: "James", icon: "🐸", color: "#06b6d4", pin: "206" },    // Cyan
+    { id: 7, name: "Ana", icon: "🌟", color: "#ec4899", pin: "207" },      // Pink
     { id: 8, name: "Teacher", icon: "🎓", color: "#64748b", pin: "1234" },  // Slate
     { id: 9, name: "Jasmine", icon: "🌸", color: "#d946ef", pin: "0000" },  // Fuchsia
     { id: 10, name: "Axel", icon: "🎸", color: "#f97316", pin: "0000" },    // Orange
@@ -377,7 +377,7 @@ const App = () => {
     }
 
     const [student, setStudent] = useState<any>(null);
-    const [mode, setMode] = useState<'menu' | 'digraph' | 'spell' | 'story' | 'unit-spelling' | 'teacher-curriculum' | 'syllable' | 'games' | 'whack-a-vowel'>('menu');
+    const [mode, setMode] = useState<'menu' | 'digraph' | 'spell' | 'story' | 'unit-spelling' | 'teacher-curriculum' | 'syllable' | 'schwa' | 'vce' | 'games' | 'whack-a-vowel'>('menu');
     const [unit, setUnit] = useState(1);
     const [challenge, setChallenge] = useState<any>(null);
     const [loading, setLoading] = useState(false);
@@ -448,10 +448,15 @@ const App = () => {
             const word = words[Math.floor(Math.random() * words.length)];
             prompt = `Generate a sentence for a 2nd grader using the spelling word "${word}". ${langInstruction}
             Return JSON: { "word": "${word}", "context": "sentence using the word" }.`;
-        } else if (selectedMode === 'syllable') {
-            prompt = `Generate a challenge about 2nd Grade syllable types (Open, Closed, VCE) or Schwa sounds. ${langInstruction}
-            Focus on words like 'private', 'active', 'native', 'captive', 'give', 'live'.
+            prompt = `Generate a challenge about 2nd Grade syllable types (Open, Closed, VCE). ${langInstruction}
+            Focus on breaking words into syllables.
             Return JSON: { "word": "string", "syllables": ["syl", "la", "ble"], "count": number, "context": "sentence using the word", "type": "VCE, Open, or Closed" }.`;
+        } else if (selectedMode === 'schwa') {
+            prompt = `Generate a challenge focusing on the Schwa sound (unstressed vowel sound like 'uh' in 'about' or 'balloon'). ${langInstruction}
+            Return JSON: { "word": "string", "syllables": ["syl", "la", "ble"], "count": number, "context": "sentence using the word", "type": "Schwa" }.`;
+        } else if (selectedMode === 'vce') {
+            prompt = `Generate a challenge focusing on Vowel-Consonant-E (VCE) words (Magic E). ${langInstruction}
+            Return JSON: { "word": "string", "syllables": ["syl", "la", "ble"], "count": number, "context": "sentence using the word", "type": "VCE" }.`;
         } else if (selectedMode === 'contractions') {
             prompt = `Generate a contraction challenge. ${langInstruction}
             Return JSON: { "word": "string (e.g. do not)", "contraction": "string (e.g. don't)", "context": "sentence using the contraction" }.`;
@@ -506,7 +511,7 @@ const App = () => {
                 speak(`Okay ${student.name}. Listen carefully. The word is ${data.word}. ${data.context}. What sound starts the word ${data.word}?`);
             } else if (selectedMode === 'spell' || selectedMode === 'unit-spelling') {
                 speak(`Spell the word ${data.word}. ${data.context}`);
-            } else if (selectedMode === 'syllable') {
+            } else if (selectedMode === 'syllable' || selectedMode === 'schwa' || selectedMode === 'vce') {
                 setSyllableStep(0);
                 speak(`How many syllables do you hear in the word ${data.word}? ${data.context}`);
             } else if (selectedMode === 'contractions') {
@@ -550,7 +555,7 @@ const App = () => {
             } else {
                 specificFeedback = `Good try. The word was "${challenge.word}".`;
             }
-        } else if (mode === 'syllable') {
+        } else if (mode === 'syllable' || mode === 'schwa' || mode === 'vce') {
             if (syllableStep === 0) {
                 // Check syllable count
                 if (parseInt(normalizedInput) === challenge.count) {
@@ -758,6 +763,7 @@ const App = () => {
 
             <div className="top-bar">
                 <div className="app-title" onClick={handleHome} style={{ cursor: 'pointer' }}>WORD WHIZ KIDS</div>
+                <button className="pro-btn" style={{ padding: '5px 15px', fontSize: '0.8rem', marginRight: '10px' }} onClick={() => setLanguage(l => l === 'en' ? 'es' : 'en')}>{language === 'en' ? '🇪🇸 ES' : '🇺🇸 EN'}</button>
                 <div className="mission-bar">Mission: {student.name}</div>
                 <div className="stats-box">
                     <div className="stat-item">⏱️ {formatTime(timer)}</div>
@@ -800,6 +806,12 @@ const App = () => {
                             </button>
                             <button className="pro-btn" onClick={() => handleModeSelect('dictation')}>
                                 <span className="btn-icon">✍️</span> Dictation
+                            </button>
+                            <button className="pro-btn" onClick={() => handleModeSelect('schwa')}>
+                                <span className="btn-icon">ə</span> Schwa Sound
+                            </button>
+                            <button className="pro-btn" onClick={() => handleModeSelect('vce')}>
+                                <span className="btn-icon">🪄</span> Magic E (VCE)
                             </button>
                             <button className="pro-btn" onClick={() => handleModeSelect('story')}>
                                 <span className="btn-icon">📖</span> Story Spark
@@ -872,7 +884,10 @@ const App = () => {
                             {mode === 'dictation' && 'Sentence Dictation'}
                             {mode === 'story' && 'Creative Reading'}
                             {mode === 'teacher-curriculum' && 'Teacher Assistant'}
+                            {mode === 'teacher-curriculum' && 'Teacher Assistant'}
                             {mode === 'syllable' && 'Syllable Savvy'}
+                            {mode === 'schwa' && 'Schwa Sound'}
+                            {mode === 'vce' && 'Magic E (VCE)'}
                         </div>
 
                         {loading ? (
@@ -887,7 +902,7 @@ const App = () => {
                                         {(mode === 'spell' || mode === 'unit-spelling') && (
                                             attempts >= 3 ? challenge?.word : Array(challenge?.word?.length || 0).fill('•').join(' ')
                                         )}
-                                        {mode === 'syllable' && (
+                                        {(mode === 'syllable' || mode === 'schwa' || mode === 'vce') && (
                                             syllableStep === 0
                                                 ? "How many syllables?"
                                                 : (
@@ -913,7 +928,7 @@ const App = () => {
                                 <div style={{ margin: '20px', color: '#94a3b8', fontSize: '1.2rem', textAlign: 'center' }}>
                                     {(mode === 'spell' || mode === 'unit-spelling' || mode === 'digraph')
                                         ? (attempts >= 3 ? challenge?.context : challenge?.context?.replace(new RegExp(challenge?.word, 'gi'), '_____'))
-                                        : (mode === 'syllable'
+                                        : ((mode === 'syllable' || mode === 'schwa' || mode === 'vce')
                                             ? (syllableStep === 0 ? `Word: ${challenge?.word}` : `Spell syllable ${syllableStep}`)
                                             : (mode === 'contractions'
                                                 ? (attempts >= 3 ? challenge?.context : challenge?.context?.replace(new RegExp(challenge?.contraction, 'gi'), '_____'))
