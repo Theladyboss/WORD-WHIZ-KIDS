@@ -1,0 +1,14 @@
+{
+    "manifest_version": 3,
+    "name": "Word Whiz Kids",
+    "version": "1.0",
+    "description": "AI-powered literacy learning companion for 2nd graders.",
+    "action": {
+        "default_popup": "index.html",
+        "default_title": "Word Whiz Kids"
+    },
+    "icons": {
+        "128": "icon-128.png"
+    },
+    "permissions": []
+}
