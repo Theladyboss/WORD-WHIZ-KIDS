@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => {
       host: '0.0.0.0',
     },
     define: {
-      'process.env': env
+      // 'process.env': env // Removed to prevent security warning
     },
     plugins: [react()],
     resolve: {

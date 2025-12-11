@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import React, { useState, useEffect, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import { GoogleGenAI, Modality } from "@google/genai";
@@ -129,7 +130,7 @@ const UNIT_WORDS: { [key: number]: string[] } = {
 
 // --- Components ---
 
-const AnswerInput = ({ onResult, hint }: { onResult: (txt: string) => void, hint: string }) => {
+const AnswerInput: React.FC<{ onResult: (txt: string) => void, hint: string }> = ({ onResult, hint }) => {
     const [text, setText] = useState("");
 
     const handleSubmit = () => {
