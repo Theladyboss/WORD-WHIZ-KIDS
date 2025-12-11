@@ -5,10 +5,19 @@
     "description": "AI-powered literacy learning companion for 2nd graders.",
     "action": {
         "default_popup": "index.html",
-        "default_title": "Word Whiz Kids"
+        "default_title": "Word Whiz Kids",
+        "default_icon": {
+            "16": "logo.png",
+            "32": "logo.png",
+            "48": "logo.png",
+            "128": "logo.png"
+        }
     },
     "icons": {
-        "128": "icon-128.png"
+        "16": "logo.png",
+        "32": "logo.png",
+        "48": "logo.png",
+        "128": "logo.png"
     },
     "permissions": []
 }
