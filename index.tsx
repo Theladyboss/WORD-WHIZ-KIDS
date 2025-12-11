@@ -1,10 +1,7 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import { GoogleGenAI, Modality } from "@google/genai";
 
-// --- Configuration ---
-// --- Configuration ---
 // --- Configuration ---
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "";
 let ai: GoogleGenAI;
@@ -99,17 +96,36 @@ async function playPCM(base64: string) {
 
 // --- Roster Data (Colors instead of Avatars) ---
 const STUDENTS = [
-    { id: 1, name: "Kyngston", icon: "👑", color: "#ef4444" }, // Red
-    { id: 2, name: "Carter", icon: "🚀", color: "#3b82f6" },   // Blue
-    { id: 3, name: "Nazir", icon: "🧭", color: "#10b981" },    // Green
-    { id: 4, name: "Derick", icon: "⚡", color: "#f59e0b" },   // Amber
-    { id: 5, name: "Desmond", icon: "🛡️", color: "#8b5cf6" },  // Violet
-    { id: 6, name: "James", icon: "🐸", color: "#06b6d4" },    // Cyan
-    { id: 7, name: "Ana", icon: "🌟", color: "#ec4899" },      // Pink
-    { id: 8, name: "Teacher", icon: "🎓", color: "#64748b" },  // Slate
-    { id: 9, name: "Jasmine", icon: "🌸", color: "#d946ef" },  // Fuchsia
-    { id: 10, name: "Axel", icon: "🎸", color: "#f97316" },    // Orange
+    { id: 1, name: "Kyngston", icon: "👑", color: "#ef4444", pin: "0000" }, // Red
+    { id: 2, name: "Carter", icon: "🚀", color: "#3b82f6", pin: "0000" },   // Blue
+    { id: 3, name: "Nazir", icon: "🧭", color: "#10b981", pin: "0000" },    // Green
+    { id: 4, name: "Derick", icon: "⚡", color: "#f59e0b", pin: "0000" },   // Amber
+    { id: 5, name: "Desmond", icon: "🛡️", color: "#8b5cf6", pin: "0000" },  // Violet
+    { id: 6, name: "James", icon: "🐸", color: "#06b6d4", pin: "0000" },    // Cyan
+    { id: 7, name: "Ana", icon: "🌟", color: "#ec4899", pin: "0000" },      // Pink
+    { id: 8, name: "Teacher", icon: "🎓", color: "#64748b", pin: "1234" },  // Slate
+    { id: 9, name: "Jasmine", icon: "🌸", color: "#d946ef", pin: "0000" },  // Fuchsia
+    { id: 10, name: "Axel", icon: "🎸", color: "#f97316", pin: "0000" },    // Orange
 ];
+
+const UNIT_WORDS: { [key: number]: string[] } = {
+    1: ["dish", "than", "chop", "such", "rush", "which", "bath", "this", "kick", "sock"],
+    2: ["stop", "clap", "spin", "swim", "last", "skin", "drag", "sent", "tenth", "lunch"],
+    3: ["catch", "ridge", "judge", "split", "strum", "match", "splash", "strap", "dodge", "sprint"],
+    4: ["picnic", "napkin", "finish", "bandit", "cobweb", "exit", "traffic", "cabin", "contest", "sandwich"],
+    5: ["lady", "funny", "lucky", "begin", "menu", "relax", "volcano", "music", "respect", "robot"],
+    6: ["attack", "metal", "adult", "cotton", "wisdom", "salad", "broken", "gallon", "apron", "basket"],
+    7: ["plate", "size", "excuse", "prize", "cupcake", "sunshine", "pole", "cute", "polite", "broke"],
+    8: ["native", "climate", "message", "negative", "luggage", "palace", "cottage", "pirate", "necklace", "active"],
+    9: ["queen", "detail", "display", "paint", "sweet", "clean", "treat", "toasty", "rainbow", "high"],
+    10: ["below", "groan", "key", "shield", "alley", "belief", "field", "delay", "bright", "afraid"],
+    11: ["artist", "party", "carpet", "apart", "remark", "forgive", "story", "report", "acorn", "orbit"],
+    12: ["before", "indoor", "more", "court", "soar", "airplane", "parent", "pear", "hair", "share"],
+    13: ["survive", "partner", "after", "verb", "ever", "hurt", "heard", "insert", "shirt", "church"],
+    14: ["nectar", "doctor", "motor", "grammar", "collar", "factor", "forward", "word", "polar", "flavor"],
+    15: ["grew", "super", "include", "unscrew", "sooner", "flute", "truth", "boost", "salute", "cartoon"],
+    16: ["enjoy", "royal", "boil", "loyal", "spoil", "point", "oily", "soybean", "boy", "noisy"]
+};
 
 // --- Components ---
 
@@ -153,7 +169,7 @@ const AnswerInput = ({ onResult, hint }: { onResult: (txt: string) => void, hint
     );
 };
 
-const FeedbackModal = ({ message, type, onClose }: { message: string, type: 'success' | 'error', onClose: () => void }) => (
+const FeedbackModal = ({ message, type, onClose, onContinue }: { message: string, type: 'success' | 'error', onClose: () => void, onContinue?: () => void }) => (
     <div className="feedback-overlay-container">
         <div className="feedback-content" style={{ borderColor: type === 'success' ? '#4ade80' : '#f87171' }}>
             <h2 style={{ color: type === 'success' ? '#4ade80' : '#f87171', margin: 0, fontSize: '3rem', textTransform: 'uppercase' }}>
@@ -162,12 +178,183 @@ const FeedbackModal = ({ message, type, onClose }: { message: string, type: 'suc
             <p style={{ fontSize: '1.8rem', margin: '30px 0', lineHeight: 1.4, color: '#f8fafc', fontWeight: 600 }}>
                 {message}
             </p>
-            <button className="pro-btn active" onClick={onClose} style={{ margin: '0 auto', fontSize: '1.2rem', padding: '15px 40px' }}>
+            <button className="pro-btn active" onClick={type === 'success' && onContinue ? onContinue : onClose} style={{ margin: '0 auto', fontSize: '1.2rem', padding: '15px 40px' }}>
                 {type === 'success' ? 'Continue' : 'Try Again'}
             </button>
         </div>
     </div>
 );
+
+const PinPad = ({ onUnlock, onClose, title }: { onUnlock: (pin: string) => void, onClose: () => void, title: string }) => {
+    const [pin, setPin] = useState("");
+    const handleNum = (n: string) => {
+        if (pin.length < 4) {
+            const newPin = pin + n;
+            setPin(newPin);
+            if (newPin.length === 4) onUnlock(newPin);
+        }
+    };
+    return (
+        <div className="feedback-overlay-container">
+            <div className="glass-panel" style={{ maxWidth: '300px', textAlign: 'center' }}>
+                <h3>{title}</h3>
+                <div style={{ fontSize: '2rem', letterSpacing: '10px', margin: '20px 0', minHeight: '40px' }}>
+                    {pin.replace(/./g, '•')}
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => (
+                        <button key={n} className="pro-btn" onClick={() => handleNum(n.toString())} style={{ justifyContent: 'center', fontSize: '1.5rem' }}>{n}</button>
+                    ))}
+                    <button className="pro-btn" onClick={() => setPin("")} style={{ justifyContent: 'center' }}>C</button>
+                    <button className="pro-btn" onClick={() => handleNum("0")} style={{ justifyContent: 'center', fontSize: '1.5rem' }}>0</button>
+                    <button className="pro-btn" onClick={onClose} style={{ justifyContent: 'center' }}>❌</button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const TeacherChat = ({ onClose }: { onClose: () => void }) => {
+    const [msgs, setMsgs] = useState<{ role: 'user' | 'ai', text: string }[]>([]);
+    const [input, setInput] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    const send = async () => {
+        if (!input.trim()) return;
+        const newMsgs = [...msgs, { role: 'user' as const, text: input }];
+        setMsgs(newMsgs);
+        setInput("");
+        setLoading(true);
+        try {
+            const resp = await ai.models.generateContent({
+                model: 'gemini-2.5-flash',
+                contents: `You are a helpful Teaching Assistant for 2nd Grade. Answer briefly and helpfully. History: ${JSON.stringify(newMsgs)}. User: ${input}`
+            });
+            setMsgs([...newMsgs, { role: 'ai', text: resp.text || "I'm not sure, sorry!" }]);
+        } catch (e) { setMsgs([...newMsgs, { role: 'ai', text: "Error connecting to AI." }]); }
+        setLoading(false);
+    };
+
+    return (
+        <div className="feedback-overlay-container">
+            <div className="glass-panel" style={{ width: '90%', maxWidth: '600px', height: '80vh', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                    <h3>🍎 Teacher Assistant Chat</h3>
+                    <button className="pro-btn" onClick={onClose}>Close</button>
+                </div>
+                <div style={{ flex: 1, overflowY: 'auto', background: 'rgba(0,0,0,0.2)', borderRadius: '10px', padding: '10px', marginBottom: '10px' }}>
+                    {msgs.map((m, i) => (
+                        <div key={i} style={{ textAlign: m.role === 'user' ? 'right' : 'left', margin: '5px 0' }}>
+                            <span style={{ background: m.role === 'user' ? '#3b82f6' : '#475569', padding: '8px 12px', borderRadius: '10px', display: 'inline-block' }}>
+                                {m.text}
+                            </span>
+                        </div>
+                    ))}
+                    {loading && <div>Thinking...</div>}
+                </div>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                    <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && send()} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: 'none' }} placeholder="Ask a question..." />
+                    <button className="pro-btn active" onClick={send}>Send</button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const WhackAVowel = ({ onExit }: { onExit: () => void }) => {
+    const [score, setScore] = useState(0);
+    const [timeLeft, setTimeLeft] = useState(30);
+    const [grid, setGrid] = useState<string[]>(Array(9).fill(''));
+    const [active, setActive] = useState<number | null>(null);
+    const timeLeftRef = useRef(30);
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setTimeLeft(t => {
+                const newTime = t - 1;
+                timeLeftRef.current = newTime;
+                if (newTime <= 0) {
+                    clearInterval(timer);
+                    return 0;
+                }
+                return newTime;
+            });
+        }, 1000);
+
+        const mole = setInterval(() => {
+            if (timeLeftRef.current > 0) {
+                const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                const vowels = "AEIOU";
+                const isVowel = Math.random() > 0.5;
+                const char = isVowel ? vowels[Math.floor(Math.random() * vowels.length)] : letters[Math.floor(Math.random() * letters.length)];
+
+                const pos = Math.floor(Math.random() * 9);
+                setActive(pos);
+                setGrid(prev => {
+                    const newGrid = [...prev];
+                    newGrid[pos] = char;
+                    return newGrid;
+                });
+
+                setTimeout(() => {
+                    setActive(null);
+                    setGrid(prev => {
+                        const newGrid = [...prev];
+                        newGrid[pos] = '';
+                        return newGrid;
+                    });
+                }, 800);
+            }
+        }, 1000);
+
+        return () => { clearInterval(timer); clearInterval(mole); };
+    }, []);
+
+    const handleWhack = (index: number, char: string) => {
+        if (index === active && "AEIOU".includes(char)) {
+            setScore(s => s + 10);
+            playSound('pop');
+        }
+    };
+
+    return (
+        <div className="glass-panel" style={{ textAlign: 'center' }}>
+            <h2>🔨 Whack-a-Vowel</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.5rem', marginBottom: '20px' }}>
+                <span>Score: {score}</span>
+                <span>Time: {timeLeft}s</span>
+            </div>
+
+            {timeLeft === 0 ? (
+                <div>
+                    <h3>Game Over!</h3>
+                    <p>Final Score: {score}</p>
+                    <button className="pro-btn" onClick={onExit}>Exit</button>
+                </div>
+            ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', maxWidth: '300px', margin: '0 auto' }}>
+                    {grid.map((char, i) => (
+                        <div key={i}
+                            onClick={() => handleWhack(i, char)}
+                            style={{
+                                height: '80px',
+                                background: i === active ? '#f472b6' : '#334155',
+                                borderRadius: '10px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '2rem',
+                                cursor: 'pointer',
+                                transition: 'all 0.1s'
+                            }}>
+                            {i === active ? char : ''}
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
 
 const App = () => {
     if (!API_KEY) {
@@ -189,15 +376,30 @@ const App = () => {
     }
 
     const [student, setStudent] = useState<any>(null);
-    const [mode, setMode] = useState<'menu' | 'digraph' | 'spell' | 'story' | 'unit-spelling' | 'teacher-curriculum' | 'syllable' | 'games'>('menu');
-    const [unit, setUnit] = useState(1); // Default to Unit 1
+    const [mode, setMode] = useState<'menu' | 'digraph' | 'spell' | 'story' | 'unit-spelling' | 'teacher-curriculum' | 'syllable' | 'games' | 'whack-a-vowel'>('menu');
+    const [unit, setUnit] = useState(1);
     const [challenge, setChallenge] = useState<any>(null);
     const [loading, setLoading] = useState(false);
     const [modalData, setModalData] = useState<{ msg: string, type: 'success' | 'error' } | null>(null);
     const [cuudoos, setCuudoos] = useState(0);
-    const [timer, setTimer] = useState(0); // Start at 0 until selected
+    const [timer, setTimer] = useState(0);
     const [sessionSetup, setSessionSetup] = useState(false);
     const [showConfetti, setShowConfetti] = useState(false);
+    const [streak, setStreak] = useState(0);
+
+    const [gamesUnlocked, setGamesUnlocked] = useState(false);
+    const [history, setHistory] = useState<any[]>([]);
+    const [historyIndex, setHistoryIndex] = useState(-1);
+    const [restartTrigger, setRestartTrigger] = useState(0);
+    const [nextChallenge, setNextChallenge] = useState<{ mode: string, data: any } | null>(null);
+
+    // New State
+    const [lockMode, setLockMode] = useState<'none' | 'student' | 'teacher'>('none');
+    const [targetStudent, setTargetStudent] = useState<any>(null);
+    const [attempts, setAttempts] = useState(0);
+    const [showTeacherChat, setShowTeacherChat] = useState(false);
+    const [language, setLanguage] = useState<'en' | 'es'>('en');
+    const [syllableStep, setSyllableStep] = useState(0); // 0: count, 1+: syllable index + 1
 
     useEffect(() => {
         if (!sessionSetup || timer <= 0) return;
@@ -226,53 +428,98 @@ const App = () => {
         } catch (e) { console.error(e); }
     };
 
+    const fetchChallengeData = async (selectedMode: string) => {
+        let prompt = "";
+        const langInstruction = language === 'es' ? "Generate the content in Spanish." : "";
+
+        if (selectedMode === 'digraph') {
+            prompt = `Generate a digraph challenge for a 2nd grader named ${student.name}. ${langInstruction}
+            Pick a word with 'sh', 'ch', 'th', or 'wh'. 
+            Return JSON: { "word": "string", "missing": "string", "context": "sentence using the word", "phoneme": "the sound (e.g. sh)" }.`;
+        } else if (selectedMode === 'spell') {
+            prompt = `Generate a spelling word for a 2nd grader named ${student.name}. ${langInstruction}
+            Return JSON: { "word": "string", "context": "sentence" }.`;
+        } else if (selectedMode === 'unit-spelling') {
+            const words = UNIT_WORDS[unit] || UNIT_WORDS[1];
+            const word = words[Math.floor(Math.random() * words.length)];
+        } else if (selectedMode === 'unit-spelling') {
+            const words = UNIT_WORDS[unit] || UNIT_WORDS[1];
+            const word = words[Math.floor(Math.random() * words.length)];
+            prompt = `Generate a sentence for a 2nd grader using the spelling word "${word}". ${langInstruction}
+            Return JSON: { "word": "${word}", "context": "sentence using the word" }.`;
+        } else if (selectedMode === 'syllable') {
+            prompt = `Generate a challenge about 2nd Grade syllable types (Open, Closed, VCE) or Schwa sounds. ${langInstruction}
+            Focus on words like 'private', 'active', 'native', 'captive', 'give', 'live'.
+            Return JSON: { "word": "string", "syllables": ["syl", "la", "ble"], "count": number, "context": "sentence using the word", "type": "VCE, Open, or Closed" }.`;
+        } else if (selectedMode === 'contractions') {
+            prompt = `Generate a contraction challenge. ${langInstruction}
+            Return JSON: { "word": "string (e.g. do not)", "contraction": "string (e.g. don't)", "context": "sentence using the contraction" }.`;
+        } else if (selectedMode === 'dictation') {
+            prompt = `Generate a simple 2nd grade sentence for dictation. ${langInstruction}
+            Return JSON: { "sentence": "string" }.`;
+        } else if (selectedMode === 'story') {
+            prompt = `Write a 2-sentence story starter about ${student.name} finding something magical in a dark blue forest. ${langInstruction}
+            Return JSON: { "starter": "string" }.`;
+        } else if (selectedMode === 'teacher-curriculum') {
+            prompt = `You are a Maryland 2nd Grade Teacher Assistant. Suggest a quick 5-minute activity for the current Reading/Language Arts curriculum (Phonics, Spelling, or Vocabulary) OR a Reading Lesson Plan. ${langInstruction}
+            Return JSON: { "starter": "Activity/Plan Description", "context": "Learning Standard" }.`;
+        }
+
+        const resp = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt,
+            config: { responseMimeType: 'application/json' }
+        });
+        return JSON.parse(resp.text || "{}");
+    };
+
+    const fetchNext = async (m: string) => {
+        try {
+            const data = await fetchChallengeData(m);
+            setNextChallenge({ mode: m, data });
+        } catch (e) { console.error("Background fetch failed", e); }
+    };
+
     const loadChallenge = async (selectedMode: string) => {
         setLoading(true);
         setModalData(null);
-        let prompt = "";
 
         try {
             if (!ai) throw new Error("AI not initialized. Check API Key.");
 
-            if (selectedMode === 'digraph') {
-                prompt = `Generate a digraph challenge for a 2nd grader named ${student.name}. 
-                Pick a word with 'sh', 'ch', 'th', or 'wh'. 
-                Return JSON: { "word": "string", "missing": "string", "context": "sentence using the word", "phoneme": "the sound (e.g. sh)" }.`;
-            } else if (selectedMode === 'spell') {
-                prompt = `Generate a spelling word for a 2nd grader named ${student.name}.
-                Return JSON: { "word": "string", "context": "sentence" }.`;
-            } else if (selectedMode === 'unit-spelling') {
-                prompt = `Generate a spelling word from 2nd Grade Spelling Unit ${unit}.
-                Return JSON: { "word": "string", "context": "sentence using the word" }.`;
-            } else if (selectedMode === 'syllable') {
-                prompt = `Generate a challenge about 2nd Grade syllable types (Open, Closed, VCE) or Schwa sounds.
-                Focus on words like 'private', 'active', 'native', 'captive', 'give', 'live'.
-                Return JSON: { "word": "string", "context": "sentence using the word", "type": "VCE, Open, or Closed" }.`;
-            } else if (selectedMode === 'story') {
-                prompt = `Write a 2-sentence story starter about ${student.name} finding something magical in a dark blue forest. 
-                Return JSON: { "starter": "string" }.`;
-            } else if (selectedMode === 'teacher-curriculum') {
-                prompt = `You are a Maryland 2nd Grade Teacher Assistant. Suggest a quick 5-minute activity for the current Reading/Language Arts curriculum (Phonics, Spelling, or Vocabulary).
-                Return JSON: { "starter": "Activity Description", "context": "Learning Standard" }.`;
+            let data;
+            // Use pre-fetched data if available and matches mode
+            if (nextChallenge && nextChallenge.mode === selectedMode) {
+                data = nextChallenge.data;
+                setNextChallenge(null); // Clear used data
+            } else {
+                data = await fetchChallengeData(selectedMode);
             }
 
-            const resp = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
-                contents: prompt,
-                config: { responseMimeType: 'application/json' }
-            });
-            const data = JSON.parse(resp.text || "{}");
             setChallenge(data);
+            setHistory(prev => [...prev.slice(0, historyIndex + 1), data]);
+            setHistoryIndex(prev => prev.length > historyIndex + 1 ? historyIndex + 1 : prev.length);
+            setAttempts(0); // Reset attempts
 
             if (selectedMode === 'digraph') {
                 speak(`Okay ${student.name}. Listen carefully. The word is ${data.word}. ${data.context}. What sound starts the word ${data.word}?`);
-            } else if (selectedMode === 'spell' || selectedMode === 'unit-spelling' || selectedMode === 'syllable') {
+            } else if (selectedMode === 'spell' || selectedMode === 'unit-spelling') {
                 speak(`Spell the word ${data.word}. ${data.context}`);
+            } else if (selectedMode === 'syllable') {
+                setSyllableStep(0);
+                speak(`How many syllables do you hear in the word ${data.word}? ${data.context}`);
+            } else if (selectedMode === 'contractions') {
+                speak(`What is the contraction for ${data.word}?`);
+            } else if (selectedMode === 'dictation') {
+                speak(`Write this sentence: ${data.sentence}`);
             } else if (selectedMode === 'story') {
                 speak(data.starter + " What happens next?");
             } else if (selectedMode === 'teacher-curriculum') {
                 speak(`Here is a curriculum idea: ${data.starter}`);
             }
+
+            // Trigger background fetch for the next one
+            fetchNext(selectedMode);
 
         } catch (e: any) {
             console.error(e);
@@ -283,13 +530,6 @@ const App = () => {
     };
 
     const checkAnswer = (input: string) => {
-        if (!input || input === "SILENCE") {
-            setModalData({ msg: "I didn't hear anything. Try pressing the button and speaking clearly!", type: 'error' });
-            playSound('error');
-            speak("I didn't hear you. Please try again.");
-            return;
-        }
-
         const normalizedInput = input.toLowerCase().replace('.', '').trim();
         let isCorrect = false;
         let specificFeedback = "";
@@ -302,27 +542,74 @@ const App = () => {
             } else {
                 specificFeedback = `Not quite. The word was "${challenge.word}". We are looking for the "${challenge.phoneme}" sound.`;
             }
-        } else if (mode === 'spell') {
+        } else if (mode === 'spell' || mode === 'unit-spelling') {
             const target = challenge.word.toLowerCase();
-            const spokenLetters = normalizedInput.replace(/\s/g, '');
-            if (spokenLetters === target || normalizedInput.includes(target)) {
+            if (normalizedInput.includes(target)) {
                 isCorrect = true;
             } else {
-                const firstLetter = target.charAt(0).toUpperCase();
-                specificFeedback = `Good try. The word was "${challenge.word}". It starts with the letter ${firstLetter}.`;
+                specificFeedback = `Good try. The word was "${challenge.word}".`;
             }
+        } else if (mode === 'syllable') {
+            if (syllableStep === 0) {
+                // Check syllable count
+                if (parseInt(normalizedInput) === challenge.count) {
+                    setSyllableStep(1);
+                    playSound('pop');
+                    speak("That's right! Now spell the first syllable.");
+                    return; // Don't trigger full success yet
+                } else {
+                    specificFeedback = `Not quite. Listen to the word: ${challenge.word}. How many syllables do you hear?`;
+                }
+            } else {
+                // Check specific syllable
+                if (!challenge.syllables) {
+                    // Fallback if AI didn't provide syllables
+                    isCorrect = true;
+                } else {
+                    const currentSylIndex = syllableStep - 1;
+                    const targetSyl = challenge.syllables[currentSylIndex].toLowerCase();
+                    if (normalizedInput === targetSyl) {
+                        if (currentSylIndex + 1 === challenge.syllables.length) {
+                            isCorrect = true; // All syllables done!
+                        } else {
+                            setSyllableStep(s => s + 1);
+                            playSound('pop');
+                            speak("Good! Now spell the next syllable.");
+                            return; // Don't trigger full success yet
+                        }
+                    } else {
+                        specificFeedback = `Try again. Spell the ${currentSylIndex === 0 ? 'first' : 'next'} syllable.`;
+                    }
+                }
+            }
+        } else if (mode === 'contractions') {
+            if (normalizedInput.includes(challenge.contraction.toLowerCase())) isCorrect = true;
+            else specificFeedback = `The contraction is ${challenge.contraction}.`;
+        } else if (mode === 'dictation') {
+            if (normalizedInput === challenge.sentence.toLowerCase().replace('.', '').trim()) isCorrect = true;
+            else specificFeedback = `Close! The sentence was: ${challenge.sentence}`;
         } else {
             isCorrect = true;
         }
 
         if (isCorrect) {
             setCuudoos(c => c + 10);
+            setStreak(s => {
+                const newStreak = s + 1;
+                if (newStreak >= 3 && !gamesUnlocked) {
+                    setGamesUnlocked(true);
+                    setModalData({ msg: "🎉 You unlocked the Game Room! 🎮", type: 'success' });
+                }
+                return newStreak;
+            });
             setModalData({ msg: "Excellent work! +10 Cuudoos!", type: 'success' });
             playSound('win');
             setShowConfetti(true);
             setTimeout(() => setShowConfetti(false), 3000);
             speak(`Great job ${student.name}! That is correct.`);
         } else {
+            setStreak(0);
+            setAttempts(a => a + 1);
             setModalData({ msg: specificFeedback || "Good try, give it another go!", type: 'error' });
             playSound('error');
             speak(specificFeedback || "Good try. Try again.");
@@ -334,10 +621,68 @@ const App = () => {
         loadChallenge(m);
     };
 
+    const handlePrevious = () => {
+        if (historyIndex > 0) {
+            const newIndex = historyIndex - 1;
+            setHistoryIndex(newIndex);
+            setChallenge(history[newIndex]);
+        }
+    };
+
+    const handleNext = () => {
+        if (historyIndex < history.length - 1) {
+            const newIndex = historyIndex + 1;
+            setHistoryIndex(newIndex);
+            setChallenge(history[newIndex]);
+        } else {
+            loadChallenge(mode);
+        }
+    };
+
+    const handleRestart = () => {
+        if (challenge) {
+            setRestartTrigger(prev => prev + 1);
+            speak(mode === 'story' ? challenge.starter : challenge.context);
+        }
+    };
+
     const formatTime = (s: number) => {
         const m = Math.floor(s / 60);
         const sec = s % 60;
         return `${m}:${sec < 10 ? '0' : ''}${sec}`;
+    };
+
+    const handlePinUnlock = (pin: string) => {
+        if (targetStudent && pin === targetStudent.pin) {
+            setStudent(targetStudent);
+            setLockMode('none');
+            playSound('pop');
+            if (targetStudent.name !== 'Teacher') {
+                speak(`Hi, ${targetStudent.name}. I am Wally. Let's have fun learning.`);
+            } else {
+                speak("Welcome back, Teacher. I am ready to assist you.");
+            }
+        } else {
+            playSound('error');
+            alert("Incorrect PIN");
+        }
+    };
+
+    const handleHome = () => {
+        speak("See You Soon and Happy Learning Panther Scholar!");
+        setStudent(null);
+        setMode('menu');
+        setChallenge(null);
+        setHistory([]);
+        setHistoryIndex(-1);
+        setShowTeacherChat(false);
+        setSessionSetup(false);
+        setTimer(0);
+        setStreak(0);
+        setCuudoos(0);
+        setGamesUnlocked(false);
+        setAttempts(0);
+        setLockMode('none');
     };
 
     // --- Roster View ---
@@ -346,25 +691,32 @@ const App = () => {
             <div className="main-stage">
                 <div className="top-bar">
                     <div className="app-title">WORD WHIZ KIDS</div>
+                    <button className="pro-btn" onClick={() => setLanguage(l => l === 'en' ? 'es' : 'en')}>{language === 'en' ? '🇪🇸 ES' : '🇺🇸 EN'}</button>
                 </div>
-                <div className="scrollable-content">
-                    <div className="mission-bar" style={{ marginTop: '20px', marginBottom: '20px' }}>SELECT YOUR PROFILE</div>
+                {lockMode !== 'none' && (
+                    <PinPad
+                        title={`Enter PIN for ${targetStudent?.name}`}
+                        onUnlock={handlePinUnlock}
+                        onClose={() => setLockMode('none')}
+                    />
+                )}
+                <div className="scrollable-content centered-content">
+                    <div className="mission-bar" style={{ marginTop: '20px', marginBottom: '20px', flex: '0 0 auto' }}>SELECT YOUR PROFILE</div>
                     <div className="roster-grid">
                         {STUDENTS.map(s => (
                             <div key={s.id}
                                 className="student-card"
                                 style={{ backgroundColor: s.color, boxShadow: `0 6px 0 rgba(0,0,0,0.3)` }}
                                 onClick={() => {
-                                    setStudent(s);
-                                    playSound('pop');
-                                    // Don't speak yet, wait for timer selection
+                                    setTargetStudent(s);
+                                    setLockMode(s.name === 'Teacher' ? 'teacher' : 'student');
                                 }}>
                                 <div className="card-icon">{s.icon}</div>
                                 <div className="card-name">{s.name}</div>
                             </div>
                         ))}
                     </div>
-                    <div className="footer-brand">Created by FREEDOMAi SOLUTIONS</div>
+                    <div className="footer-brand">Created by FREEDOMAi SOLUTIONS v2.0</div>
                 </div>
             </div>
         );
@@ -376,7 +728,7 @@ const App = () => {
             <div className="main-stage">
                 <div className="top-bar">
                     <div className="app-title">WORD WHIZ KIDS</div>
-                    <button className="pro-btn" onClick={() => setStudent(null)} style={{ padding: '5px 15px', fontSize: '0.8rem' }}>Change Profile</button>
+                    <button className="pro-btn" onClick={handleHome} style={{ padding: '5px 15px', fontSize: '0.8rem' }}>Change Profile</button>
                 </div>
                 <div className="scrollable-content centered-content">
                     <div className="glass-panel" style={{ maxWidth: '500px', width: '90%', textAlign: 'center' }}>
@@ -398,14 +750,13 @@ const App = () => {
         );
     }
 
-
     // --- Main Activity View ---
     return (
         <div className="main-stage">
             {showConfetti && Array(20).fill(0).map((_, i) => <div key={i} className="confetti" style={{ left: `${Math.random() * 100}%`, background: ['#f00', '#0f0', '#00f'][i % 3], animationDuration: `${2 + Math.random()}s` }} />)}
 
             <div className="top-bar">
-                <div className="app-title">WORD WHIZ KIDS</div>
+                <div className="app-title" onClick={handleHome} style={{ cursor: 'pointer' }}>WORD WHIZ KIDS</div>
                 <div className="mission-bar">Mission: {student.name}</div>
                 <div className="stats-box">
                     <div className="stat-item">⏱️ {formatTime(timer)}</div>
@@ -413,11 +764,16 @@ const App = () => {
                 </div>
             </div>
 
+            {showTeacherChat && <TeacherChat onClose={() => setShowTeacherChat(false)} />}
             {modalData && (
                 <FeedbackModal
                     message={modalData.msg}
                     type={modalData.type}
                     onClose={() => setModalData(null)}
+                    onContinue={() => {
+                        setModalData(null);
+                        handleNext();
+                    }}
                 />
             )}
 
@@ -438,16 +794,36 @@ const App = () => {
                             <button className="pro-btn" onClick={() => handleModeSelect('syllable')}>
                                 <span className="btn-icon">🧩</span> Syllable Savvy
                             </button>
+                            <button className="pro-btn" onClick={() => handleModeSelect('contractions')}>
+                                <span className="btn-icon">🔗</span> Contractions
+                            </button>
+                            <button className="pro-btn" onClick={() => handleModeSelect('dictation')}>
+                                <span className="btn-icon">✍️</span> Dictation
+                            </button>
                             <button className="pro-btn" onClick={() => handleModeSelect('story')}>
                                 <span className="btn-icon">📖</span> Story Spark
                             </button>
-                            <button className="pro-btn btn-accent" style={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' }} onClick={() => setMode('games')}>
-                                <span className="btn-icon">🎮</span> Game Room
+                            <button className="pro-btn btn-accent"
+                                style={{
+                                    background: gamesUnlocked ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' : '#334155',
+                                    opacity: gamesUnlocked ? 1 : 0.7,
+                                    cursor: gamesUnlocked ? 'pointer' : 'not-allowed'
+                                }}
+                                onClick={() => {
+                                    if (gamesUnlocked) setMode('games');
+                                    else setModalData({ msg: `Get ${3 - streak} more correct answers to unlock!`, type: 'error' });
+                                }}>
+                                <span className="btn-icon">{gamesUnlocked ? '🎮' : '🔒'}</span> Game Room
                             </button>
                             {student.name === 'Teacher' && (
-                                <button className="pro-btn" style={{ borderColor: '#f59e0b', color: '#f59e0b' }} onClick={() => handleModeSelect('teacher-curriculum')}>
-                                    <span className="btn-icon">🍎</span> Curriculum Asst.
-                                </button>
+                                <>
+                                    <button className="pro-btn" style={{ borderColor: '#f59e0b', color: '#f59e0b' }} onClick={() => handleModeSelect('teacher-curriculum')}>
+                                        <span className="btn-icon">🍎</span> Curriculum Asst.
+                                    </button>
+                                    <button className="pro-btn" style={{ borderColor: '#3b82f6', color: '#3b82f6' }} onClick={() => setShowTeacherChat(true)}>
+                                        <span className="btn-icon">💬</span> Gemini Chat
+                                    </button>
+                                </>
                             )}
                         </div>
 
@@ -459,7 +835,7 @@ const App = () => {
                                 onChange={(e) => setUnit(Number(e.target.value))}
                                 style={{ padding: '5px', borderRadius: '5px', background: '#1e293b', color: 'white', border: '1px solid #475569' }}
                             >
-                                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(u => <option key={u} value={u}>Unit {u}</option>)}
+                                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map(u => <option key={u} value={u}>Unit {u}</option>)}
                             </select>
                         </div>
                     </div>
@@ -467,7 +843,7 @@ const App = () => {
                     <div className="glass-panel" style={{ maxWidth: '800px', width: '100%' }}>
                         <h2 style={{ textAlign: 'center', marginBottom: '30px', color: '#f093fb' }}>GAME ROOM 🎮</h2>
                         <div className="menu-grid">
-                            <button className="pro-btn" style={{ borderColor: '#f472b6', color: '#f472b6' }} onClick={() => alert("Whack-a-Vowel Coming Soon!")}>
+                            <button className="pro-btn" style={{ borderColor: '#f472b6', color: '#f472b6' }} onClick={() => setMode('whack-a-vowel')}>
                                 <span className="btn-icon">🔨</span> Whack-a-Vowel
                             </button>
                             <button className="pro-btn" style={{ borderColor: '#34d399', color: '#34d399' }} onClick={() => alert("Word Ninja Coming Soon!")}>
@@ -479,6 +855,8 @@ const App = () => {
                         </div>
                         <button className="pro-btn" style={{ marginTop: '20px' }} onClick={() => setMode('menu')}>⬅️ Back to Menu</button>
                     </div>
+                ) : mode === 'whack-a-vowel' ? (
+                    <WhackAVowel onExit={() => setMode('games')} />
                 ) : (
                     <div className="activity-container glass-panel">
                         <button className="retry-btn" onClick={() => loadChallenge(mode)}>
@@ -489,8 +867,11 @@ const App = () => {
                             {mode === 'digraph' && 'Sound Decoding'}
                             {mode === 'spell' && 'Spelling Mastery'}
                             {mode === 'unit-spelling' && `Unit ${unit} Spelling`}
+                            {mode === 'contractions' && 'Contraction Action'}
+                            {mode === 'dictation' && 'Sentence Dictation'}
                             {mode === 'story' && 'Creative Reading'}
                             {mode === 'teacher-curriculum' && 'Teacher Assistant'}
+                            {mode === 'syllable' && 'Syllable Savvy'}
                         </div>
 
                         {loading ? (
@@ -502,14 +883,47 @@ const App = () => {
                                 ) : (
                                     <div className="challenge-text">
                                         {mode === 'digraph' && challenge?.word?.replace(challenge?.missing, '_')}
-                                        {(mode === 'spell' || mode === 'unit-spelling') && "👂 Listen"}
+                                        {(mode === 'spell' || mode === 'unit-spelling') && (
+                                            attempts >= 3 ? challenge?.word : Array(challenge?.word?.length || 0).fill('•').join(' ')
+                                        )}
+                                        {mode === 'syllable' && (
+                                            syllableStep === 0
+                                                ? "How many syllables?"
+                                                : (
+                                                    <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                                                        {challenge?.syllables?.map((s: string, i: number) => (
+                                                            <span key={i} style={{
+                                                                textDecoration: i < syllableStep - 1 ? 'none' : 'underline',
+                                                                color: i < syllableStep - 1 ? '#4ade80' : 'white'
+                                                            }}>
+                                                                {i < syllableStep - 1 ? s : (i === syllableStep - 1 ? '???' : '...')}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                )
+                                        )}
+                                        {mode === 'contractions' && (
+                                            attempts >= 3 ? challenge?.contraction : `${challenge?.word} -> ?`
+                                        )}
+                                        {mode === 'dictation' && "👂 Listen & Write"}
                                     </div>
                                 )}
 
-                                <div style={{ margin: '20px', color: '#94a3b8', fontSize: '1.2rem', textAlign: 'center' }}>{challenge?.context}</div>
+                                <div style={{ margin: '20px', color: '#94a3b8', fontSize: '1.2rem', textAlign: 'center' }}>
+                                    {(mode === 'spell' || mode === 'unit-spelling' || mode === 'digraph')
+                                        ? (attempts >= 3 ? challenge?.context : challenge?.context?.replace(new RegExp(challenge?.word, 'gi'), '_____'))
+                                        : (mode === 'syllable'
+                                            ? (syllableStep === 0 ? `Word: ${challenge?.word}` : `Spell syllable ${syllableStep}`)
+                                            : (mode === 'contractions'
+                                                ? (attempts >= 3 ? challenge?.context : challenge?.context?.replace(new RegExp(challenge?.contraction, 'gi'), '_____'))
+                                                : (mode === 'dictation' ? "" : challenge?.context)
+                                            )
+                                        )
+                                    }
+                                </div>
 
                                 {mode !== 'teacher-curriculum' && (
-                                    <AnswerInput onResult={checkAnswer} hint={mode === 'story' ? "Type the next part..." : `Type the ${mode === 'digraph' ? 'missing sound' : 'word'}`} />
+                                    <AnswerInput key={challenge?.word + historyIndex + restartTrigger} onResult={checkAnswer} hint={mode === 'story' ? "Type the next part..." : `Type the answer...`} />
                                 )}
                                 {mode === 'teacher-curriculum' && (
                                     <button className="pro-btn" onClick={() => loadChallenge('teacher-curriculum')}>Generate Another Idea</button>
@@ -520,12 +934,14 @@ const App = () => {
                 )}
             </div>
 
-            <div className="nav-dock">
-                <button className="pro-btn" onClick={() => setStudent(null)}>🏠 Home</button>
-                <button className="pro-btn" onClick={() => setMode('menu')}>⬅️ Menu</button>
-                <button className="pro-btn active" onClick={() => speak(mode === 'story' ? challenge.starter : challenge.context)}>💡 Hint</button>
-                <button className="pro-btn" onClick={() => loadChallenge(mode)}>Next ➡️</button>
-            </div>
+            {!['menu', 'games', 'whack-a-vowel'].includes(mode) && (
+                <div className="nav-dock">
+                    <button className="pro-btn" onClick={handlePrevious} disabled={historyIndex <= 0} style={{ opacity: historyIndex <= 0 ? 0.5 : 1 }}>⬅️ Prev</button>
+                    <button className="pro-btn" onClick={handleRestart}>🔄 Restart</button>
+                    <button className="pro-btn" onClick={handleHome}>🏠 Home</button>
+                    <button className="pro-btn" onClick={handleNext}>Next ➡️</button>
+                </div>
+            )}
         </div>
     );
 };
