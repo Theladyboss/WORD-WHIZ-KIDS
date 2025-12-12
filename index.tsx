@@ -1027,9 +1027,12 @@ const App = () => {
 try {
     const root = createRoot(document.getElementById("root")!);
     root.render(<App />);
-    const overlay = document.getElementById('loading-overlay');
     if (overlay) overlay.style.display = 'none';
-} catch (e) {
+} catch (e: any) {
     console.error("App Crash", e);
-    document.body.innerHTML = '<div style="color:white;padding:20px;"><h1>App Error</h1><p>Please refresh.</p></div>';
+    document.body.innerHTML = `<div style="color:white;padding:20px;font-family:sans-serif;">
+        <h1>App Error</h1>
+        <p>Please refresh.</p>
+        <pre style="color:red;white-space:pre-wrap;font-size:12px;background:rgba(0,0,0,0.5);padding:10px;">${e?.message || e}</pre>
+    </div>`;
 }
