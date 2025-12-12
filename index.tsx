@@ -1060,23 +1060,39 @@ class ReactErrorBoundary extends React.Component<{ children: React.ReactNode }, 
     }
 }
 
-try {
-    const container = document.getElementById("root")!;
-    // Fix for React Error #299: Clear container to prevent hydration mismatch if content exists
-    container.innerHTML = '';
-    const root = createRoot(container);
-    root.render(
-        <ReactErrorBoundary>
-            <App />
-        </ReactErrorBoundary>
-    );
-    const overlay = document.getElementById('loading-overlay');
-    if (overlay) overlay.style.display = 'none';
-} catch (e: any) {
-    console.error("App Crash", e);
-    document.body.innerHTML = `<div style="color:white;padding:20px;font-family:sans-serif;">
-        <h1>App Error</h1>
-        <p>Please refresh.</p>
-        <pre style="color:red;white-space:pre-wrap;font-size:12px;background:rgba(0,0,0,0.5);padding:10px;">${JSON.stringify(e, Object.getOwnPropertyNames(e))}</pre>
-    </div>`;
+const initApp = () => {
+    try {
+        const container = document.getElementById("root");
+        if (!container) {
+            throw new Error("Fatal: Root element #root not found in DOM");
+        }
+
+        // Clear container to ensure clean mount
+        container.innerHTML = '';
+
+        const root = createRoot(container);
+        root.render(
+            <ReactErrorBoundary>
+                <App />
+            </ReactErrorBoundary>
+        );
+
+        // Hide overlay immediately if possible, or let the effect handle it
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay) overlay.style.display = 'none';
+
+    } catch (e: any) {
+        console.error("App Crash", e);
+        document.body.innerHTML = `<div style="color:white;padding:20px;font-family:sans-serif;">
+            <h1>App Error</h1>
+            <p>Please refresh.</p>
+            <pre style="color:red;white-space:pre-wrap;font-size:12px;background:rgba(0,0,0,0.5);padding:10px;">${JSON.stringify(e, Object.getOwnPropertyNames(e))}</pre>
+        </div>`;
+    }
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+} else {
+    initApp();
 }
