@@ -1028,9 +1028,46 @@ const App = () => {
     );
 };
 
+class ReactErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error: any }> {
+    constructor(props: { children: React.ReactNode }) {
+        super(props);
+        this.state = { hasError: false, error: null };
+    }
+
+    static getDerivedStateFromError(error: any) {
+        return { hasError: true, error };
+    }
+
+    componentDidCatch(error: any, errorInfo: any) {
+        console.error("React Error Boundary Caught:", error, errorInfo);
+    }
+
+    render() {
+        if (this.state.hasError) {
+            return (
+                <div style={{ padding: '20px', color: 'white', fontFamily: 'sans-serif' }}>
+                    <h1>⚠️ Something went wrong.</h1>
+                    <p>Please refresh the page.</p>
+                    <details style={{ marginTop: '20px', whiteSpace: 'pre-wrap', color: '#f87171' }}>
+                        <summary>Error Details</summary>
+                        {this.state.error?.toString()}
+                    </details>
+                </div>
+            );
+        }
+
+        return this.props.children;
+    }
+}
+
 try {
     const root = createRoot(document.getElementById("root")!);
-    root.render(<App />);
+    root.render(
+        <ReactErrorBoundary>
+            <App />
+        </ReactErrorBoundary>
+    );
+    const overlay = document.getElementById('loading-overlay');
     if (overlay) overlay.style.display = 'none';
 } catch (e: any) {
     console.error("App Crash", e);
