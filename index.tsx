@@ -1061,7 +1061,10 @@ class ReactErrorBoundary extends React.Component<{ children: React.ReactNode }, 
 }
 
 try {
-    const root = createRoot(document.getElementById("root")!);
+    const container = document.getElementById("root")!;
+    // Fix for React Error #299: Clear container to prevent hydration mismatch if content exists
+    container.innerHTML = '';
+    const root = createRoot(container);
     root.render(
         <ReactErrorBoundary>
             <App />
