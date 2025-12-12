@@ -1092,7 +1092,7 @@ const initApp = () => {
 };
 
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => setTimeout(initApp, 100));
+    document.addEventListener('DOMContentLoaded', () => setTimeout(initApp, 500));
 } else {
-    setTimeout(initApp, 100);
+    setTimeout(initApp, 500);
 }
