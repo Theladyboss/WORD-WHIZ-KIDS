@@ -1033,6 +1033,6 @@ try {
     document.body.innerHTML = `<div style="color:white;padding:20px;font-family:sans-serif;">
         <h1>App Error</h1>
         <p>Please refresh.</p>
-        <pre style="color:red;white-space:pre-wrap;font-size:12px;background:rgba(0,0,0,0.5);padding:10px;">${e?.message || e}</pre>
+        <pre style="color:red;white-space:pre-wrap;font-size:12px;background:rgba(0,0,0,0.5);padding:10px;">${JSON.stringify(e, Object.getOwnPropertyNames(e))}</pre>
     </div>`;
 }
