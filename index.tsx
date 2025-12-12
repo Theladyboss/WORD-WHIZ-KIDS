@@ -19,7 +19,18 @@ try {
 }
 
 // --- Audio System ---
-const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
+// Lazy load AudioContext to prevent startup crashes
+let _audioCtx: AudioContext | null = null;
+const getAudioContext = () => {
+    if (!_audioCtx) {
+        try {
+            _audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        } catch (e) {
+            console.error("Audio init failed", e);
+        }
+    }
+    return _audioCtx;
+};
 let currentAudioSource: AudioBufferSourceNode | null = null;
 
 const stopCurrentAudio = () => {
@@ -30,47 +41,54 @@ const stopCurrentAudio = () => {
 };
 
 const playSound = (type: 'pop' | 'win' | 'magic' | 'error') => {
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume().catch(() => { });
 
-    const now = audioCtx.currentTime;
-    if (type === 'pop') {
-        osc.frequency.setValueAtTime(600, now);
-        osc.frequency.exponentialRampToValueAtTime(1000, now + 0.1);
-        gain.gain.setValueAtTime(0.1, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-        osc.start(now);
-        osc.stop(now + 0.15);
-    } else if (type === 'error') {
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(150, now);
-        osc.frequency.linearRampToValueAtTime(100, now + 0.3);
-        gain.gain.setValueAtTime(0.2, now);
-        gain.gain.linearRampToValueAtTime(0, now + 0.3);
-        osc.start(now);
-        osc.stop(now + 0.3);
-    } else if (type === 'win') {
-        [261.63, 329.63, 392.00, 523.25].forEach((f, i) => {
-            const o = audioCtx.createOscillator();
-            const g = audioCtx.createGain();
-            o.connect(g);
-            g.connect(audioCtx.destination);
-            o.type = 'sine';
-            o.frequency.value = f;
-            g.gain.setValueAtTime(0, now);
-            g.gain.linearRampToValueAtTime(0.1, now + 0.1 + i * 0.05);
-            g.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
-            o.start(now);
-            o.stop(now + 1.5);
-        });
-    }
+    try {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        const now = ctx.currentTime;
+        if (type === 'pop') {
+            osc.frequency.setValueAtTime(600, now);
+            osc.frequency.exponentialRampToValueAtTime(1000, now + 0.1);
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+            osc.start(now);
+            osc.stop(now + 0.15);
+        } else if (type === 'error') {
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(150, now);
+            osc.frequency.linearRampToValueAtTime(100, now + 0.3);
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.linearRampToValueAtTime(0, now + 0.3);
+            osc.start(now);
+            osc.stop(now + 0.3);
+        } else if (type === 'win') {
+            [261.63, 329.63, 392.00, 523.25].forEach((f, i) => {
+                const o = ctx.createOscillator();
+                const g = ctx.createGain();
+                o.connect(g);
+                g.connect(ctx.destination);
+                o.type = 'sine';
+                o.frequency.value = f;
+                g.gain.setValueAtTime(0, now);
+                g.gain.linearRampToValueAtTime(0.1, now + 0.1 + i * 0.05);
+                g.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
+                o.start(now);
+                o.stop(now + 1.5);
+            });
+        }
+    } catch (e) { console.error("Sound error", e); }
 };
 
 async function playPCM(base64: string) {
-    if (audioCtx.state === 'suspended') await audioCtx.resume();
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') await ctx.resume().catch(() => { });
     stopCurrentAudio();
 
     try {
@@ -79,16 +97,16 @@ async function playPCM(base64: string) {
         const bytes = new Uint8Array(len);
         for (let i = 0; i < len; i++) bytes[i] = bin.charCodeAt(i);
         const int16 = new Int16Array(bytes.buffer);
-        const buf = audioCtx.createBuffer(1, int16.length, 24000);
+        const buf = ctx.createBuffer(1, int16.length, 24000);
 
         const channelData = buf.getChannelData(0);
         for (let i = 0; i < int16.length; i++) {
             channelData[i] = int16[i] / 32768.0;
         }
 
-        const src = audioCtx.createBufferSource();
+        const src = ctx.createBufferSource();
         src.buffer = buf;
-        src.connect(audioCtx.destination);
+        src.connect(ctx.destination);
         src.onended = () => { if (currentAudioSource === src) currentAudioSource = null; };
 
         currentAudioSource = src;
@@ -418,7 +436,8 @@ const App = () => {
     }, []);
 
     const handleSessionStart = async (minutes: number) => {
-        if (audioCtx.state === 'suspended') await audioCtx.resume();
+        const ctx = getAudioContext();
+        if (ctx && ctx.state === 'suspended') await ctx.resume().catch(() => { });
         setTimer(minutes * 60);
         setSessionSetup(true);
         playSound('magic');
@@ -427,7 +446,8 @@ const App = () => {
 
     const speak = async (text: string) => {
         try {
-            if (audioCtx.state === 'suspended') await audioCtx.resume();
+            const ctx = getAudioContext();
+            if (ctx && ctx.state === 'suspended') await ctx.resume().catch(() => { });
             const resp = await ai.models.generateContent({
                 model: 'gemini-2.5-flash-preview-tts',
                 contents: { parts: [{ text }] },
@@ -1004,5 +1024,10 @@ const App = () => {
     );
 };
 
-const root = createRoot(document.getElementById("root")!);
-root.render(<App />);
+try {
+    const root = createRoot(document.getElementById("root")!);
+    root.render(<App />);
+} catch (e) {
+    console.error("App Crash", e);
+    document.body.innerHTML = '<div style="color:white;padding:20px;"><h1>App Error</h1><p>Please refresh.</p></div>';
+}
