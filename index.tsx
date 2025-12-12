@@ -19,12 +19,16 @@ try {
 }
 
 // --- Audio System ---
-// Lazy load AudioContext to prevent startup crashes
+// COMPLETELY LAZY LOAD - No init until user interaction
 let _audioCtx: AudioContext | null = null;
 const getAudioContext = () => {
+    // Only create if it doesn't exist AND we are inside a user interaction
     if (!_audioCtx) {
         try {
-            _audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+            const AudioCtor = window.AudioContext || (window as any).webkitAudioContext;
+            if (AudioCtor) {
+                _audioCtx = new AudioCtor();
+            }
         } catch (e) {
             console.error("Audio init failed", e);
         }
