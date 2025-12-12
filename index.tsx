@@ -1027,6 +1027,8 @@ const App = () => {
 try {
     const root = createRoot(document.getElementById("root")!);
     root.render(<App />);
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) overlay.style.display = 'none';
 } catch (e) {
     console.error("App Crash", e);
     document.body.innerHTML = '<div style="color:white;padding:20px;"><h1>App Error</h1><p>Please refresh.</p></div>';
