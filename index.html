@@ -611,26 +611,11 @@
     <!-- Import map removed for production build -->
 </head>
 
-<body>
-    <div class="gradient-bg">
-        <div class="particle p1"></div>
-        <div class="particle p2"></div>
-    </div>
-    <div id="loading-overlay"
-        style="position:fixed;top:0;left:0;width:100%;height:100%;background:#020617;z-index:9999;display:flex;align-items:center;justify-content:center;color:white;font-size:2rem;font-family:sans-serif;">
-        Loading...
-    </div>
-    <div id="root"></div>
-    <script>
-        window.onload = function () {
-            // Fallback removal
-            setTimeout(() => {
-                const overlay = document.getElementById('loading-overlay');
-                if (overlay) overlay.style.display = 'none';
-            }, 3000); // Force remove after 3s if app doesn't
-        }
-    </script>
-    <script type="module" src="/index.tsx"></script>
+if (overlay) overlay.style.display = 'none';
+}, 3000); // Force remove after 3s if app doesn't
+}
+</script>
+<script type="module" src="/index.tsx"></script>
 </body>
 
 </html>
