@@ -769,7 +769,7 @@ const App = () => {
                         onClose={() => setLockMode('none')}
                     />
                 )}
-                <div className="scrollable-content centered-content">
+                <div className="scrollable-content">
                     <div className="mission-bar" style={{ marginTop: '20px', marginBottom: '20px', flex: '0 0 auto' }}>SELECT YOUR PROFILE</div>
                     <button className="pro-btn" style={{ marginBottom: '20px', fontSize: '1rem', padding: '10px 20px' }} onClick={() => speak("Hi! I am Wally, your AI learning companion. Select your profile to get started!")}>
                         👋 Meet Wally
