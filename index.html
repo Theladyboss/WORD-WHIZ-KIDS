@@ -636,11 +636,23 @@
             }
         };
 
+        window.addEventListener('unhandledrejection', function (event) {
+            var overlay = document.getElementById('loading-overlay');
+            if (overlay) {
+                overlay.innerHTML = '<div style="color:red;text-align:left;padding:20px;font-size:14px;white-space:pre-wrap;">' +
+                    '<h1>UNHANDLED PROMISE REJECTION</h1>' +
+                    '<p><strong>Reason:</strong> ' + event.reason + '</p>' +
+                    '</div>';
+                overlay.style.alignItems = 'flex-start';
+                overlay.style.overflow = 'auto';
+            }
+        });
+
         window.onload = function () {
             // Fallback removal
             setTimeout(() => {
                 const overlay = document.getElementById('loading-overlay');
-                if (overlay && overlay.innerHTML.indexOf('CRITICAL ERROR') === -1) overlay.style.display = 'none';
+                if (overlay && overlay.innerHTML.indexOf('CRITICAL ERROR') === -1 && overlay.innerHTML.indexOf('UNHANDLED PROMISE REJECTION') === -1) overlay.style.display = 'none';
             }, 5000);
         }
     </script>
