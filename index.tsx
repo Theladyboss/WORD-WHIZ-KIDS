@@ -424,13 +424,7 @@ const App = () => {
     const [showTeacherChat, setShowTeacherChat] = useState(false);
     const [language, setLanguage] = useState<'en' | 'es'>('en');
     const [syllableStep, setSyllableStep] = useState(0); // 0: count, 1+: syllable index + 1
-    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
-    useEffect(() => {
-        const handleResize = () => setIsMobile(window.innerWidth <= 768);
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
 
     useEffect(() => {
         if (!sessionSetup || timer <= 0) return;
@@ -438,20 +432,7 @@ const App = () => {
         return () => clearInterval(i);
     }, [sessionSetup, timer]);
 
-    if (isMobile && !sessionSetup) {
-        return (
-            <div className="main-stage" style={{ justifyContent: 'center', alignItems: 'center', padding: 20, textAlign: 'center' }}>
-                <h1 className="app-title" style={{ fontSize: '2rem', marginBottom: 20 }}>Word Whiz Kids</h1>
-                <div className="glass-panel">
-                    <h2 style={{ color: 'white' }}>Mobile Safe Mode</h2>
-                    <p style={{ color: '#94a3b8', marginBottom: 20 }}>Optimized for your device.</p>
-                    <button className="pro-btn active" style={{ width: '100%', justifyContent: 'center', fontSize: '1.2rem', padding: 20 }} onClick={() => setSessionSetup(true)}>
-                        🚀 Start App
-                    </button>
-                </div>
-            </div>
-        );
-    }
+
 
     useEffect(() => {
         if ('serviceWorker' in navigator) {
