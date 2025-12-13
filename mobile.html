@@ -38,18 +38,48 @@
             padding: 15px 30px;
             border-radius: 50px;
             font-size: 1.2rem;
-            margin-top: 20px;
-            cursor: pointer;
-        }
+
+            < !DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Word Whiz Kids Mobile</title><style>body {
+                background-color: #020617;
+                color: white;
+                font-family: sans-serif;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                text-align: center;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2rem;
+                margin-bottom: 10px;
+            }
+
+            p {
+                color: #94a3b8;
+            }
+
+            .btn {
+                background: #3b82f6;
+                color: white;
+                border: none;
+                padding: 15px 30px;
+                border-radius: 50px;
+                font-size: 1.2rem;
+                margin-top: 20px;
+                cursor: pointer;
+            }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <h1>Word Whiz Mobile</h1>
-        <p>A dedicated mobile experience.</p>
-        <button class="btn" onclick="alert('Coming Soon!')">Start</button>
-    </div>
+    <div id="root"></div>
+    <script type="module" src="/mobile.tsx"></script>
 </body>
 
 </html>
