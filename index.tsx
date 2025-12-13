@@ -438,6 +438,21 @@ const App = () => {
         return () => clearInterval(i);
     }, [sessionSetup, timer]);
 
+    if (isMobile && !sessionSetup) {
+        return (
+            <div className="main-stage" style={{ justifyContent: 'center', alignItems: 'center', padding: 20, textAlign: 'center' }}>
+                <h1 className="app-title" style={{ fontSize: '2rem', marginBottom: 20 }}>Word Whiz Kids</h1>
+                <div className="glass-panel">
+                    <h2 style={{ color: 'white' }}>Mobile Safe Mode</h2>
+                    <p style={{ color: '#94a3b8', marginBottom: 20 }}>Optimized for your device.</p>
+                    <button className="pro-btn active" style={{ width: '100%', justifyContent: 'center', fontSize: '1.2rem', padding: 20 }} onClick={() => setSessionSetup(true)}>
+                        🚀 Start App
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     useEffect(() => {
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js')
