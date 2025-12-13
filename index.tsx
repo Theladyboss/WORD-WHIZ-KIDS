@@ -1072,17 +1072,11 @@ const initApp = () => {
         container.innerHTML = '';
 
         const root = createRoot(container);
-        const SimpleApp = () => (
-            <div style={{ color: 'white', padding: 20, fontSize: 24 }}>
-                <h1>System Check</h1>
-                <p>If you can see this, React is working.</p>
-                <p>Version: Mobile Debug 1.0</p>
-            </div>
-        );
-
         root.render(
             <ReactErrorBoundary>
-                <SimpleApp />
+                <React.Suspense fallback={<div style={{ color: 'white', padding: 20 }}>Loading App Components...</div>}>
+                    <App />
+                </React.Suspense>
             </ReactErrorBoundary>
         );
 
