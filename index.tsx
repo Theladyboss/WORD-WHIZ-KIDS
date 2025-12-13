@@ -424,6 +424,13 @@ const App = () => {
     const [showTeacherChat, setShowTeacherChat] = useState(false);
     const [language, setLanguage] = useState<'en' | 'es'>('en');
     const [syllableStep, setSyllableStep] = useState(0); // 0: count, 1+: syllable index + 1
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         if (!sessionSetup || timer <= 0) return;
