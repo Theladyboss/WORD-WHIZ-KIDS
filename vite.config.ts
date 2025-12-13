@@ -20,13 +20,7 @@ export default defineConfig(({ mode }) => {
       }
     },
     build: {
-      target: 'es2015',
-      rollupOptions: {
-        input: {
-          main: path.resolve(__dirname, 'index.html'),
-          mobile: path.resolve(__dirname, 'mobile.html'),
-        },
-      },
+      target: 'es2015'
     }
   };
 });
