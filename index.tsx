@@ -1083,16 +1083,19 @@ const initApp = () => {
 
     } catch (e: any) {
         console.error("App Crash", e);
-        document.body.innerHTML = `<div style="color:white;padding:20px;font-family:sans-serif;">
-            <h1>App Error</h1>
-            <p>Please refresh.</p>
-            <pre style="color:red;white-space:pre-wrap;font-size:12px;background:rgba(0,0,0,0.5);padding:10px;">${JSON.stringify(e, Object.getOwnPropertyNames(e))}</pre>
-        </div>`;
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay) {
+            overlay.innerHTML = `<div style="color:red;padding:20px;font-family:sans-serif;text-align:left;">
+                <h1>Startup Error</h1>
+                <p>Please refresh.</p>
+                <pre style="background:rgba(0,0,0,0.5);padding:10px;white-space:pre-wrap;">${e?.message || 'Unknown error'}\n${e?.stack || ''}</pre>
+            </div>`;
+        }
     }
 };
 
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => setTimeout(initApp, 500));
+    document.addEventListener('DOMContentLoaded', initApp);
 } else {
-    setTimeout(initApp, 500);
+    initApp();
 }
