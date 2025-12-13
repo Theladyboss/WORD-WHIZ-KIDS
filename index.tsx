@@ -1029,6 +1029,7 @@ const App = () => {
 };
 
 class ReactErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error: any }> {
+    state: { hasError: boolean, error: any };
     constructor(props: { children: React.ReactNode }) {
         super(props);
         this.state = { hasError: false, error: null };
@@ -1071,9 +1072,17 @@ const initApp = () => {
         container.innerHTML = '';
 
         const root = createRoot(container);
+        const SimpleApp = () => (
+            <div style={{ color: 'white', padding: 20, fontSize: 24 }}>
+                <h1>System Check</h1>
+                <p>If you can see this, React is working.</p>
+                <p>Version: Mobile Debug 1.0</p>
+            </div>
+        );
+
         root.render(
             <ReactErrorBoundary>
-                <App />
+                <SimpleApp />
             </ReactErrorBoundary>
         );
 
