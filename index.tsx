@@ -791,6 +791,45 @@ const App = () => {
     };
 
     // --- Roster View ---
+    if (!student) {
+        return (
+            <div className="main-stage">
+                <div className="top-bar">
+                    <div className="app-title">WORD WHIZ KIDS</div>
+                    <img src="/panther_logo.png" alt="Panther Logo" style={{ height: '50px', width: 'auto' }} />
+                </div>
+                {lockMode !== 'none' && (
+                    <PinPad
+                        title={`Enter PIN for ${targetStudent?.name}`}
+                        onUnlock={handlePinUnlock}
+                        onClose={() => setLockMode('none')}
+                    />
+                )}
+                <div className="scrollable-content">
+                    <div className="mission-bar" style={{ marginTop: '20px', marginBottom: '20px', flex: '0 0 auto' }}>SELECT YOUR PROFILE</div>
+                    <button className="pro-btn" style={{ marginBottom: '20px', fontSize: '1rem', padding: '10px 20px' }} onClick={() => speak("Hi! I am Wally, your AI learning companion. Select your profile to get started!")}>
+                        👋 Meet Wally
+                    </button>
+
+                    <div className="roster-grid">
+                        {STUDENTS.map(s => (
+                            <div key={s.id}
+                                className="student-card"
+                                style={{ backgroundColor: s.color, boxShadow: `0 6px 0 rgba(0,0,0,0.3)` }}
+                                onClick={() => {
+                                    setTargetStudent(s);
+                                    setLockMode(s.name === 'Teacher' ? 'teacher' : 'student');
+                                }}>
+                                <div className="card-icon">{s.icon}</div>
+                                <div className="card-name">{s.name}</div>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="footer-brand">Created by © FREEDOMAi SOLUTIONS LLC | v2.1 (Puck)</div>
+                </div>
+            </div>
+        );
+    }
 
     // --- Timer Selection View ---
     if (student && !sessionSetup) {
