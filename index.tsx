@@ -100,7 +100,10 @@ async function playPCM(base64: string) {
         const len = bin.length;
         const bytes = new Uint8Array(len);
         for (let i = 0; i < len; i++) bytes[i] = bin.charCodeAt(i);
-        const int16 = new Int16Array(bytes.buffer);
+
+        // Ensure even length
+        const safeBytes = bytes.length % 2 === 0 ? bytes : bytes.slice(0, bytes.length - 1);
+        const int16 = new Int16Array(safeBytes.buffer);
         const buf = ctx.createBuffer(1, int16.length, 24000);
 
         const channelData = buf.getChannelData(0);
@@ -251,7 +254,7 @@ const TeacherChat = ({ onClose }: { onClose: () => void }) => {
         setLoading(true);
         try {
             const resp = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
+                model: 'gemini-2.0-flash-exp',
                 contents: `You are a helpful Teaching Assistant for 2nd Grade. Answer briefly and helpfully. History: ${JSON.stringify(newMsgs)}. User: ${input}`
             });
             setMsgs([...newMsgs, { role: 'ai', text: resp.text || "I'm not sure, sorry!" }]);
@@ -451,18 +454,63 @@ const App = () => {
         speak(`Welcome back, ${student.name}! Let's have fun learning for ${minutes} minutes.`);
     };
 
+    const logToScreen = (msg: string) => {
+        console.log(msg);
+        const el = document.getElementById('debug-log-content');
+        if (el) el.innerText = msg + '\n' + el.innerText.substring(0, 200);
+    };
+
     const speak = async (text: string) => {
+        logToScreen(`Speaking: "${text}"...`);
+        let aiSuccess = false;
+
+        // 1. Try AI Voice
         try {
-            const ctx = getAudioContext();
-            if (ctx && ctx.state === 'suspended') await ctx.resume().catch(() => { });
-            const resp = await ai.models.generateContent({
-                model: 'gemini-2.5-flash-preview-tts',
-                contents: { parts: [{ text }] },
-                config: { responseModalities: [Modality.AUDIO], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Fenrir' } } } }
-            });
-            const audioData = resp.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-            if (audioData) playPCM(audioData);
-        } catch (e) { console.error(e); }
+            if (ai) {
+                const ctx = getAudioContext();
+                if (ctx && ctx.state === 'suspended') await ctx.resume().catch(() => { });
+
+                logToScreen("Requesting AI Audio...");
+                const resp = await ai.models.generateContent({
+                    model: 'gemini-2.0-flash-exp',
+                    contents: { parts: [{ text }] },
+                    config: { responseModalities: [Modality.AUDIO], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Fenrir' } } } }
+                });
+                const audioData = resp.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+                if (audioData) {
+                    logToScreen("AI Audio received. Playing...");
+                    await playPCM(audioData);
+                    aiSuccess = true;
+                    logToScreen("AI Audio playing.");
+                } else {
+                    logToScreen("AI response had no audio data.");
+                }
+            } else {
+                logToScreen("AI not initialized (No Key).");
+            }
+        } catch (aiError: any) {
+            logToScreen(`AI Failed: ${aiError.message || aiError}`);
+        }
+
+        if (aiSuccess) return;
+
+        // 2. Fallback to System Voice
+        try {
+            logToScreen("Trying System Voice...");
+            const u = new SpeechSynthesisUtterance(text);
+            u.rate = 0.9;
+            const voices = window.speechSynthesis.getVoices();
+            logToScreen(`Found ${voices.length} system voices.`);
+            const preferred = voices.find(v => v.name.includes("Google US English")) || voices.find(v => v.lang === 'en-US');
+            if (preferred) {
+                u.voice = preferred;
+                logToScreen(`Selected voice: ${preferred.name}`);
+            }
+            window.speechSynthesis.speak(u);
+            logToScreen("System speak command sent.");
+        } catch (sysError: any) {
+            logToScreen(`System Failed: ${sysError.message || sysError}`);
+        }
     };
 
     const fetchChallengeData = async (selectedMode: string) => {
@@ -524,7 +572,7 @@ const App = () => {
 
         try {
             const resp = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
+                model: 'gemini-2.0-flash-exp',
                 contents: prompt,
                 config: { responseMimeType: 'application/json' }
             });
@@ -777,6 +825,40 @@ const App = () => {
                     <button className="pro-btn" style={{ marginBottom: '20px', fontSize: '1rem', padding: '10px 20px' }} onClick={() => speak("Hi! I am Wally, your AI learning companion. Select your profile to get started!")}>
                         👋 Meet Wally
                     </button>
+
+                    {/* Sound Debug Section */}
+                    <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginBottom: '20px' }}>
+                        <button className="pro-btn" style={{ fontSize: '0.8rem', padding: '5px 10px', background: '#475569' }} onClick={() => playSound('pop')}>
+                            🔊 Test Beep
+                        </button>
+                        <button className="pro-btn" style={{ fontSize: '0.8rem', padding: '5px 10px', background: '#475569' }} onClick={() => {
+                            const u = new SpeechSynthesisUtterance("System voice check.");
+                            window.speechSynthesis.speak(u);
+                        }}>
+                            🗣️ Test System Voice
+                        </button>
+                        <button className="pro-btn" style={{ fontSize: '0.8rem', padding: '5px 10px', background: '#475569' }} onClick={() => speak("AI voice check.")}>
+                            🤖 Test AI Voice
+                        </button>
+                    </div>
+
+                    {/* On-screen Debug Log */}
+                    <div style={{
+                        background: '#0f172a',
+                        color: '#38bdf8',
+                        padding: '10px',
+                        borderRadius: '8px',
+                        fontFamily: 'monospace',
+                        fontSize: '0.8rem',
+                        marginBottom: '20px',
+                        maxHeight: '100px',
+                        overflowY: 'auto',
+                        textAlign: 'left'
+                    }}>
+                        <div>Debug Log:</div>
+                        <div id="debug-log-content">Waiting for action...</div>
+                    </div>
+
                     <div className="roster-grid">
                         {STUDENTS.map(s => (
                             <div key={s.id}
