@@ -108,7 +108,8 @@ async function playPCM(base64: string) {
 
         const channelData = buf.getChannelData(0);
         for (let i = 0; i < int16.length; i++) {
-            channelData[i] = int16[i] / 32768.0;
+            // Normalize to [-1, 1] and reduce volume to 90% to prevent clipping/static
+            channelData[i] = (int16[i] / 32768.0) * 0.9;
         }
 
         const src = ctx.createBufferSource();
@@ -460,11 +461,11 @@ const App = () => {
                 const ctx = getAudioContext();
                 if (ctx && ctx.state === 'suspended') await ctx.resume().catch(() => { });
 
-                logToScreen("Requesting AI Audio...");
+                logToScreen("Requesting AI Audio (Puck)...");
                 const resp = await ai.models.generateContent({
                     model: 'gemini-2.0-flash-exp',
                     contents: { parts: [{ text }] },
-                    config: { responseModalities: [Modality.AUDIO], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Fenrir' } } } }
+                    config: { responseModalities: [Modality.AUDIO], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Puck' } } } }
                 });
                 const audioData = resp.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
                 if (audioData) {
