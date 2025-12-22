@@ -791,253 +791,239 @@ const App = () => {
     };
 
     // --- Roster View ---
-    onClick = {() => {
-    setTargetStudent(s);
-    setLockMode(s.name === 'Teacher' ? 'teacher' : 'student');
-}}>
-                                <div className="card-icon">{s.icon}</div>
-                                <div className="card-name">{s.name}</div>
-                            </div >
-                        ))}
-                    </div >
-    <div className="footer-brand">Created by © FREEDOMAi SOLUTIONS LLC | v2.1 (Puck)</div>
-                </div >
-            </div >
+
+    // --- Timer Selection View ---
+    if (student && !sessionSetup) {
+        return (
+            <div className="main-stage">
+                <div className="top-bar">
+                    <div className="app-title">WORD WHIZ KIDS</div>
+                    <button className="pro-btn" onClick={handleHome} style={{ padding: '5px 15px', fontSize: '0.8rem' }}>Change Profile</button>
+                </div>
+                <div className="scrollable-content centered-content">
+                    <div className="glass-panel" style={{ maxWidth: '500px', width: '90%', textAlign: 'center' }}>
+                        <div style={{ fontSize: '4rem', marginBottom: '20px' }}>⏱️</div>
+                        <h2 style={{ fontSize: '1.5rem', marginBottom: '10px', color: '#e2e8f0' }}>Hi {student.name}!</h2>
+                        <p style={{ fontSize: '1.1rem', color: '#94a3b8', marginBottom: '30px' }}>How long do you want to play today?</p>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                            <button className="pro-btn active" onClick={() => handleSessionStart(20)} style={{ fontSize: '1.3rem', padding: '20px' }}>
+                                20 Minutes
+                            </button>
+                            <button className="pro-btn btn-accent" onClick={() => handleSessionStart(30)} style={{ fontSize: '1.3rem', padding: '20px' }}>
+                                30 Minutes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         );
     }
 
-// --- Timer Selection View ---
-if (student && !sessionSetup) {
+    // --- Main Activity View ---
     return (
         <div className="main-stage">
-            <div className="top-bar">
-                <div className="app-title">WORD WHIZ KIDS</div>
-                <button className="pro-btn" onClick={handleHome} style={{ padding: '5px 15px', fontSize: '0.8rem' }}>Change Profile</button>
-            </div>
-            <div className="scrollable-content centered-content">
-                <div className="glass-panel" style={{ maxWidth: '500px', width: '90%', textAlign: 'center' }}>
-                    <div style={{ fontSize: '4rem', marginBottom: '20px' }}>⏱️</div>
-                    <h2 style={{ fontSize: '1.5rem', marginBottom: '10px', color: '#e2e8f0' }}>Hi {student.name}!</h2>
-                    <p style={{ fontSize: '1.1rem', color: '#94a3b8', marginBottom: '30px' }}>How long do you want to play today?</p>
+            {showConfetti && Array(20).fill(0).map((_, i) => <div key={i} className="confetti" style={{ left: `${Math.random() * 100}%`, background: ['#f00', '#0f0', '#00f'][i % 3], animationDuration: `${2 + Math.random()}s` }} />)}
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                        <button className="pro-btn active" onClick={() => handleSessionStart(20)} style={{ fontSize: '1.3rem', padding: '20px' }}>
-                            20 Minutes
-                        </button>
-                        <button className="pro-btn btn-accent" onClick={() => handleSessionStart(30)} style={{ fontSize: '1.3rem', padding: '20px' }}>
-                            30 Minutes
-                        </button>
-                    </div>
+            <div className="top-bar">
+                <div className="app-title" onClick={handleHome} style={{ cursor: 'pointer' }}>WORD WHIZ KIDS</div>
+                <button className="pro-btn" style={{ padding: '5px 15px', fontSize: '0.8rem', marginRight: '10px' }} onClick={() => setLanguage(l => l === 'en' ? 'es' : 'en')}>{language === 'en' ? '🇪🇸 ES' : '🇺🇸 EN'}</button>
+                <div className="mission-bar">Mission: {student.name}</div>
+                <div className="stats-box">
+                    <div className="stat-item">⏱️ {formatTime(timer)}</div>
+                    <div className="stat-item">🏆 {cuudoos}</div>
                 </div>
             </div>
-        </div>
-    );
-}
 
-// --- Main Activity View ---
-return (
-    <div className="main-stage">
-        {showConfetti && Array(20).fill(0).map((_, i) => <div key={i} className="confetti" style={{ left: `${Math.random() * 100}%`, background: ['#f00', '#0f0', '#00f'][i % 3], animationDuration: `${2 + Math.random()}s` }} />)}
+            {showTeacherChat && <TeacherChat onClose={() => setShowTeacherChat(false)} />}
+            {modalData && (
+                <FeedbackModal
+                    message={modalData.msg}
+                    type={modalData.type}
+                    onClose={() => setModalData(null)}
+                    onContinue={() => {
+                        setModalData(null);
+                        handleNext();
+                    }}
+                />
+            )}
 
-        <div className="top-bar">
-            <div className="app-title" onClick={handleHome} style={{ cursor: 'pointer' }}>WORD WHIZ KIDS</div>
-            <button className="pro-btn" style={{ padding: '5px 15px', fontSize: '0.8rem', marginRight: '10px' }} onClick={() => setLanguage(l => l === 'en' ? 'es' : 'en')}>{language === 'en' ? '🇪🇸 ES' : '🇺🇸 EN'}</button>
-            <div className="mission-bar">Mission: {student.name}</div>
-            <div className="stats-box">
-                <div className="stat-item">⏱️ {formatTime(timer)}</div>
-                <div className="stat-item">🏆 {cuudoos}</div>
-            </div>
-        </div>
+            <div className="scrollable-content centered-content">
+                {mode === 'menu' ? (
+                    <div className="glass-panel" style={{ maxWidth: '800px', width: '100%' }}>
+                        <h2 style={{ textAlign: 'center', marginBottom: '30px', color: '#94a3b8' }}>SELECT TRAINING MODULE</h2>
+                        <div className="menu-grid">
+                            <button className="pro-btn btn-accent" onClick={() => handleModeSelect('digraph')}>
+                                <span className="btn-icon">🔍</span> Digraph Detective
+                            </button>
+                            <button className="pro-btn" onClick={() => handleModeSelect('spell')}>
+                                <span className="btn-icon">📝</span> Word Builder
+                            </button>
+                            <button className="pro-btn" onClick={() => handleModeSelect('unit-spelling')}>
+                                <span className="btn-icon">📚</span> Unit Spelling
+                            </button>
+                            <button className="pro-btn" onClick={() => handleModeSelect('syllable')}>
+                                <span className="btn-icon">🧩</span> Syllable Savvy
+                            </button>
+                            <button className="pro-btn" onClick={() => handleModeSelect('contractions')}>
+                                <span className="btn-icon">🔗</span> Contractions
+                            </button>
+                            <button className="pro-btn" onClick={() => handleModeSelect('dictation')}>
+                                <span className="btn-icon">✍️</span> Dictation
+                            </button>
+                            <button className="pro-btn" onClick={() => handleModeSelect('schwa')}>
+                                <span className="btn-icon">ə</span> Schwa Sound
+                            </button>
+                            <button className="pro-btn" onClick={() => handleModeSelect('vce')}>
+                                <span className="btn-icon">🪄</span> Magic E (VCE)
+                            </button>
+                            <button className="pro-btn" onClick={() => handleModeSelect('story')}>
+                                <span className="btn-icon">📖</span> Story Spark
+                            </button>
+                            <button className="pro-btn btn-accent"
+                                style={{
+                                    background: gamesUnlocked ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' : '#334155',
+                                    opacity: gamesUnlocked ? 1 : 0.7,
+                                    cursor: gamesUnlocked ? 'pointer' : 'not-allowed'
+                                }}
+                                onClick={() => {
+                                    if (gamesUnlocked) setMode('games');
+                                    else setModalData({ msg: `Get ${3 - streak} more correct answers to unlock!`, type: 'error' });
+                                }}>
+                                <span className="btn-icon">{gamesUnlocked ? '🎮' : '🔒'}</span> Game Room
+                            </button>
+                            {student.name === 'Teacher' && (
+                                <>
+                                    <button className="pro-btn" style={{ borderColor: '#f59e0b', color: '#f59e0b' }} onClick={() => handleModeSelect('teacher-curriculum')}>
+                                        <span className="btn-icon">🍎</span> Curriculum Asst.
+                                    </button>
+                                    <button className="pro-btn" style={{ borderColor: '#3b82f6', color: '#3b82f6' }} onClick={() => setShowTeacherChat(true)}>
+                                        <span className="btn-icon">💬</span> Gemini Chat
+                                    </button>
+                                </>
+                            )}
+                        </div>
 
-        {showTeacherChat && <TeacherChat onClose={() => setShowTeacherChat(false)} />}
-        {modalData && (
-            <FeedbackModal
-                message={modalData.msg}
-                type={modalData.type}
-                onClose={() => setModalData(null)}
-                onContinue={() => {
-                    setModalData(null);
-                    handleNext();
-                }}
-            />
-        )}
+                        {/* Unit Selector for Unit Spelling */}
+                        <div style={{ marginTop: '20px', textAlign: 'center' }}>
+                            <label style={{ color: '#94a3b8', marginRight: '10px' }}>Current Unit:</label>
+                            <select
+                                value={unit}
+                                onChange={(e) => setUnit(Number(e.target.value))}
+                                style={{ padding: '5px', borderRadius: '5px', background: '#1e293b', color: 'white', border: '1px solid #475569' }}
+                            >
+                                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map(u => <option key={u} value={u}>Unit {u}</option>)}
+                            </select>
+                        </div>
+                    </div>
+                ) : mode === 'games' ? (
+                    <div className="glass-panel" style={{ maxWidth: '800px', width: '100%' }}>
+                        <h2 style={{ textAlign: 'center', marginBottom: '30px', color: '#f093fb' }}>GAME ROOM 🎮</h2>
+                        <div className="menu-grid">
+                            <button className="pro-btn" style={{ borderColor: '#f472b6', color: '#f472b6' }} onClick={() => setMode('whack-a-vowel')}>
+                                <span className="btn-icon">🔨</span> Whack-a-Vowel
+                            </button>
+                            <button className="pro-btn" style={{ borderColor: '#34d399', color: '#34d399' }} onClick={() => alert("Word Ninja Coming Soon!")}>
+                                <span className="btn-icon">⚔️</span> Word Ninja
+                            </button>
+                            <button className="pro-btn" style={{ borderColor: '#60a5fa', color: '#60a5fa' }} onClick={() => alert("Memory Match Coming Soon!")}>
+                                <span className="btn-icon">🧠</span> Memory Match
+                            </button>
+                        </div>
+                        <button className="pro-btn" style={{ marginTop: '20px' }} onClick={() => setMode('menu')}>⬅️ Back to Menu</button>
+                    </div>
+                ) : mode === 'whack-a-vowel' ? (
+                    <WhackAVowel onExit={() => setMode('games')} />
+                ) : (
+                    <div className="activity-container glass-panel">
+                        <button className="retry-btn" onClick={() => loadChallenge(mode)}>
+                            <span>🔄</span> Retry
+                        </button>
 
-        <div className="scrollable-content centered-content">
-            {mode === 'menu' ? (
-                <div className="glass-panel" style={{ maxWidth: '800px', width: '100%' }}>
-                    <h2 style={{ textAlign: 'center', marginBottom: '30px', color: '#94a3b8' }}>SELECT TRAINING MODULE</h2>
-                    <div className="menu-grid">
-                        <button className="pro-btn btn-accent" onClick={() => handleModeSelect('digraph')}>
-                            <span className="btn-icon">🔍</span> Digraph Detective
-                        </button>
-                        <button className="pro-btn" onClick={() => handleModeSelect('spell')}>
-                            <span className="btn-icon">📝</span> Word Builder
-                        </button>
-                        <button className="pro-btn" onClick={() => handleModeSelect('unit-spelling')}>
-                            <span className="btn-icon">📚</span> Unit Spelling
-                        </button>
-                        <button className="pro-btn" onClick={() => handleModeSelect('syllable')}>
-                            <span className="btn-icon">🧩</span> Syllable Savvy
-                        </button>
-                        <button className="pro-btn" onClick={() => handleModeSelect('contractions')}>
-                            <span className="btn-icon">🔗</span> Contractions
-                        </button>
-                        <button className="pro-btn" onClick={() => handleModeSelect('dictation')}>
-                            <span className="btn-icon">✍️</span> Dictation
-                        </button>
-                        <button className="pro-btn" onClick={() => handleModeSelect('schwa')}>
-                            <span className="btn-icon">ə</span> Schwa Sound
-                        </button>
-                        <button className="pro-btn" onClick={() => handleModeSelect('vce')}>
-                            <span className="btn-icon">🪄</span> Magic E (VCE)
-                        </button>
-                        <button className="pro-btn" onClick={() => handleModeSelect('story')}>
-                            <span className="btn-icon">📖</span> Story Spark
-                        </button>
-                        <button className="pro-btn btn-accent"
-                            style={{
-                                background: gamesUnlocked ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' : '#334155',
-                                opacity: gamesUnlocked ? 1 : 0.7,
-                                cursor: gamesUnlocked ? 'pointer' : 'not-allowed'
-                            }}
-                            onClick={() => {
-                                if (gamesUnlocked) setMode('games');
-                                else setModalData({ msg: `Get ${3 - streak} more correct answers to unlock!`, type: 'error' });
-                            }}>
-                            <span className="btn-icon">{gamesUnlocked ? '🎮' : '🔒'}</span> Game Room
-                        </button>
-                        {student.name === 'Teacher' && (
+                        <div className="mode-title">
+                            {mode === 'digraph' && 'Sound Decoding'}
+                            {mode === 'spell' && 'Spelling Mastery'}
+                            {mode === 'unit-spelling' && `Unit ${unit} Spelling`}
+                            {mode === 'contractions' && 'Contraction Action'}
+                            {mode === 'dictation' && 'Sentence Dictation'}
+                            {mode === 'story' && 'Creative Reading'}
+                            {mode === 'teacher-curriculum' && 'Teacher Assistant'}
+                            {mode === 'teacher-curriculum' && 'Teacher Assistant'}
+                            {mode === 'syllable' && 'Syllable Savvy'}
+                            {mode === 'schwa' && 'Schwa Sound'}
+                            {mode === 'vce' && 'Magic E (VCE)'}
+                        </div>
+
+                        {loading ? (
+                            <div style={{ padding: '60px', fontSize: '1.5rem' }}>Initializing Mission...</div>
+                        ) : (
                             <>
-                                <button className="pro-btn" style={{ borderColor: '#f59e0b', color: '#f59e0b' }} onClick={() => handleModeSelect('teacher-curriculum')}>
-                                    <span className="btn-icon">🍎</span> Curriculum Asst.
-                                </button>
-                                <button className="pro-btn" style={{ borderColor: '#3b82f6', color: '#3b82f6' }} onClick={() => setShowTeacherChat(true)}>
-                                    <span className="btn-icon">💬</span> Gemini Chat
-                                </button>
+                                {mode === 'story' || mode === 'teacher-curriculum' ? (
+                                    <div className="story-box">{challenge?.starter}</div>
+                                ) : (
+                                    <div className="challenge-text">
+                                        {mode === 'digraph' && challenge?.word?.replace(challenge?.missing, '_')}
+                                        {(mode === 'spell' || mode === 'unit-spelling') && (
+                                            attempts >= 3 ? challenge?.word : Array(challenge?.word?.length || 0).fill('•').join(' ')
+                                        )}
+                                        {(mode === 'syllable' || mode === 'schwa' || mode === 'vce') && (
+                                            syllableStep === 0
+                                                ? "How many syllables?"
+                                                : (
+                                                    <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                                                        {challenge?.syllables?.map((s: string, i: number) => (
+                                                            <span key={i} style={{
+                                                                textDecoration: i < syllableStep - 1 ? 'none' : 'underline',
+                                                                color: i < syllableStep - 1 ? '#4ade80' : 'white'
+                                                            }}>
+                                                                {i < syllableStep - 1 ? s : (i === syllableStep - 1 ? '???' : '...')}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                )
+                                        )}
+                                        {mode === 'contractions' && (
+                                            attempts >= 3 ? challenge?.contraction : `${challenge?.word} -> ?`
+                                        )}
+                                        {mode === 'dictation' && "👂 Listen & Write"}
+                                    </div>
+                                )}
+
+                                <div style={{ margin: '20px', color: '#94a3b8', fontSize: '1.2rem', textAlign: 'center' }}>
+                                    {(mode === 'spell' || mode === 'unit-spelling' || mode === 'digraph')
+                                        ? (attempts >= 3 ? challenge?.context : challenge?.context?.replace(new RegExp(challenge?.word, 'gi'), '_____'))
+                                        : ((mode === 'syllable' || mode === 'schwa' || mode === 'vce')
+                                            ? (syllableStep === 0 ? `Word: ${challenge?.word}` : `Spell syllable ${syllableStep}`)
+                                            : (mode === 'contractions'
+                                                ? (attempts >= 3 ? challenge?.context : challenge?.context?.replace(new RegExp(challenge?.contraction, 'gi'), '_____'))
+                                                : (mode === 'dictation' ? "" : challenge?.context)
+                                            )
+                                        )
+                                    }
+                                </div>
+
+                                {mode !== 'teacher-curriculum' && (
+                                    <AnswerInput key={challenge?.word + historyIndex + restartTrigger} onResult={checkAnswer} hint={mode === 'story' ? "Type the next part..." : `Type the answer...`} />
+                                )}
+                                {mode === 'teacher-curriculum' && (
+                                    <button className="pro-btn" onClick={() => loadChallenge('teacher-curriculum')}>Generate Another Idea</button>
+                                )}
                             </>
                         )}
                     </div>
+                )}
+            </div>
 
-                    {/* Unit Selector for Unit Spelling */}
-                    <div style={{ marginTop: '20px', textAlign: 'center' }}>
-                        <label style={{ color: '#94a3b8', marginRight: '10px' }}>Current Unit:</label>
-                        <select
-                            value={unit}
-                            onChange={(e) => setUnit(Number(e.target.value))}
-                            style={{ padding: '5px', borderRadius: '5px', background: '#1e293b', color: 'white', border: '1px solid #475569' }}
-                        >
-                            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map(u => <option key={u} value={u}>Unit {u}</option>)}
-                        </select>
-                    </div>
-                </div>
-            ) : mode === 'games' ? (
-                <div className="glass-panel" style={{ maxWidth: '800px', width: '100%' }}>
-                    <h2 style={{ textAlign: 'center', marginBottom: '30px', color: '#f093fb' }}>GAME ROOM 🎮</h2>
-                    <div className="menu-grid">
-                        <button className="pro-btn" style={{ borderColor: '#f472b6', color: '#f472b6' }} onClick={() => setMode('whack-a-vowel')}>
-                            <span className="btn-icon">🔨</span> Whack-a-Vowel
-                        </button>
-                        <button className="pro-btn" style={{ borderColor: '#34d399', color: '#34d399' }} onClick={() => alert("Word Ninja Coming Soon!")}>
-                            <span className="btn-icon">⚔️</span> Word Ninja
-                        </button>
-                        <button className="pro-btn" style={{ borderColor: '#60a5fa', color: '#60a5fa' }} onClick={() => alert("Memory Match Coming Soon!")}>
-                            <span className="btn-icon">🧠</span> Memory Match
-                        </button>
-                    </div>
-                    <button className="pro-btn" style={{ marginTop: '20px' }} onClick={() => setMode('menu')}>⬅️ Back to Menu</button>
-                </div>
-            ) : mode === 'whack-a-vowel' ? (
-                <WhackAVowel onExit={() => setMode('games')} />
-            ) : (
-                <div className="activity-container glass-panel">
-                    <button className="retry-btn" onClick={() => loadChallenge(mode)}>
-                        <span>🔄</span> Retry
-                    </button>
-
-                    <div className="mode-title">
-                        {mode === 'digraph' && 'Sound Decoding'}
-                        {mode === 'spell' && 'Spelling Mastery'}
-                        {mode === 'unit-spelling' && `Unit ${unit} Spelling`}
-                        {mode === 'contractions' && 'Contraction Action'}
-                        {mode === 'dictation' && 'Sentence Dictation'}
-                        {mode === 'story' && 'Creative Reading'}
-                        {mode === 'teacher-curriculum' && 'Teacher Assistant'}
-                        {mode === 'teacher-curriculum' && 'Teacher Assistant'}
-                        {mode === 'syllable' && 'Syllable Savvy'}
-                        {mode === 'schwa' && 'Schwa Sound'}
-                        {mode === 'vce' && 'Magic E (VCE)'}
-                    </div>
-
-                    {loading ? (
-                        <div style={{ padding: '60px', fontSize: '1.5rem' }}>Initializing Mission...</div>
-                    ) : (
-                        <>
-                            {mode === 'story' || mode === 'teacher-curriculum' ? (
-                                <div className="story-box">{challenge?.starter}</div>
-                            ) : (
-                                <div className="challenge-text">
-                                    {mode === 'digraph' && challenge?.word?.replace(challenge?.missing, '_')}
-                                    {(mode === 'spell' || mode === 'unit-spelling') && (
-                                        attempts >= 3 ? challenge?.word : Array(challenge?.word?.length || 0).fill('•').join(' ')
-                                    )}
-                                    {(mode === 'syllable' || mode === 'schwa' || mode === 'vce') && (
-                                        syllableStep === 0
-                                            ? "How many syllables?"
-                                            : (
-                                                <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-                                                    {challenge?.syllables?.map((s: string, i: number) => (
-                                                        <span key={i} style={{
-                                                            textDecoration: i < syllableStep - 1 ? 'none' : 'underline',
-                                                            color: i < syllableStep - 1 ? '#4ade80' : 'white'
-                                                        }}>
-                                                            {i < syllableStep - 1 ? s : (i === syllableStep - 1 ? '???' : '...')}
-                                                        </span>
-                                                    ))}
-                                                </div>
-                                            )
-                                    )}
-                                    {mode === 'contractions' && (
-                                        attempts >= 3 ? challenge?.contraction : `${challenge?.word} -> ?`
-                                    )}
-                                    {mode === 'dictation' && "👂 Listen & Write"}
-                                </div>
-                            )}
-
-                            <div style={{ margin: '20px', color: '#94a3b8', fontSize: '1.2rem', textAlign: 'center' }}>
-                                {(mode === 'spell' || mode === 'unit-spelling' || mode === 'digraph')
-                                    ? (attempts >= 3 ? challenge?.context : challenge?.context?.replace(new RegExp(challenge?.word, 'gi'), '_____'))
-                                    : ((mode === 'syllable' || mode === 'schwa' || mode === 'vce')
-                                        ? (syllableStep === 0 ? `Word: ${challenge?.word}` : `Spell syllable ${syllableStep}`)
-                                        : (mode === 'contractions'
-                                            ? (attempts >= 3 ? challenge?.context : challenge?.context?.replace(new RegExp(challenge?.contraction, 'gi'), '_____'))
-                                            : (mode === 'dictation' ? "" : challenge?.context)
-                                        )
-                                    )
-                                }
-                            </div>
-
-                            {mode !== 'teacher-curriculum' && (
-                                <AnswerInput key={challenge?.word + historyIndex + restartTrigger} onResult={checkAnswer} hint={mode === 'story' ? "Type the next part..." : `Type the answer...`} />
-                            )}
-                            {mode === 'teacher-curriculum' && (
-                                <button className="pro-btn" onClick={() => loadChallenge('teacher-curriculum')}>Generate Another Idea</button>
-                            )}
-                        </>
-                    )}
+            {!['menu', 'games', 'whack-a-vowel'].includes(mode) && (
+                <div className="nav-dock">
+                    <button className="pro-btn" onClick={handlePrevious} disabled={historyIndex <= 0} style={{ opacity: historyIndex <= 0 ? 0.5 : 1 }}>⬅️ Prev</button>
+                    <button className="pro-btn" onClick={handleRestart}>🔄 Restart</button>
+                    <button className="pro-btn" onClick={handleHome}>🏠 Home</button>
+                    <button className="pro-btn" onClick={handleNext}>Next ➡️</button>
                 </div>
             )}
         </div>
-
-        {!['menu', 'games', 'whack-a-vowel'].includes(mode) && (
-            <div className="nav-dock">
-                <button className="pro-btn" onClick={handlePrevious} disabled={historyIndex <= 0} style={{ opacity: historyIndex <= 0 ? 0.5 : 1 }}>⬅️ Prev</button>
-                <button className="pro-btn" onClick={handleRestart}>🔄 Restart</button>
-                <button className="pro-btn" onClick={handleHome}>🏠 Home</button>
-                <button className="pro-btn" onClick={handleNext}>Next ➡️</button>
-            </div>
-        )}
-    </div>
-);
+    );
 };
 
 class ReactErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error: any }> {
