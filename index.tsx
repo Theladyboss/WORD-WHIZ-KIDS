@@ -825,7 +825,7 @@ const App = () => {
                             </div>
                         ))}
                     </div>
-                    <div className="footer-brand">Created by © FREEDOMAi SOLUTIONS LLC | v2.1 (Puck)</div>
+                    <div className="footer-brand">Created by © FREEDOMAi SOLUTIONS LLC | v2.2 (Panther)</div>
                 </div>
             </div>
         );
@@ -842,7 +842,7 @@ const App = () => {
                 <div className="scrollable-content centered-content">
                     <div className="glass-panel" style={{ maxWidth: '500px', width: '90%', textAlign: 'center' }}>
                         <div style={{ fontSize: '4rem', marginBottom: '20px' }}>⏱️</div>
-                        <h2 style={{ fontSize: '1.5rem', marginBottom: '10px', color: '#e2e8f0' }}>Hi {student.name}!</h2>
+                        <h2 style={{ fontSize: '1.5rem', marginBottom: '10px', color: '#e2e8f0' }}>Hi {student?.name}!</h2>
                         <p style={{ fontSize: '1.1rem', color: '#94a3b8', marginBottom: '30px' }}>How long do you want to play today?</p>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -867,7 +867,7 @@ const App = () => {
             <div className="top-bar">
                 <div className="app-title" onClick={handleHome} style={{ cursor: 'pointer' }}>WORD WHIZ KIDS</div>
                 <button className="pro-btn" style={{ padding: '5px 15px', fontSize: '0.8rem', marginRight: '10px' }} onClick={() => setLanguage(l => l === 'en' ? 'es' : 'en')}>{language === 'en' ? '🇪🇸 ES' : '🇺🇸 EN'}</button>
-                <div className="mission-bar">Mission: {student.name}</div>
+                <div className="mission-bar">Mission: {student?.name || "Guest"}</div>
                 <div className="stats-box">
                     <div className="stat-item">⏱️ {formatTime(timer)}</div>
                     <div className="stat-item">🏆 {cuudoos}</div>
