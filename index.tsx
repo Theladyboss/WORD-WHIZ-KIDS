@@ -253,6 +253,7 @@ const TeacherChat = ({ onClose }: { onClose: () => void }) => {
         setInput("");
         setLoading(true);
         try {
+            if (!ai) throw new Error("AI not available");
             const resp = await ai.models.generateContent({
                 model: 'gemini-2.0-flash-exp',
                 contents: `You are a helpful Teaching Assistant for 2nd Grade. Answer briefly and helpfully. History: ${JSON.stringify(newMsgs)}. User: ${input}`
@@ -384,23 +385,12 @@ const WhackAVowel = ({ onExit }: { onExit: () => void }) => {
 };
 
 const App = () => {
-    if (!API_KEY) {
-        return (
-            <div style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                height: '100vh', color: '#f8fafc', textAlign: 'center', padding: '20px'
-            }}>
-                <h1 style={{ fontSize: '2rem', marginBottom: '20px' }}>⚠️ Configuration Error</h1>
-                <p style={{ fontSize: '1.2rem', maxWidth: '600px', lineHeight: '1.6' }}>
-                    The Gemini API Key is missing. <br />
-                    Please ensure <code>VITE_GEMINI_API_KEY</code> is set in Netlify Environment Variables.
-                </p>
-                <div style={{ marginTop: '20px', padding: '10px', background: '#334155', borderRadius: '8px', fontSize: '0.9rem', color: '#cbd5e1' }}>
-                    Debug Info: Mode={import.meta.env.MODE}
-                </div>
-            </div>
-        );
-    }
+    // Non-blocking check for API Key
+    useEffect(() => {
+        if (!API_KEY) {
+            console.warn("API Key missing - AI features will be disabled.");
+        }
+    }, []);
 
     const [student, setStudent] = useState<any>(null);
     const [mode, setMode] = useState<'menu' | 'digraph' | 'spell' | 'story' | 'unit-spelling' | 'teacher-curriculum' | 'syllable' | 'schwa' | 'vce' | 'games' | 'whack-a-vowel'>('menu');
