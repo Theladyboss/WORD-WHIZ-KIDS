@@ -1,584 +1,536 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Word Whiz Kids Pro</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-dark: #020617;
-            --bg-panel: #1e293b;
-            --accent: #3b82f6;
-            --accent-glow: rgba(59, 130, 246, 0.5);
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --glass-bg: rgba(30, 41, 59, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.1);
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Montserrat', sans-serif;
-            background: var(--bg-dark);
-            color: var(--text-main);
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
-        }
-
-        .gradient-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at 50% 50%, #172554 0%, #020617 100%);
-            z-index: -2;
-        }
-
-        .particle {
-            position: fixed;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, rgba(0, 0, 0, 0) 70%);
-            animation: float 20s infinite ease-in-out;
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        .p1 {
-            width: 80vh;
-            height: 80vh;
-            top: -20vh;
-            left: -20vh;
-            animation-duration: 30s;
-        }
-
-        .p2 {
-            width: 60vh;
-            height: 60vh;
-            bottom: -10vh;
-            right: -10vh;
-            animation-delay: -5s;
-            background: radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
-        }
-
-        @keyframes float {
-            0% {
-                transform: translate(0, 0);
-            }
-
-            50% {
-                transform: translate(40px, -60px);
-            }
-
-            100% {
-                transform: translate(0, 0);
-            }
-        }
-
-        #root {
-            height: 100%;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .main-stage {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
-
-        .top-bar {
-            height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 40px;
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--glass-border);
-            flex-shrink: 0;
-        }
-
-        .app-title {
-            font-weight: 800;
-            font-size: 1.5rem;
-            letter-spacing: 1px;
-            background: linear-gradient(to right, #60a5fa, #c084fc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .mission-bar {
-            flex: 1;
-            text-align: center;
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #e2e8f0;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .stats-box {
-            display: flex;
-            gap: 20px;
-            font-weight: 600;
-            color: var(--accent);
-            font-size: 1.1rem;
-        }
-
-        .scrollable-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-        }
-
-        .centered-content {
-            align-items: center;
-            justify-content: center;
-        }
-
-        .roster-grid {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding-bottom: 40px;
-        }
-
-        .student-card {
-            width: 180px;
-            height: 180px;
-            border-radius: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: transform 0.2s, filter 0.2s;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .student-card:hover {
-            transform: translateY(-8px);
-            filter: brightness(1.1);
-        }
-
-        .student-card:active {
-            transform: translateY(-2px);
-            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.3) !important;
-        }
-
-        .card-icon {
-            font-size: 3rem;
-            margin-bottom: 10px;
-            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        .card-name {
-            font-size: 1.2rem;
-            font-weight: 800;
-            color: white;
-            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-            text-align: center;
-            width: 100%;
-            padding: 0 10px;
-        }
-
-        .glass-panel {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(12px);
-            margin: 20px;
-        }
-
-        .pro-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--glass-border);
-            color: var(--text-main);
-            padding: 15px 30px;
-            border-radius: 50px;
-            font-family: inherit;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            white-space: nowrap;
-        }
-
-        .pro-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: var(--accent);
-        }
-
-        .pro-btn.active {
-            background: var(--accent);
-            border-color: var(--accent);
-            box-shadow: 0 0 20px var(--accent-glow);
-        }
-
-        .btn-accent {
-            border-color: var(--accent);
-        }
-
-        .activity-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            max-width: 1000px;
-            width: 100%;
-            position: relative;
-        }
-
-        .mode-title {
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--text-muted);
-            margin-bottom: 20px;
-        }
-
-        .challenge-text {
-            font-size: 4rem;
-            font-weight: 800;
-            margin: 20px 0;
-            text-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
-            text-align: center;
-        }
-
-        .story-box {
-            font-size: 1.5rem;
-            line-height: 1.6;
-            text-align: center;
-            max-width: 800px;
-            color: #e2e8f0;
-        }
-
-        .mic-btn {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: var(--accent);
-            border: none;
-            font-size: 3rem;
-            color: white;
-            cursor: pointer;
-            box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
-            transition: all 0.2s;
-            margin-top: 30px;
-            flex-shrink: 0;
-        }
-
-        .mic-btn.listening {
-            animation: pulse 1.5s infinite;
-            background: #ef4444;
-        }
-
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
-            }
-
-            70% {
-                box-shadow: 0 0 0 20px rgba(239, 68, 68, 0);
-            }
-
-            100% {
-                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
-            }
-        }
-
-        .feedback-overlay-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(2, 6, 23, 0.8);
-            backdrop-filter: blur(8px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .feedback-content {
-            background: rgba(30, 41, 59, 0.9);
-            padding: 50px;
-            border-radius: 24px;
-            border: 4px solid var(--accent);
-            text-align: center;
-            max-width: 700px;
-            width: 90%;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
-            animation: zoomIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        @keyframes zoomIn {
-            from {
-                transform: scale(0.8);
-                opacity: 0;
-            }
-
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        .nav-dock {
-            height: 90px;
-            background: rgba(2, 6, 23, 0.9);
-            border-top: 1px solid var(--glass-border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            flex-shrink: 0;
-            padding: 0 20px;
-            z-index: 10;
-        }
-
-        .confetti {
-            position: absolute;
-            top: 0;
-            width: 10px;
-            height: 10px;
-            animation: fall linear forwards;
-            z-index: 99;
-        }
-
-        @keyframes fall {
-            to {
-                transform: translateY(100vh) rotate(720deg);
-            }
-        }
-
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            width: 100%;
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        .retry-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            color: var(--text-muted);
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: 0.2s;
-        }
-
-        .retry-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-        }
-
-        .footer-brand {
-            text-align: center;
-            color: var(--text-muted);
-            padding: 20px;
-            font-size: 0.8rem;
-            letter-spacing: 1px;
-        }
-
-        @media (max-width: 768px) {
-            body {
-                overflow: hidden;
-                position: fixed;
-                width: 100%;
-                height: 100%;
-            }
-
-            .main-stage {
-                height: 100vh;
-                height: 100dvh;
-            }
-
-            .top-bar {
-                height: 80px;
-                padding: 10px 15px;
-                z-index: 100;
-                position: relative;
-            }
-
-            .app-title {
-                font-size: 1.3rem;
-            }
-
-            .mission-bar {
-                display: block;
-                font-size: 1rem;
-                margin: 10px 0;
-            }
-
-            .stats-box {
-                display: flex !important;
-                font-size: 1.2rem;
-                gap: 15px;
-            }
-
-            .scrollable-content {
-                padding: 20px;
-                -webkit-overflow-scrolling: touch;
-            }
-
-            .roster-grid {
-                gap: 15px;
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                padding-bottom: 120px;
-                width: 100%;
-            }
-
-            .student-card {
-                width: 100%;
-                height: auto;
-                aspect-ratio: 1;
-                border-radius: 20px;
-            }
-
-            .card-icon {
-                font-size: 3.5rem;
-                margin-bottom: 10px;
-            }
-
-            .card-name {
-                font-size: 1.1rem;
-            }
-
-            .menu-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-
-            .pro-btn {
-                padding: 20px;
-                font-size: 1.2rem;
-                border-radius: 15px;
-                justify-content: flex-start;
-                padding-left: 30px;
-            }
-
-            .btn-icon {
-                font-size: 1.5rem;
-                margin-right: 15px;
-            }
-
-            select {
-                font-size: 1.2rem !important;
-                padding: 15px !important;
-                width: 100%;
-                margin-top: 10px;
-            }
-
-            .glass-panel {
-                margin: 10px 0;
-                padding: 25px;
-                width: 100%;
-                border-radius: 20px;
-            }
-
-            .challenge-text {
-                font-size: 3rem;
-                margin: 20px 0;
-                line-height: 1.2;
-            }
-
-            .mic-btn {
-                width: 100px;
-                height: 100px;
-                font-size: 3.5rem;
-                margin-top: 20px;
-            }
-
-            .nav-dock {
-                height: 90px;
-                padding: 10px;
-                gap: 10px;
-                overflow-x: auto;
-                justify-content: space-between;
-            }
-
-            .nav-dock .pro-btn {
-                padding: 0 20px;
-                height: 60px;
-                font-size: 1rem;
-                flex: 1;
-                justify-content: center;
-                padding-left: 20px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .roster-grid {
-                gap: 8px;
-            }
-
-            .student-card {
-                border-radius: 15px;
-            }
-
-            .card-icon {
-                font-size: 2.5rem;
-            }
-
-            .card-name {
-                font-size: 0.9rem;
-            }
-
-            .challenge-text {
-                font-size: 2rem;
-            }
-
-            .story-box {
-                font-size: 1.1rem;
-            }
-
-            .feedback-content {
-                padding: 20px;
-                width: 90%;
-            }
-        }
-    </style>
+background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, rgba(0, 0, 0, 0) 70%);
+animation: float 20s infinite ease-in-out;
+z-index: -1;
+pointer-events: none;
+}
+
+.p1 {
+width: 80vh;
+height: 80vh;
+top: -20vh;
+left: -20vh;
+animation-duration: 30s;
+}
+
+.p2 {
+width: 60vh;
+height: 60vh;
+bottom: -10vh;
+right: -10vh;
+animation-delay: -5s;
+background: radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+}
+
+@keyframes float {
+0% {
+transform: translate(0, 0);
+}
+
+50% {
+transform: translate(40px, -60px);
+}
+
+100% {
+transform: translate(0, 0);
+}
+}
+
+#root {
+height: 100%;
+width: 100%;
+display: flex;
+flex-direction: column;
+}
+
+.main-stage {
+display: flex;
+flex-direction: column;
+width: 100%;
+height: 100%;
+overflow: hidden;
+}
+
+.top-bar {
+height: 80px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 0 40px;
+background: rgba(15, 23, 42, 0.8);
+backdrop-filter: blur(10px);
+border-bottom: 1px solid var(--glass-border);
+flex-shrink: 0;
+}
+
+.app-title {
+font-weight: 800;
+font-size: 1.5rem;
+letter-spacing: 1px;
+background: linear-gradient(to right, #60a5fa, #c084fc);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+}
+
+.mission-bar {
+flex: 1;
+text-align: center;
+font-size: 1.2rem;
+font-weight: 600;
+color: #e2e8f0;
+text-transform: uppercase;
+letter-spacing: 1px;
+}
+
+.stats-box {
+display: flex;
+gap: 20px;
+font-weight: 600;
+color: var(--accent);
+font-size: 1.1rem;
+}
+
+.scrollable-content {
+flex: 1;
+overflow-y: auto;
+padding: 20px;
+display: flex;
+flex-direction: column;
+width: 100%;
+}
+
+.centered-content {
+align-items: center;
+justify-content: center;
+}
+
+.roster-grid {
+display: flex;
+flex-wrap: wrap;
+justify-content: center;
+gap: 20px;
+width: 100%;
+max-width: 1200px;
+margin: 0 auto;
+padding-bottom: 40px;
+}
+
+.student-card {
+width: 180px;
+height: 180px;
+border-radius: 20px;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+transition: transform 0.2s, filter 0.2s;
+border: 2px solid rgba(255, 255, 255, 0.2);
+position: relative;
+overflow: hidden;
+}
+
+.student-card:hover {
+transform: translateY(-8px);
+filter: brightness(1.1);
+}
+
+.student-card:active {
+transform: translateY(-2px);
+box-shadow: 0 2px 0 rgba(0, 0, 0, 0.3) !important;
+}
+
+.card-icon {
+font-size: 3rem;
+margin-bottom: 10px;
+text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.card-name {
+font-size: 1.2rem;
+font-weight: 800;
+color: white;
+text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+text-align: center;
+width: 100%;
+padding: 0 10px;
+}
+
+.glass-panel {
+background: var(--glass-bg);
+border: 1px solid var(--glass-border);
+border-radius: 16px;
+padding: 30px;
+box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+backdrop-filter: blur(12px);
+margin: 20px;
+}
+
+.pro-btn {
+background: rgba(255, 255, 255, 0.05);
+border: 1px solid var(--glass-border);
+color: var(--text-main);
+padding: 15px 30px;
+border-radius: 50px;
+font-family: inherit;
+font-weight: 600;
+font-size: 1rem;
+cursor: pointer;
+transition: all 0.2s;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 10px;
+white-space: nowrap;
+}
+
+.pro-btn:hover {
+background: rgba(255, 255, 255, 0.1);
+border-color: var(--accent);
+}
+
+.pro-btn.active {
+background: var(--accent);
+border-color: var(--accent);
+box-shadow: 0 0 20px var(--accent-glow);
+}
+
+.btn-accent {
+border-color: var(--accent);
+}
+
+.activity-container {
+flex: 1;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+max-width: 1000px;
+width: 100%;
+position: relative;
+}
+
+.mode-title {
+font-size: 0.9rem;
+text-transform: uppercase;
+letter-spacing: 2px;
+color: var(--text-muted);
+margin-bottom: 20px;
+}
+
+.challenge-text {
+font-size: 4rem;
+font-weight: 800;
+margin: 20px 0;
+text-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
+text-align: center;
+}
+
+.story-box {
+font-size: 1.5rem;
+line-height: 1.6;
+text-align: center;
+max-width: 800px;
+color: #e2e8f0;
+}
+
+.mic-btn {
+width: 100px;
+height: 100px;
+border-radius: 50%;
+background: var(--accent);
+border: none;
+font-size: 3rem;
+color: white;
+cursor: pointer;
+box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+transition: all 0.2s;
+margin-top: 30px;
+flex-shrink: 0;
+}
+
+.mic-btn.listening {
+animation: pulse 1.5s infinite;
+background: #ef4444;
+}
+
+@keyframes pulse {
+0% {
+box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+}
+
+70% {
+box-shadow: 0 0 0 20px rgba(239, 68, 68, 0);
+}
+
+100% {
+box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+}
+}
+
+.feedback-overlay-container {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: rgba(2, 6, 23, 0.8);
+backdrop-filter: blur(8px);
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 1000;
+}
+
+.feedback-content {
+background: rgba(30, 41, 59, 0.9);
+padding: 50px;
+border-radius: 24px;
+border: 4px solid var(--accent);
+text-align: center;
+max-width: 700px;
+width: 90%;
+box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+animation: zoomIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes zoomIn {
+from {
+transform: scale(0.8);
+opacity: 0;
+}
+
+to {
+transform: scale(1);
+opacity: 1;
+}
+}
+
+.nav-dock {
+height: 90px;
+background: rgba(2, 6, 23, 0.9);
+border-top: 1px solid var(--glass-border);
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 20px;
+flex-shrink: 0;
+padding: 0 20px;
+z-index: 10;
+}
+
+.confetti {
+position: absolute;
+top: 0;
+width: 10px;
+height: 10px;
+animation: fall linear forwards;
+z-index: 99;
+}
+
+@keyframes fall {
+to {
+transform: translateY(100vh) rotate(720deg);
+}
+}
+
+.menu-grid {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 20px;
+width: 100%;
+max-width: 900px;
+margin: 0 auto;
+}
+
+.retry-btn {
+position: absolute;
+top: 20px;
+right: 20px;
+background: rgba(255, 255, 255, 0.1);
+border: none;
+color: var(--text-muted);
+padding: 10px 20px;
+border-radius: 8px;
+cursor: pointer;
+font-weight: 600;
+display: flex;
+align-items: center;
+gap: 8px;
+transition: 0.2s;
+}
+
+.retry-btn:hover {
+background: rgba(255, 255, 255, 0.2);
+color: white;
+}
+
+.footer-brand {
+text-align: center;
+color: var(--text-muted);
+padding: 20px;
+font-size: 0.8rem;
+letter-spacing: 1px;
+}
+
+@media (max-width: 768px) {
+body {
+overflow: hidden;
+position: fixed;
+width: 100%;
+height: 100%;
+}
+
+.main-stage {
+height: 100vh;
+height: 100dvh;
+}
+
+.top-bar {
+height: 80px;
+padding: 10px 15px;
+z-index: 100;
+position: relative;
+}
+
+.app-title {
+font-size: 1.3rem;
+}
+
+.mission-bar {
+display: block;
+font-size: 1rem;
+margin: 10px 0;
+}
+
+.stats-box {
+display: flex !important;
+font-size: 1.2rem;
+gap: 15px;
+}
+
+.scrollable-content {
+padding: 20px;
+-webkit-overflow-scrolling: touch;
+}
+
+.roster-grid {
+gap: 15px;
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+padding-bottom: 120px;
+width: 100%;
+}
+
+.student-card {
+width: 100%;
+height: auto;
+aspect-ratio: 1;
+border-radius: 20px;
+}
+
+.card-icon {
+font-size: 3.5rem;
+margin-bottom: 10px;
+}
+
+.card-name {
+font-size: 1.1rem;
+}
+
+.menu-grid {
+grid-template-columns: 1fr;
+gap: 20px;
+}
+
+.pro-btn {
+padding: 20px;
+font-size: 1.2rem;
+border-radius: 15px;
+justify-content: flex-start;
+padding-left: 30px;
+}
+
+.btn-icon {
+font-size: 1.5rem;
+margin-right: 15px;
+}
+
+select {
+font-size: 1.2rem !important;
+padding: 15px !important;
+width: 100%;
+margin-top: 10px;
+}
+
+.glass-panel {
+margin: 10px 0;
+padding: 25px;
+width: 100%;
+border-radius: 20px;
+}
+
+.challenge-text {
+font-size: 3rem;
+margin: 20px 0;
+line-height: 1.2;
+}
+
+.mic-btn {
+width: 100px;
+height: 100px;
+font-size: 3.5rem;
+margin-top: 20px;
+}
+
+.nav-dock {
+height: 90px;
+padding: 10px;
+gap: 10px;
+overflow-x: auto;
+justify-content: space-between;
+}
+
+.nav-dock .pro-btn {
+padding: 0 20px;
+height: 60px;
+font-size: 1rem;
+flex: 1;
+justify-content: center;
+padding-left: 20px;
+}
+}
+
+@media (max-width: 480px) {
+.roster-grid {
+gap: 8px;
+}
+
+.student-card {
+border-radius: 15px;
+}
+
+.card-icon {
+font-size: 2.5rem;
+}
+
+.card-name {
+font-size: 0.9rem;
+}
+
+.challenge-text {
+font-size: 2rem;
+}
+
+.story-box {
+font-size: 1.1rem;
+}
+
+.feedback-content {
+padding: 20px;
+width: 90%;
+}
+}
+</style>
 </head>
 
 <body>
