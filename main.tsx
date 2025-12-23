@@ -439,6 +439,9 @@ const App = () => {
                 }
             });
         }
+        // Hide loading overlay when App mounts
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay) overlay.style.display = 'none';
     }, []);
 
     const handleSessionStart = async (minutes: number) => {
@@ -1117,10 +1120,7 @@ const initApp = () => {
             </ReactErrorBoundary>
         );
 
-        // Hide overlay immediately if possible, or let the effect handle it
-        const overlay = document.getElementById('loading-overlay');
-        if (overlay) overlay.style.display = 'none';
-
+        // Overlay will be hidden by App component when ready
     } catch (e: any) {
         console.error("App Crash", e);
         const overlay = document.getElementById('loading-overlay');

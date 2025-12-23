@@ -33,7 +33,6 @@
             overflow: hidden;
         }
 
-        /* --- Abstract Animated Background --- */
         .gradient-bg {
             position: fixed;
             top: 0;
@@ -97,10 +96,8 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            /* Prevent body scroll */
         }
 
-        /* --- Professional Header --- */
         .top-bar {
             height: 80px;
             display: flex;
@@ -111,7 +108,6 @@
             backdrop-filter: blur(10px);
             border-bottom: 1px solid var(--glass-border);
             flex-shrink: 0;
-            /* Prevents header from shrinking */
         }
 
         .app-title {
@@ -141,12 +137,9 @@
             font-size: 1.1rem;
         }
 
-        /* --- Main Content Area (Scrollable) --- */
         .scrollable-content {
             flex: 1;
-            /* Takes all available space between header and footer */
             overflow-y: auto;
-            /* Allows scrolling within this area only */
             padding: 20px;
             display: flex;
             flex-direction: column;
@@ -158,7 +151,6 @@
             justify-content: center;
         }
 
-        /* --- Student Roster (Cards) --- */
         .roster-grid {
             display: flex;
             flex-wrap: wrap;
@@ -211,7 +203,6 @@
             padding: 0 10px;
         }
 
-        /* --- Glass Panel & Buttons --- */
         .glass-panel {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
@@ -255,7 +246,6 @@
             border-color: var(--accent);
         }
 
-        /* --- Activity Area --- */
         .activity-container {
             flex: 1;
             display: flex;
@@ -325,7 +315,6 @@
             }
         }
 
-        /* --- Feedback Overlay --- */
         .feedback-overlay-container {
             position: fixed;
             top: 0;
@@ -364,7 +353,6 @@
             }
         }
 
-        /* --- Nav Dock (Pinned to Bottom) --- */
         .nav-dock {
             height: 90px;
             background: rgba(2, 6, 23, 0.9);
@@ -374,7 +362,6 @@
             justify-content: center;
             gap: 20px;
             flex-shrink: 0;
-            /* Prevents shrink */
             padding: 0 20px;
             z-index: 10;
         }
@@ -469,14 +456,11 @@
                 gap: 15px;
             }
 
-            /* Force show stats */
-
             .scrollable-content {
                 padding: 20px;
                 -webkit-overflow-scrolling: touch;
             }
 
-            /* Roster Grid - Big & Bold */
             .roster-grid {
                 gap: 15px;
                 display: grid;
@@ -490,7 +474,6 @@
                 height: auto;
                 aspect-ratio: 1;
                 border-radius: 20px;
-                /* Softer corners */
             }
 
             .card-icon {
@@ -502,21 +485,16 @@
                 font-size: 1.1rem;
             }
 
-            /* Menu Grid - Full Width Stack */
             .menu-grid {
                 grid-template-columns: 1fr;
-                /* Stack buttons vertically */
                 gap: 20px;
             }
 
             .pro-btn {
                 padding: 20px;
-                /* Much larger touch target */
                 font-size: 1.2rem;
-                /* Bigger text */
                 border-radius: 15px;
                 justify-content: flex-start;
-                /* Align text left for list look */
                 padding-left: 30px;
             }
 
@@ -525,7 +503,6 @@
                 margin-right: 15px;
             }
 
-            /* Unit Selector - Big Touch Target */
             select {
                 font-size: 1.2rem !important;
                 padding: 15px !important;
@@ -553,27 +530,21 @@
                 margin-top: 20px;
             }
 
-            /* Nav Dock - Taller & Bigger Buttons */
             .nav-dock {
                 height: 90px;
                 padding: 10px;
                 gap: 10px;
                 overflow-x: auto;
                 justify-content: space-between;
-                /* Spread them out */
             }
 
             .nav-dock .pro-btn {
                 padding: 0 20px;
                 height: 60px;
-                /* Fixed tall height */
                 font-size: 1rem;
                 flex: 1;
-                /* Equal width */
                 justify-content: center;
-                /* Center text */
                 padding-left: 20px;
-                /* Reset padding */
             }
         }
 
@@ -608,42 +579,57 @@
             }
         }
     </style>
-    <!-- Import map removed for production build -->
 </head>
 
-overlay.innerHTML = '<div style="color:red;text-align:left;padding:20px;font-size:14px;white-space:pre-wrap;">' +
-    '<h1>CRITICAL ERROR</h1>' +
-    '<p><strong>Message:</strong> ' + msg + '</p>' +
-    '<p><strong>Location:</strong> ' + line + ':' + col + '</p>' +
-    '<p><strong>Stack:</strong> ' + (error ? error.stack : 'N/A') + '</p>' +
-    '</div>';
-overlay.style.alignItems = 'flex-start';
-overlay.style.overflow = 'auto';
-}
-};
-
-window.addEventListener('unhandledrejection', function (event) {
-var overlay = document.getElementById('loading-overlay');
-if (overlay) {
-overlay.innerHTML = '<div style="color:red;text-align:left;padding:20px;font-size:14px;white-space:pre-wrap;">' +
-    '<h1>UNHANDLED PROMISE REJECTION</h1>' +
-    '<p><strong>Reason:</strong> ' + event.reason + '</p>' +
-    '</div>';
-overlay.style.alignItems = 'flex-start';
-overlay.style.overflow = 'auto';
-}
-});
-
-window.onload = function () {
-// Fallback removal
-setTimeout(() => {
-const overlay = document.getElementById('loading-overlay');
-if (overlay && overlay.innerHTML.indexOf('CRITICAL ERROR') === -1 && overlay.innerHTML.indexOf('UNHANDLED PROMISE
-REJECTION') === -1) overlay.style.display = 'none';
-}, 5000);
-}
-</script>
-<script type="module" src="/index.tsx"></script>
+<body>
+    <div class="gradient-bg">
+        <div class="particle p1"></div>
+        <div class="particle p2"></div>
+    </div>
+    <div id="loading-overlay"
+        style="position:fixed;top:0;left:0;width:100%;height:100%;background:#020617;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;font-size:2rem;font-family:sans-serif;">
+        <div style="margin-bottom: 20px;">Loading Word Whiz Kids...</div>
+        <button
+            onclick="if(confirm('Reset App?')){localStorage.clear();if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(rs){for(let r of rs)r.unregister()})};window.location.reload(true);}"
+            style="padding:10px 20px;font-size:1rem;background:#ef4444;color:white;border:none;border-radius:5px;cursor:pointer;">
+            Reset / Fix App
+        </button>
+    </div>
+    <div id="root"></div>
+    <script>
+        window.onerror = function (msg, url, line, col, error) {
+            var overlay = document.getElementById('loading-overlay');
+            if (overlay) {
+                overlay.innerHTML = '<div style="color:red;text-align:left;padding:20px;font-size:14px;white-space:pre-wrap;">' +
+                    '<h1>CRITICAL ERROR</h1>' +
+                    '<p><strong>Message:</strong> ' + msg + '</p>' +
+                    '<p><strong>Location:</strong> ' + line + ':' + col + '</p>' +
+                    '<p><strong>Stack:</strong> ' + (error ? error.stack : 'N/A') + '</p>' +
+                    '</div>';
+                overlay.style.alignItems = 'flex-start';
+                overlay.style.overflow = 'auto';
+            }
+        };
+        window.addEventListener('unhandledrejection', function (event) {
+            var overlay = document.getElementById('loading-overlay');
+            if (overlay) {
+                overlay.innerHTML = '<div style="color:red;text-align:left;padding:20px;font-size:14px;white-space:pre-wrap;">' +
+                    '<h1>UNHANDLED PROMISE REJECTION</h1>' +
+                    '<p><strong>Reason:</strong> ' + event.reason + '</p>' +
+                    '</div>';
+                overlay.style.alignItems = 'flex-start';
+                overlay.style.overflow = 'auto';
+            }
+        });
+        window.onload = function () {
+            // Fallback removal
+            setTimeout(() => {
+                const overlay = document.getElementById('loading-overlay');
+                if (overlay && overlay.innerHTML.indexOf('CRITICAL ERROR') === -1 && overlay.innerHTML.indexOf('UNHANDLED PROMISE REJECTION') === -1) overlay.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+    <script type="module" src="/main.tsx?v=2.4"></script>
 </body>
 
 </html>
