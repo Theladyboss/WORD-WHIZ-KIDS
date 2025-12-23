@@ -796,7 +796,6 @@ const App = () => {
             <div className="main-stage">
                 <div className="top-bar">
                     <div className="app-title">WORD WHIZ KIDS</div>
-                    <img src="/panther_logo.png" alt="Panther Logo" style={{ height: '50px', width: 'auto' }} />
                 </div>
                 {lockMode !== 'none' && (
                     <PinPad
@@ -1083,10 +1082,10 @@ class ReactErrorBoundary extends React.Component<{ children: React.ReactNode }, 
     render() {
         if (this.state.hasError) {
             return (
-                <div style={{ padding: '20px', color: 'white', fontFamily: 'sans-serif' }}>
+                <div style={{ padding: '20px', color: 'white', fontFamily: 'sans-serif', background: '#ef4444', position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 10000 }}>
                     <h1>⚠️ Something went wrong.</h1>
                     <p>Please refresh the page.</p>
-                    <details style={{ marginTop: '20px', whiteSpace: 'pre-wrap', color: '#f87171' }}>
+                    <details style={{ marginTop: '20px', whiteSpace: 'pre-wrap', color: 'white' }}>
                         <summary>Error Details</summary>
                         {this.state.error?.toString()}
                     </details>
