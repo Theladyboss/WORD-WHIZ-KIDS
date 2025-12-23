@@ -611,52 +611,39 @@
     <!-- Import map removed for production build -->
 </head>
 
-<body>
-    <div class="gradient-bg">
-        <div class="particle p1"></div>
-        <div class="particle p2"></div>
-    </div>
-    <div id="loading-overlay"
-        style="position:fixed;top:0;left:0;width:100%;height:100%;background:#020617;z-index:9999;display:flex;align-items:center;justify-content:center;color:white;font-size:2rem;font-family:sans-serif;">
-        Loading...
-    </div>
-    <div id="root"></div>
-    <script>
-        window.onerror = function (msg, url, line, col, error) {
-            var overlay = document.getElementById('loading-overlay');
-            if (overlay) {
-                overlay.innerHTML = '<div style="color:red;text-align:left;padding:20px;font-size:14px;white-space:pre-wrap;">' +
-                    '<h1>CRITICAL ERROR</h1>' +
-                    '<p><strong>Message:</strong> ' + msg + '</p>' +
-                    '<p><strong>Location:</strong> ' + line + ':' + col + '</p>' +
-                    '<p><strong>Stack:</strong> ' + (error ? error.stack : 'N/A') + '</p>' +
-                    '</div>';
-                overlay.style.alignItems = 'flex-start';
-                overlay.style.overflow = 'auto';
-            }
-        };
+overlay.innerHTML = '<div style="color:red;text-align:left;padding:20px;font-size:14px;white-space:pre-wrap;">' +
+    '<h1>CRITICAL ERROR</h1>' +
+    '<p><strong>Message:</strong> ' + msg + '</p>' +
+    '<p><strong>Location:</strong> ' + line + ':' + col + '</p>' +
+    '<p><strong>Stack:</strong> ' + (error ? error.stack : 'N/A') + '</p>' +
+    '</div>';
+overlay.style.alignItems = 'flex-start';
+overlay.style.overflow = 'auto';
+}
+};
 
-        window.addEventListener('unhandledrejection', function (event) {
-            var overlay = document.getElementById('loading-overlay');
-            if (overlay) {
-                overlay.innerHTML = '<div style="color:red;text-align:left;padding:20px;font-size:14px;white-space:pre-wrap;">' +
-                    '<h1>UNHANDLED PROMISE REJECTION</h1>' +
-                    '<p><strong>Reason:</strong> ' + event.reason + '</p>' +
-                    '</div>';
-                overlay.style.alignItems = 'flex-start';
-                overlay.style.overflow = 'auto';
-            }
-        });
+window.addEventListener('unhandledrejection', function (event) {
+var overlay = document.getElementById('loading-overlay');
+if (overlay) {
+overlay.innerHTML = '<div style="color:red;text-align:left;padding:20px;font-size:14px;white-space:pre-wrap;">' +
+    '<h1>UNHANDLED PROMISE REJECTION</h1>' +
+    '<p><strong>Reason:</strong> ' + event.reason + '</p>' +
+    '</div>';
+overlay.style.alignItems = 'flex-start';
+overlay.style.overflow = 'auto';
+}
+});
 
-        window.onload = function () {
-            // Fallback removal
-            setTimeout(() => {
-                const overlay = document.getElementById('loading-overlay');
-                if (overlay && overlay.innerHTML.indexOf('CRITICAL ERROR') === -1 && overlay.innerHTML.indexOf('UNHANDLED PROMISE REJECTION') === -1) overlay.style.display = 'none';
-            }, 5000);
-        }
-    </script>
-    <script type="module" src="/index.tsx"></script>
+window.onload = function () {
+// Fallback removal
+setTimeout(() => {
+const overlay = document.getElementById('loading-overlay');
+if (overlay && overlay.innerHTML.indexOf('CRITICAL ERROR') === -1 && overlay.innerHTML.indexOf('UNHANDLED PROMISE
+REJECTION') === -1) overlay.style.display = 'none';
+}, 5000);
+}
+</script>
+<script type="module" src="/index.tsx"></script>
 </body>
 
 </html>

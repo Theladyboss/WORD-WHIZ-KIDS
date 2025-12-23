@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+console.log("Index.tsx is executing...");
 import React, { useState, useEffect, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import { GoogleGenAI, Modality } from "@google/genai";
