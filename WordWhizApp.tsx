@@ -128,14 +128,19 @@ const STUDENTS = [
     { id: 5, name: "Desmond", icon: "🛡️", color: "#8b5cf6", pin: "205" },  // Violet
     { id: 6, name: "James", icon: "🐸", color: "#06b6d4", pin: "206" },    // Cyan
     { id: 7, name: "Ana", icon: "🌟", color: "#ec4899", pin: "207" },      // Pink
-    { id: 8, name: "Teacher", icon: "🎓", color: "#64748b", pin: "1234" },  // Slate
-    { id: 9, name: "Jasmine", icon: "🌸", color: "#d946ef", pin: "0000" },  // Fuchsia
-    { id: 10, name: "Axel", icon: "🎸", color: "#f97316", pin: "0000" },    // Orange
-    { id: 11, name: "Jazelle", icon: "🦄", color: "#8b5cf6", pin: "0000" }, // Violet
-    { id: 12, name: "Oliver", icon: "🦁", color: "#f59e0b", pin: "0000" },  // Amber
-    { id: 13, name: "Zianya", icon: "🦋", color: "#06b6d4", pin: "0000" },  // Cyan
-    { id: 14, name: "Noah", icon: "🦖", color: "#10b981", pin: "0000" },    // Green
-    { id: 99, name: "Guest", icon: "👤", color: "#64748b", pin: "0000" },   // Slate
+    { id: 8, name: "Teacher", icon: "🎓", color: "#64748b", pin: "2001" },  // Slate
+    { id: 9, name: "Jasmine", icon: "🌸", color: "#d946ef", pin: "208" },  // Fuchsia
+    { id: 10, name: "Axel", icon: "🎸", color: "#f97316", pin: "209" },    // Orange
+    { id: 11, name: "Jazelle", icon: "🦄", color: "#8b5cf6", pin: "210" }, // Violet
+    { id: 12, name: "Oliver", icon: "🦁", color: "#f59e0b", pin: "211" },  // Amber
+    { id: 13, name: "Zianya", icon: "🦋", color: "#06b6d4", pin: "212" },  // Cyan
+    { id: 14, name: "Noah", icon: "🦖", color: "#10b981", pin: "213" },    // Green
+    { id: 15, name: "Teacher 2", icon: "👩‍🏫", color: "#64748b", pin: "2002" },
+    { id: 16, name: "Teacher 3", icon: "👨‍🏫", color: "#64748b", pin: "2003" },
+    { id: 17, name: "Teacher 4", icon: "🍎", color: "#64748b", pin: "2004" },
+    { id: 18, name: "Teacher 5", icon: "📚", color: "#64748b", pin: "2005" },
+    { id: 19, name: "Teacher 6", icon: "✏️", color: "#64748b", pin: "2006" },
+    { id: 99, name: "Guest", icon: "👤", color: "#64748b", pin: "1234" },   // Slate
 ];
 
 const UNIT_WORDS: { [key: number]: string[] } = {
