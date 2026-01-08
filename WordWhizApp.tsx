@@ -487,21 +487,21 @@ const App = () => {
     // Auto-animate the Chunk & Blend demo
     useEffect(() => {
         if (showChunkDemo && demoStep === 0) {
-            // Start the animated sequence
+            // Start the animated sequence with longer delays for voice
             setTimeout(() => {
                 setDemoStep(1);
                 speak("First, we read the chunk: ight");
-            }, 500);
+            }, 1000);
 
             setTimeout(() => {
                 setDemoStep(2);
                 speak("Now, add the beginning sound: br");
-            }, 3000);
+            }, 5000); // 5 seconds - gives first voice time to finish
 
             setTimeout(() => {
                 setDemoStep(3);
                 speak("Finally, blend them together: bright!");
-            }, 5500);
+            }, 9000); // 9 seconds - gives second voice time to finish
         }
     }, [showChunkDemo]);
 
