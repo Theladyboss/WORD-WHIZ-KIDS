@@ -553,7 +553,8 @@ const App = () => {
                 console.warn("Gemini TTS returned no audio data.");
             }
         } catch (e) {
-            console.error("Gemini TTS failed:", e);
+            console.error("❌ Gemini TTS FAILED - Using fallback voice instead of Aoede:", e);
+            console.error("Error details:", JSON.stringify(e));
         }
 
         // 3. Fallback if Gemini fails
