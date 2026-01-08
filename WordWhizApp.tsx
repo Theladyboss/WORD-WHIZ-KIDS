@@ -467,6 +467,7 @@ const App = () => {
     const [syllableStep, setSyllableStep] = useState(0); // 0: count, 1+: syllable index + 1
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [chunkStep, setChunkStep] = useState(0); // 0: show rime, 1: show onset, 2: blend
+    const [showChunkDemo, setShowChunkDemo] = useState(false);
 
     useEffect(() => {
         if (!sessionSetup || timer <= 0) return;
@@ -1303,7 +1304,58 @@ const App = () => {
                                 <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
                                     <WallyAvatar state={isSpeaking ? 'speaking' : 'idle'} />
                                 </div>
-                                {mode === 'story' || mode === 'teacher-curriculum' ? (
+
+                                {mode === 'chunk-blend' && !showChunkDemo && (
+                                    <button
+                                        className="pro-btn"
+                                        onClick={() => {
+                                            setShowChunkDemo(true);
+                                            speak("Let me show you how Chunk and Blend works! Watch carefully.");
+                                        }}
+                                        style={{ marginBottom: '20px', background: 'linear-gradient(135deg, #f472b6 0%, #ec4899 100%)', fontSize: '1.1rem', padding: '12px 24px' }}
+                                    >
+                                        📺 Watch Wally's Tutorial
+                                    </button>
+                                )}
+
+                                {showChunkDemo && mode === 'chunk-blend' ? (
+                                    <div className="glass-panel" style={{ padding: '30px', textAlign: 'center', maxWidth: '600px', margin: '0 auto' }}>
+                                        <h3 style={{ color: '#f472b6', marginBottom: '20px' }}>🎓 Chunk & Blend Tutorial</h3>
+                                        <div style={{ fontSize: '2.5rem', fontWeight: 'bold', margin: '30px 0' }}>
+                                            <div style={{ marginBottom: '30px' }}>
+                                                <div style={{ color: '#94a3b8', fontSize: '1.2rem', marginBottom: '10px' }}>Step 1: Read the chunk (word family)</div>
+                                                <div><span style={{ color: '#64748b' }}>___</span><span style={{ color: '#00ff9d' }}>ight</span></div>
+                                            </div>
+                                            <div style={{ marginBottom: '30px' }}>
+                                                <div style={{ color: '#94a3b8', fontSize: '1.2rem', marginBottom: '10px' }}>Step 2: Add the beginning sound</div>
+                                                <div><span style={{ color: '#f472b6', textDecoration: 'underline' }}>br</span><span style={{ color: '#00ff9d' }}>ight</span></div>
+                                            </div>
+                                            <div>
+                                                <div style={{ color: '#94a3b8', fontSize: '1.2rem', marginBottom: '10px' }}>Step 3: Blend them together!</div>
+                                                <div style={{ color: '#10b981' }}>bright</div>
+                                            </div>
+                                        </div>
+                                        <div style={{ marginTop: '30px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                                            <button
+                                                className="pro-btn"
+                                                onClick={() => {
+                                                    setShowChunkDemo(false);
+                                                    speak("Great! Now let's practice with real words!");
+                                                }}
+                                                style={{ background: 'linear-gradient(135deg, #00ff9d 0%, #00ccff 100%)' }}
+                                            >
+                                                ✅ Got It! Let's Practice
+                                            </button>
+                                            <button
+                                                className="pro-btn"
+                                                onClick={() => speak("Remember: First read the chunk, then add the beginning sound, then blend them together!")}
+                                                style={{ background: 'rgba(255, 255, 255, 0.1)' }}
+                                            >
+                                                🔊 Explain Again
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : mode === 'story' || mode === 'teacher-curriculum' ? (
                                     <div className="story-box">{challenge?.starter}</div>
                                 ) : (
                                     <div className="challenge-text" key={challenge?.word || 'loading'}>
