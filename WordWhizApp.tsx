@@ -468,6 +468,7 @@ const App = () => {
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [chunkStep, setChunkStep] = useState(0); // 0: show rime, 1: show onset, 2: blend
     const [showChunkDemo, setShowChunkDemo] = useState(false);
+    const [demoStep, setDemoStep] = useState(0); // 0-3 for animated tutorial
 
     useEffect(() => {
         if (!sessionSetup || timer <= 0) return;
@@ -482,6 +483,27 @@ const App = () => {
                 .catch(err => console.log('SW failed', err));
         }
     }, []);
+
+    // Auto-animate the Chunk & Blend demo
+    useEffect(() => {
+        if (showChunkDemo && demoStep === 0) {
+            // Start the animated sequence
+            setTimeout(() => {
+                setDemoStep(1);
+                speak("First, we read the chunk: ight");
+            }, 500);
+
+            setTimeout(() => {
+                setDemoStep(2);
+                speak("Now, add the beginning sound: br");
+            }, 3000);
+
+            setTimeout(() => {
+                setDemoStep(3);
+                speak("Finally, blend them together: bright!");
+            }, 5500);
+        }
+    }, [showChunkDemo]);
 
     const handleSessionStart = async (minutes: number) => {
         const ctx = getAudioContext();
@@ -1309,6 +1331,8 @@ const App = () => {
                                     <button
                                         className="pro-btn"
                                         onClick={() => {
+                                            console.log('🎓 Starting Chunk &  Blend Tutorial...');
+                                            setDemoStep(0); // Reset to trigger animation
                                             setShowChunkDemo(true);
                                             speak("Let me show you how Chunk and Blend works! Watch carefully.");
                                         }}
