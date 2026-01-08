@@ -466,6 +466,7 @@ const App = () => {
     const [language, setLanguage] = useState<'en' | 'es'>('en');
     const [syllableStep, setSyllableStep] = useState(0); // 0: count, 1+: syllable index + 1
     const [isSpeaking, setIsSpeaking] = useState(false);
+    const [chunkStep, setChunkStep] = useState(0); // 0: show rime, 1: show onset, 2: blend
 
     useEffect(() => {
         if (!sessionSetup || timer <= 0) return;
@@ -627,6 +628,18 @@ const App = () => {
             3. The Maryland College and Career-Ready Standard (MCCRS) addressed.
             ${langInstruction}
             Return JSON: { "starter": "Activity Description + Accommodations", "context": "MCCRS Standard" }.`;
+        } else if (selectedMode === 'chunk-blend') {
+            prompt = `Generate a word chunking exercise for a 2nd grader who struggles with phonics.
+            Use onset-rime instruction method with common word families like: -ight, -ing, -ank, -ump, -ink, -ack, -ell,  -est, -ate, -ock.
+            Do NOT use these words: ${excludeList}.
+            ${langInstruction}
+            Return JSON: {
+                "word": "the complete word",
+                "onset": "the beginning consonant(s) before the vowel",
+                "rime": "the vowel and everything after it (the chunk)",
+                "context": "sentence using the word"
+            }.
+            Example: { "word": "bright", "onset": "br", "rime": "ight", "context": "The sun is bright today." }`;
         }
 
         try {
@@ -687,6 +700,7 @@ const App = () => {
         setModalData(null);
         setActivityKey(k => k + 1); // Force new activity instance
         setQuestionCount(c => c + 1); // Increment count
+        setChunkStep(0); // Reset chunk step for new word
 
         try {
             if (!ai) throw new Error("AI not initialized. Check API Key.");
@@ -926,6 +940,7 @@ const App = () => {
         setMode(m);
         setQuestionCount(0);
         setUsedWords(new Set());
+        setChunkStep(0); // Reset chunk step for new mode
 
         // Track Status
         if (student) {
@@ -1136,6 +1151,9 @@ const App = () => {
                             <button className="pro-btn" onClick={() => handleModeSelect('story')}>
                                 <span className="btn-icon">📖</span> Story Spark
                             </button>
+                            <button className="pro-btn" onClick={() => handleModeSelect('chunk-blend')} style={{ borderColor: '#f472b6', color: '#f472b6' }}>
+                                <span className="btn-icon">🧩</span> Chunk & Blend
+                            </button>
                             {student.name === 'Teacher' && (
                                 <>
                                     <button className="pro-btn" style={{ borderColor: '#f59e0b', color: '#f59e0b' }} onClick={() => handleModeSelect('teacher-curriculum')}>
@@ -1269,10 +1287,10 @@ const App = () => {
                             {mode === 'dictation' && 'Sentence Dictation'}
                             {mode === 'story' && 'Creative Reading'}
                             {mode === 'teacher-curriculum' && 'Teacher Assistant'}
-                            {mode === 'teacher-curriculum' && 'Teacher Assistant'}
                             {mode === 'syllable' && 'Syllable Savvy'}
                             {mode === 'schwa' && 'Schwa Sound'}
                             {mode === 'vce' && 'Magic E (VCE)'}
+                            {mode === 'chunk-blend' && 'Chunk & Blend Master'}
                         </div>
 
                         {loading ? (
@@ -1324,6 +1342,25 @@ const App = () => {
                                             attempts >= 3 ? challenge?.contraction : `${challenge?.word} -> ?`
                                         )}
                                         {mode === 'dictation' && "👂 Listen & Write"}
+                                        {mode === 'chunk-blend' && (
+                                            <div style={{ fontSize: '3rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                                                {chunkStep === 0 && (
+                                                    <>
+                                                        <span style={{ color: '#64748b', fontSize: '2rem' }}>___</span>
+                                                        <span style={{ color: '#00ff9d' }}>{challenge?.rime}</span>
+                                                    </>
+                                                )}
+                                                {chunkStep === 1 && (
+                                                    <>
+                                                        <span style={{ color: '#f472b6', textDecoration: 'underline' }}>{challenge?.onset}</span>
+                                                        <span style={{ color: '#00ff9d' }}>{challenge?.rime}</span>
+                                                    </>
+                                                )}
+                                                {chunkStep >= 2 && (
+                                                    <span style={{ color: '#10b981' }}>{challenge?.word}</span>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                 )}
 
@@ -1334,11 +1371,35 @@ const App = () => {
                                             ? (syllableStep === 0 ? `Word: ${challenge?.word}` : `Spell syllable ${syllableStep}`)
                                             : (mode === 'contractions'
                                                 ? (attempts >= 3 ? challenge?.context : challenge?.context?.replace(new RegExp(challenge?.contraction, 'gi'), '_____'))
-                                                : (mode === 'dictation' ? "" : challenge?.context)
+                                                : (mode === 'dictation' ? "" :
+                                                    (mode === 'chunk-blend'
+                                                        ? (chunkStep === 0 ? `Step 1: Read the chunk (word family) → "${challenge?.rime}"`
+                                                            : chunkStep === 1 ? `Step 2: Add the beginning sound → "${challenge?.onset}" + "${challenge?.rime}"`
+                                                                : `Step 3: Blend it together! Say the whole word.`)
+                                                        : challenge?.context)
+                                                )
                                             )
                                         )
                                     }
                                 </div>
+
+                                {mode === 'chunk-blend' && chunkStep < 2 && (
+                                    <button
+                                        className="pro-btn"
+                                        onClick={() => {
+                                            const nextStep = chunkStep + 1;
+                                            setChunkStep(nextStep);
+                                            if (nextStep === 1) {
+                                                speak(`Great! Now let's add the beginning sound: ${challenge?.onset}`);
+                                            } else if (nextStep === 2) {
+                                                speak(`Perfect! Blend them together: ${challenge?.word}`);
+                                            }
+                                        }}
+                                        style={{ marginBottom: '20px', fontSize: '1.2rem', padding: '15px 30px' }}
+                                    >
+                                        {chunkStep === 0 ? '✨ Show Beginning Sound' : '🎯 Blend It Together'}
+                                    </button>
+                                )}
 
                                 {mode !== 'teacher-curriculum' && (
                                     <AnswerInput key={challenge ? (challenge.word || challenge.sentence || challenge.starter) + historyIndex + restartTrigger : 'empty'} onResult={checkAnswer} hint={mode === 'story' ? "Type the next part..." : `Type the answer...`} />
