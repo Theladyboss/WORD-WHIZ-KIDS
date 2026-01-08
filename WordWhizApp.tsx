@@ -1345,39 +1345,54 @@ const App = () => {
                                 {showChunkDemo && mode === 'chunk-blend' ? (
                                     <div className="glass-panel" style={{ padding: '30px', textAlign: 'center', maxWidth: '600px', margin: '0 auto' }}>
                                         <h3 style={{ color: '#f472b6', marginBottom: '20px' }}>🎓 Chunk & Blend Tutorial</h3>
-                                        <div style={{ fontSize: '2.5rem', fontWeight: 'bold', margin: '30px 0' }}>
-                                            <div style={{ marginBottom: '30px' }}>
-                                                <div style={{ color: '#94a3b8', fontSize: '1.2rem', marginBottom: '10px' }}>Step 1: Read the chunk (word family)</div>
-                                                <div><span style={{ color: '#64748b' }}>___</span><span style={{ color: '#00ff9d' }}>ight</span></div>
-                                            </div>
-                                            <div style={{ marginBottom: '30px' }}>
-                                                <div style={{ color: '#94a3b8', fontSize: '1.2rem', marginBottom: '10px' }}>Step 2: Add the beginning sound</div>
-                                                <div><span style={{ color: '#f472b6', textDecoration: 'underline' }}>br</span><span style={{ color: '#00ff9d' }}>ight</span></div>
-                                            </div>
-                                            <div>
-                                                <div style={{ color: '#94a3b8', fontSize: '1.2rem', marginBottom: '10px' }}>Step 3: Blend them together!</div>
-                                                <div style={{ color: '#10b981' }}>bright</div>
-                                            </div>
+                                        <div style={{ fontSize: '2.5rem', fontWeight: 'bold', margin: '30px 0', minHeight: '250px' }}>
+                                            {demoStep >= 1 && (
+                                                <div style={{ marginBottom: '30px' }}>
+                                                    <div style={{ color: '#94a3b8', fontSize: '1.2rem', marginBottom: '10px' }}>Step 1: Read the chunk (word family)</div>
+                                                    <div><span style={{ color: '#64748b', fontSize: '2rem' }}>___</span><span style={{ color: '#00ff9d', fontSize: '3.5rem' }}>ight</span></div>
+                                                </div>
+                                            )}
+                                            {demoStep >= 2 && (
+                                                <div style={{ marginBottom: '30px' }}>
+                                                    <div style={{ color: '#94a3b8', fontSize: '1.2rem', marginBottom: '10px' }}>Step 2: Add the beginning sound</div>
+                                                    <div><span style={{ color: '#f472b6', textDecoration: 'underline', fontSize: '3.5rem' }}>br</span><span style={{ color: '#00ff9d', fontSize: '3.5rem' }}>ight</span></div>
+                                                </div>
+                                            )}
+                                            {demoStep >= 3 && (
+                                                <div>
+                                                    <div style={{ color: '#94a3b8', fontSize: '1.2rem', marginBottom: '10px' }}>Step 3: Blend them together!</div>
+                                                    <div style={{ color: '#10b981', fontSize: '4rem' }}>bright ✨</div>
+                                                </div>
+                                            )}
+                                            {demoStep === 0 && (
+                                                <div style={{ color: '#94a3b8', fontSize: '1.5rem', padding: '80px 0' }}>
+                                                    Starting tutorial...
+                                                </div>
+                                            )}
                                         </div>
-                                        <div style={{ marginTop: '30px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
-                                            <button
-                                                className="pro-btn"
-                                                onClick={() => {
-                                                    setShowChunkDemo(false);
-                                                    speak("Great! Now let's practice with real words!");
-                                                }}
-                                                style={{ background: 'linear-gradient(135deg, #00ff9d 0%, #00ccff 100%)' }}
-                                            >
-                                                ✅ Got It! Let's Practice
-                                            </button>
-                                            <button
-                                                className="pro-btn"
-                                                onClick={() => speak("Remember: First read the chunk, then add the beginning sound, then blend them together!")}
-                                                style={{ background: 'rgba(255, 255, 255, 0.1)' }}
-                                            >
-                                                🔊 Explain Again
-                                            </button>
-                                        </div>
+                                        {demoStep >= 3 && (
+                                            <div style={{ marginTop: '30px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                                                <button
+                                                    className="pro-btn"
+                                                    onClick={() => {
+                                                        console.log('✅ User clicked Got It!');
+                                                        setShowChunkDemo(false);
+                                                        setDemoStep(0);
+                                                        speak("Great! Now let's practice with real words!");
+                                                    }}
+                                                    style={{ background: 'linear-gradient(135deg, #00ff9d 0%, #00ccff 100%)' }}
+                                                >
+                                                    ✅ Got It! Let's Practice
+                                                </button>
+                                                <button
+                                                    className="pro-btn"
+                                                    onClick={() => speak("Remember: First read the chunk, then add the beginning sound, then blend them together!")}
+                                                    style={{ background: 'rgba(255, 255, 255, 0.1)' }}
+                                                >
+                                                    🔊 Explain Again
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 ) : mode === 'story' || mode === 'teacher-curriculum' ? (
                                     <div className="story-box">{challenge?.starter}</div>
