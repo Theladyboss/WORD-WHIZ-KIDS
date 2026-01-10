@@ -690,7 +690,7 @@ const App = () => {
             console.log("Attempting Gemini TTS for:", text);
             const resp = await ai.models.generateContent({
                 model: 'gemini-1.5-flash',
-                contents: [{ role: 'user', parts: [{ text: `Please say the following text: ${text}` }] }],
+                contents: [{ role: 'user', parts: [{ text: text }] }],
                 config: {
                     responseModalities: [Modality.AUDIO],
                     speechConfig: {
