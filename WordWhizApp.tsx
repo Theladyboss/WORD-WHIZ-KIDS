@@ -1,3 +1,4 @@
+
 /// <reference types="vite/client" />
 import React, { useState, useEffect, useRef } from "react";
 import { createRoot } from "react-dom/client";
@@ -121,26 +122,106 @@ async function playPCM(base64: string, onEnded?: () => void) {
 
 // --- Roster Data (Colors instead of Avatars) ---
 const STUDENTS = [
-    { id: 1, name: "Kyngston", icon: "👑", color: "#ef4444", pin: "201" }, // Red
-    { id: 2, name: "Carter", icon: "🚀", color: "#3b82f6", pin: "202" },   // Blue
-    { id: 3, name: "Nazir", icon: "🧭", color: "#10b981", pin: "203" },    // Green
-    { id: 4, name: "Derick", icon: "⚡", color: "#f59e0b", pin: "204" },   // Amber
-    { id: 5, name: "Desmond", icon: "🛡️", color: "#8b5cf6", pin: "205" },  // Violet
-    { id: 6, name: "James", icon: "🐸", color: "#06b6d4", pin: "206" },    // Cyan
-    { id: 7, name: "Ana", icon: "🌟", color: "#ec4899", pin: "207" },      // Pink
-    { id: 8, name: "Teacher", icon: "🎓", color: "#64748b", pin: "2001" },  // Slate
-    { id: 9, name: "Jasmine", icon: "🌸", color: "#d946ef", pin: "208" },  // Fuchsia
-    { id: 10, name: "Axel", icon: "🎸", color: "#f97316", pin: "209" },    // Orange
-    { id: 11, name: "Jazelle", icon: "🦄", color: "#8b5cf6", pin: "210" }, // Violet
-    { id: 12, name: "Oliver", icon: "🦁", color: "#f59e0b", pin: "211" },  // Amber
-    { id: 13, name: "Zianya", icon: "🦋", color: "#06b6d4", pin: "212" },  // Cyan
-    { id: 14, name: "Noah", icon: "🦖", color: "#10b981", pin: "213" },    // Green
-    { id: 15, name: "Teacher 2", icon: "👩‍🏫", color: "#64748b", pin: "2002" },
-    { id: 16, name: "Teacher 3", icon: "👨‍🏫", color: "#64748b", pin: "2003" },
-    { id: 17, name: "Teacher 4", icon: "🍎", color: "#64748b", pin: "2004" },
-    { id: 18, name: "Teacher 5", icon: "📚", color: "#64748b", pin: "2005" },
-    { id: 19, name: "Teacher 6", icon: "✏️", color: "#64748b", pin: "2006" },
-    { id: 99, name: "Guest", icon: "👤", color: "#64748b", pin: "1234" },   // Slate
+    // Section 92200-26
+    { id: 10, name: "Cali R.", icon: "🌈", color: "#8b5cf6", pin: "261", section: "92200-26" },
+    { id: 14, name: "David V.", icon: "🦖", color: "#64748b", pin: "262", section: "92200-26" },
+    { id: 1, name: "Fabricio B.", icon: "🚀", color: "#ef4444", pin: "263", section: "92200-26" },
+    { id: 12, name: "Fareeha S.", icon: "🌙", color: "#06b6d4", pin: "264", section: "92200-26" },
+    { id: 4, name: "Harmony C.", icon: "🎵", color: "#f59e0b", pin: "265", section: "92200-26" },
+    { id: 13, name: "Jakai T.", icon: "🏀", color: "#10b981", pin: "266", section: "92200-26" },
+    { id: 2, name: "Keyon B.", icon: "🎮", color: "#3b82f6", pin: "267", section: "92200-26" },
+    { id: 3, name: "Lael B.", icon: "🎨", color: "#10b981", pin: "268", section: "92200-26" },
+    { id: 8, name: "Lawrence L.", icon: "🦁", color: "#d946ef", pin: "269", section: "92200-26" },
+    { id: 5, name: "Liana C.", icon: "🦄", color: "#8b5cf6", pin: "2610", section: "92200-26" },
+    { id: 9, name: "Myhkal R.", icon: "🐯", color: "#f97316", pin: "2611", section: "92200-26" },
+    { id: 11, name: "Naeem S.", icon: "⚽", color: "#f59e0b", pin: "2612", section: "92200-26" },
+    { id: 6, name: "Nova D.", icon: "🌟", color: "#06b6d4", pin: "2613", section: "92200-26" },
+    { id: 7, name: "Zamiah J.", icon: "🦋", color: "#ec4899", pin: "2614", section: "92200-26" },
+
+    // Section 92200-21
+    { id: 18, name: "Ana B.", icon: "✨", color: "#f59e0b", pin: "211", section: "92200-21" },
+    { id: 25, name: "Ariana T.", icon: "🎤", color: "#f59e0b", pin: "212", section: "92200-21" },
+    { id: 27, name: "Carter W.", icon: "✈️", color: "#10b981", pin: "213", section: "92200-21" },
+    { id: 24, name: "Cherish L.", icon: "💖", color: "#8b5cf6", pin: "214", section: "92200-21" },
+    { id: 21, name: "Christopher H.", icon: "🚒", color: "#ec4899", pin: "215", section: "92200-21" },
+    { id: 26, name: "Derick T.", icon: "🎸", color: "#06b6d4", pin: "216", section: "92200-21" },
+    { id: 17, name: "Desmond B.", icon: "🛡️", color: "#10b981", pin: "217", section: "92200-21" },
+    { id: 23, name: "Ja'miah I.", icon: "🎀", color: "#f97316", pin: "218", section: "92200-21" },
+    { id: 28, name: "Julian W.", icon: "🛸", color: "#64748b", pin: "219", section: "92200-21" },
+    { id: 22, name: "Kayden H.", icon: "🏎️", color: "#d946ef", pin: "2110", section: "92200-21" },
+    { id: 20, name: "Kyngston B.", icon: "👑", color: "#06b6d4", pin: "2111", section: "92200-21" },
+    { id: 16, name: "Lesly A.", icon: "🌺", color: "#3b82f6", pin: "2112", section: "92200-21" },
+    { id: 19, name: "Nazir B.", icon: "🧭", color: "#8b5cf6", pin: "2113", section: "92200-21" },
+    { id: 15, name: "Tru A.", icon: "⚡", color: "#ef4444", pin: "2114", section: "92200-21" },
+
+    // Section 92200-22
+    { id: 41, name: "Aiyana T.", icon: "🦋", color: "#10b981", pin: "221", section: "92200-22" },
+    { id: 30, name: "Allison C.", icon: "🎨", color: "#3b82f6", pin: "222", section: "92200-22" },
+    { id: 29, name: "Ava C.", icon: "🩰", color: "#ef4444", pin: "223", section: "92200-22" },
+    { id: 37, name: "Aytana O.", icon: "🌻", color: "#f97316", pin: "224", section: "92200-22" },
+    { id: 40, name: "Brayden T.", icon: "🤖", color: "#06b6d4", pin: "225", section: "92200-22" },
+    { id: 34, name: "Breon M.", icon: "🚲", color: "#06b6d4", pin: "226", section: "92200-22" },
+    { id: 39, name: "Chloe R.", icon: "🧁", color: "#f59e0b", pin: "227", section: "92200-22" },
+    { id: 31, name: "Corey J.", icon: "🏈", color: "#10b981", pin: "228", section: "92200-22" },
+    { id: 35, name: "James M.", icon: "🐸", color: "#ec4899", pin: "229", section: "92200-22" },
+    { id: 32, name: "Maurice L.", icon: "🎮", color: "#f59e0b", pin: "2210", section: "92200-22" },
+    { id: 33, name: "Melanie M.", icon: "🍦", color: "#8b5cf6", pin: "2211", section: "92200-22" },
+    { id: 38, name: "Nova R.", icon: "⭐", color: "#8b5cf6", pin: "2212", section: "92200-22" },
+    { id: 42, name: "Raevon W.", icon: "🏃", color: "#64748b", pin: "2213", section: "92200-22" },
+    { id: 36, name: "Wayne M.", icon: "🛹", color: "#d946ef", pin: "2214", section: "92200-22" },
+
+    // Section 92200-23
+    { id: 52, name: "Alma Q.", icon: "🧚‍♀️", color: "#8b5cf6", pin: "231", section: "92200-23" },
+    { id: 48, name: "Amar J.", icon: "🏈", color: "#06b6d4", pin: "232", section: "92200-23" },
+    { id: 47, name: "Ashton H.", icon: "🏀", color: "#8b5cf6", pin: "233", section: "92200-23" },
+    { id: 45, name: "Bella G.", icon: "🐞", color: "#10b981", pin: "234", section: "92200-23" },
+    { id: 44, name: "Brian C.", icon: "🕶️", color: "#3b82f6", pin: "235", section: "92200-23" },
+    { id: 55, name: "Bria' S.", icon: "💎", color: "#10b981", pin: "236", section: "92200-23" },
+    { id: 54, name: "Christin R.", icon: "🎮", color: "#06b6d4", pin: "237", section: "92200-23" },
+    { id: 43, name: "Douglas C.", icon: "🧢", color: "#ef4444", pin: "238", section: "92200-23" },
+    { id: 50, name: "Gianna M.", icon: "🌸", color: "#d946ef", pin: "239", section: "92200-23" },
+    { id: 46, name: "Jazelle H.", icon: "🦄", color: "#f59e0b", pin: "2310", section: "92200-23" },
+    { id: 53, name: "Nyomi R.", icon: "🍩", color: "#f59e0b", pin: "2311", section: "92200-23" },
+    { id: 49, name: "Oliver M.", icon: "🦁", color: "#ec4899", pin: "2312", section: "92200-23" },
+    { id: 51, name: "Sophia O.", icon: "🧜‍♀️", color: "#f97316", pin: "2313", section: "92200-23" },
+    { id: 56, name: "Zakari T.", icon: "🏆", color: "#64748b", pin: "2314", section: "92200-23" },
+
+    // Section 92200-24
+    { id: 70, name: "Aubree W.", icon: "🦄", color: "#64748b", pin: "241", section: "92200-24" },
+    { id: 67, name: "Davon P.", icon: "🎮", color: "#f59e0b", pin: "242", section: "92200-24" },
+    { id: 63, name: "Jackson D.", icon: "🎸", color: "#ec4899", pin: "243", section: "92200-24" },
+    { id: 61, name: "Juan C.", icon: "⚽", color: "#8b5cf6", pin: "244", section: "92200-24" },
+    { id: 65, name: "Magali M.", icon: "🌺", color: "#f97316", pin: "245", section: "92200-24" },
+    { id: 69, name: "Marli W.", icon: "🍭", color: "#10b981", pin: "246", section: "92200-24" },
+    { id: 60, name: "Namir C.", icon: "🏎️", color: "#f59e0b", pin: "247", section: "92200-24" },
+    { id: 68, name: "Nasir R.", icon: "🚀", color: "#06b6d4", pin: "248", section: "92200-24" },
+    { id: 62, name: "Noah D.", icon: "🦕", color: "#06b6d4", pin: "249", section: "92200-24" },
+    { id: 57, name: "Reagan A.", icon: "🎀", color: "#ef4444", pin: "2410", section: "92200-24" },
+    { id: 66, name: "Savoy P.", icon: "🏀", color: "#8b5cf6", pin: "2411", section: "92200-24" },
+    { id: 58, name: "Sofia A.", icon: "🐱", color: "#3b82f6", pin: "2412", section: "92200-24" },
+    { id: 59, name: "Xi'airah C.", icon: "👑", color: "#10b981", pin: "2413", section: "92200-24" },
+    { id: 64, name: "Zianya F.", icon: "🦋", color: "#d946ef", pin: "2414", section: "92200-24" },
+
+    // Section 92200-25
+    { id: 82, name: "Axel P.", icon: "🎸", color: "#06b6d4", pin: "251", section: "92200-25" },
+    { id: 74, name: "Brien B.", icon: "🏈", color: "#f59e0b", pin: "252", section: "92200-25" },
+    { id: 80, name: "Christie M.", icon: "💎", color: "#8b5cf6", pin: "253", section: "92200-25" },
+    { id: 81, name: "Dayron O.", icon: "🚲", color: "#f59e0b", pin: "254", section: "92200-25" },
+    { id: 83, name: "Emjai T.", icon: "🌈", color: "#10b981", pin: "255", section: "92200-25" },
+    { id: 77, name: "Fernanda M.", icon: "🌻", color: "#ec4899", pin: "256", section: "92200-25" },
+    { id: 79, name: "Jasmine M.", icon: "🌸", color: "#f97316", pin: "257", section: "92200-25" },
+    { id: 76, name: "Jazmine C.", icon: "🎤", color: "#06b6d4", pin: "258", section: "92200-25" },
+    { id: 73, name: "Kalia B.", icon: "🩰", color: "#10b981", pin: "259", section: "92200-25" },
+    { id: 72, name: "Krhee B.", icon: "🎨", color: "#3b82f6", pin: "2510", section: "92200-25" },
+    { id: 71, name: "Krystian A.", icon: "🕹️", color: "#ef4444", pin: "2511", section: "92200-25" },
+    { id: 85, name: "Nadir W.", icon: "🛡️", color: "#ef4444", pin: "2512", section: "92200-25" },
+    { id: 78, name: "Ruth D.", icon: "📚", color: "#d946ef", pin: "2513", section: "92200-25" },
+    { id: 75, name: "Ryan B.", icon: "⚽", color: "#8b5cf6", pin: "2514", section: "92200-25" },
+    { id: 84, name: "Zyaire T.", icon: "🛹", color: "#64748b", pin: "2515", section: "92200-25" },
+
+    // Staff
+    { id: 900, name: "Teacher", icon: "🎓", color: "#d946ef", pin: "2001", section: "Staff" },
+    { id: 901, name: "Guest", icon: "👤", color: "#22c55e", pin: "1234", section: "Staff" },
 ];
 
 const UNIT_WORDS: { [key: number]: string[] } = {
@@ -248,8 +329,8 @@ const PinPad = ({ onUnlock, onClose, title }: { onUnlock: (pin: string) => void,
     );
 };
 
-const WallyAvatar = ({ state }: { state: 'idle' | 'speaking' | 'thinking' }) => (
-    <div className={`wally-wrapper ${state}`} style={{ marginBottom: '20px', position: 'relative', display: 'inline-block' }}>
+const WallyAvatar = ({ state, onClick }: { state: 'idle' | 'speaking' | 'thinking', onClick?: () => void }) => (
+    <div className={`wally-wrapper ${state}`} onClick={onClick} style={{ marginBottom: '20px', position: 'relative', display: 'inline-block', cursor: onClick ? 'pointer' : 'default' }}>
         <div className="wally-circle" style={{
             width: '100px', height: '100px', borderRadius: '50%',
             background: state === 'speaking' ? '#3b82f6' : (state === 'thinking' ? '#f59e0b' : '#475569'),
@@ -273,6 +354,77 @@ const WallyAvatar = ({ state }: { state: 'idle' | 'speaking' | 'thinking' }) => 
         )}
     </div>
 );
+
+const SECTION_NAMES: { [key: string]: string } = {
+    '92200-21': 'Ms. Bond',
+    '92200-22': 'Mrs. Coley',
+    '92200-23': 'Ms. Cummings',
+    '92200-24': 'Ms. Sidamon',
+    '92200-25': 'Ms. Fletcher',
+    '92200-26': 'Ms. Jugasan',
+};
+
+const ClassSelection = ({ onSelect, language }: { onSelect: (section: string) => void, language: 'en' | 'es' }) => {
+    const sections = Array.from(new Set(STUDENTS.map(s => s.section)))
+        .filter(s => s !== 'Staff')
+        .sort((a, b) => {
+            // Sort by the number after the hyphen (e.g. 92200-21 -> 21)
+            const numA = parseInt(a.split('-')[1] || '999');
+            const numB = parseInt(b.split('-')[1] || '999');
+            return numA - numB;
+        });
+
+    return (
+        <div className="glass-panel" style={{ maxWidth: '900px', width: '100%', textAlign: 'center' }}>
+            <h2 style={{ marginBottom: '30px', color: '#94a3b8', fontSize: '2rem' }}>
+                {language === 'en' ? 'SELECT YOUR CLASS' : 'SELECCIONA TU CLASE'}
+            </h2>
+            <div className="menu-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px' }}>
+                {sections.map(section => (
+                    <button
+                        key={section}
+                        className="pro-btn"
+                        onClick={() => onSelect(section)}
+                        style={{
+                            background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
+                            border: '1px solid #475569',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            padding: '20px',
+                            height: 'auto'
+                        }}
+                    >
+                        <span style={{ fontSize: '3rem', marginBottom: '10px' }}>🏫</span>
+                        <span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#f8fafc', marginBottom: '5px' }}>
+                            {SECTION_NAMES[section] || 'Teacher'}
+                        </span>
+                        <span style={{ fontSize: '1rem', color: '#94a3b8' }}>Section: {section}</span>
+                    </button>
+                ))}
+                <button
+                    className="pro-btn"
+                    onClick={() => onSelect('Staff')}
+                    style={{
+                        background: 'linear-gradient(135deg, #334155 0%, #475569 100%)',
+                        border: '1px solid #64748b',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        padding: '20px',
+                        height: 'auto'
+                    }}
+                >
+                    <span style={{ fontSize: '3rem', marginBottom: '10px' }}>🎓</span>
+                    <span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#e2e8f0', marginBottom: '5px' }}>
+                        {language === 'en' ? 'Staff & Guest' : 'Personal e Invitados'}
+                    </span>
+                    <span style={{ fontSize: '1rem', color: '#94a3b8' }}>{language === 'en' ? 'Admin Access' : 'Acceso Admin'}</span>
+                </button>
+            </div>
+        </div>
+    );
+};
 
 const TeacherChat = ({ onClose }: { onClose: () => void }) => {
     const [msgs, setMsgs] = useState<{ role: 'user' | 'ai', text: string }[]>([]);
@@ -447,6 +599,7 @@ const App = () => {
     const [loading, setLoading] = useState(false);
     const [modalData, setModalData] = useState<{ msg: string, type: 'success' | 'error' } | null>(null);
     const [cuudoos, setCuudoos] = useState(0);
+    const [selectedSection, setSelectedSection] = useState<string | null>(null);
     const [timer, setTimer] = useState(0);
     const [sessionSetup, setSessionSetup] = useState(false);
     const [showConfetti, setShowConfetti] = useState(false);
@@ -487,21 +640,23 @@ const App = () => {
     // Auto-animate the Chunk & Blend demo
     useEffect(() => {
         if (showChunkDemo && demoStep === 0) {
-            // Start the animated sequence with longer delays for voice
+            // Start the animated sequence
+            speak("Hi! I'm Wally. Let me show you how this works. It is much like solving the pieces of a puzzle and can be fun!");
+
             setTimeout(() => {
                 setDemoStep(1);
                 speak("First, we read the chunk: ight");
-            }, 1000);
+            }, 6000); // Increased delay for intro
 
             setTimeout(() => {
                 setDemoStep(2);
-                speak("Now, add the beginning sound: br");
-            }, 5000); // 5 seconds - gives first voice time to finish
+                speak("Now, add the beginning sound: Burr"); // Phonetic pronunciation
+            }, 10000);
 
             setTimeout(() => {
                 setDemoStep(3);
                 speak("Finally, blend them together: bright!");
-            }, 9000); // 9 seconds - gives second voice time to finish
+            }, 14000);
         }
     }, [showChunkDemo]);
 
@@ -534,8 +689,8 @@ const App = () => {
         try {
             console.log("Attempting Gemini TTS for:", text);
             const resp = await ai.models.generateContent({
-                model: 'gemini-1.5-flash', // Using 1.5-flash which supports audio
-                contents: { role: 'user', parts: [{ text: `Please say the following text: ${text}` }] },
+                model: 'gemini-1.5-flash',
+                contents: [{ role: 'user', parts: [{ text: `Please say the following text: ${text}` }] }],
                 config: {
                     responseModalities: [Modality.AUDIO],
                     speechConfig: {
@@ -965,6 +1120,7 @@ const App = () => {
         setQuestionCount(0);
         setUsedWords(new Set());
         setChunkStep(0); // Reset chunk step for new mode
+        setShowChunkDemo(false); // Ensure tutorial is hidden initially
 
         // Track Status
         if (student) {
@@ -977,7 +1133,12 @@ const App = () => {
     const handleRestart = () => {
         if (challenge) {
             setRestartTrigger(prev => prev + 1);
-            speak(mode === 'story' ? challenge.starter : challenge.context);
+            const textToSpeak = mode === 'story' ? challenge.starter : challenge.context;
+            if (textToSpeak) {
+                speak(textToSpeak);
+            } else {
+                console.warn("No context to speak for restart");
+            }
         }
     };
 
@@ -997,8 +1158,8 @@ const App = () => {
             Keep it under 20 words.`;
 
             const resp = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
-                contents: prompt,
+                model: 'gemini-1.5-flash',
+                contents: [{ role: 'user', parts: [{ text: prompt }] }],
             });
             const text = resp.text || `Hi ${name}! I am Wally. Let's have fun learning.`;
             speak(text);
@@ -1043,6 +1204,7 @@ const App = () => {
         setGamesUnlocked(false);
         setAttempts(0);
         setLockMode('none');
+        setSelectedSection(null);
     };
 
     // --- Roster View ---
@@ -1051,8 +1213,16 @@ const App = () => {
             <div className="main-stage">
                 <div className="top-bar">
                     <div className="app-title">WORD WHIZ KIDS</div>
-                    <button className="pro-btn" onClick={() => setLanguage(l => l === 'en' ? 'es' : 'en')} style={{ borderRadius: '50%', width: '70px', height: '70px', padding: 0, fontSize: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        🦉
+                    <button
+                        className="pro-btn"
+                        onClick={() => {
+                            const newLang = language === 'en' ? 'es' : 'en';
+                            setLanguage(newLang);
+                            speak(newLang === 'es' ? "¡Hola! Modo Español Activado." : "Hello! English Mode Activated.");
+                        }}
+                        style={{ borderRadius: '50%', width: '70px', height: '70px', padding: 0, fontSize: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    >
+                        {language === 'en' ? '🦉' : '🇪🇸'}
                     </button>
                 </div>
                 {lockMode !== 'none' && (
@@ -1063,25 +1233,34 @@ const App = () => {
                     />
                 )}
                 <div className="scrollable-content centered-content">
-                    <div className="mission-bar" style={{ marginTop: '20px', marginBottom: '20px', flex: '0 0 auto' }}>SELECT YOUR PROFILE</div>
-                    <button className="pro-btn" style={{ marginBottom: '20px', fontSize: '1rem', padding: '10px 20px' }} onClick={() => speak("Hi! I am Wally, your AI learning companion. Select your profile to get started!")}>
-                        👋 Meet Wally
-                    </button>
-                    <div className="roster-grid">
-                        {STUDENTS.map(s => (
-                            <div key={s.id}
-                                className="student-card"
-                                style={{ backgroundColor: s.color, boxShadow: `0 6px 0 rgba(0,0,0,0.3)` }}
-                                onClick={() => {
-                                    setTargetStudent(s);
-                                    setLockMode(s.name === 'Teacher' ? 'teacher' : 'student');
-                                }}>
-                                <div className="card-icon">{s.icon}</div>
-                                <div className="card-name">{s.name}</div>
+                    {!selectedSection ? (
+                        <ClassSelection onSelect={setSelectedSection} language={language} />
+                    ) : (
+                        <>
+                            <div className="mission-bar" style={{ marginTop: '20px', marginBottom: '20px', flex: '0 0 auto', display: 'flex', alignItems: 'center', gap: '20px' }}>
+                                <button className="pro-btn" style={{ padding: '5px 15px', fontSize: '0.8rem' }} onClick={() => setSelectedSection(null)}>⬅ Classes</button>
+                                <span>SELECT YOUR PROFILE</span>
                             </div>
-                        ))}
-                    </div>
-                    <div className="footer-brand">Created by © FREEDOMAi SOLUTIONS LLC</div>
+                            <button className="pro-btn" style={{ marginBottom: '20px', fontSize: '1rem', padding: '10px 20px' }} onClick={() => speak("Hi! I am Wally, your AI learning companion. Select your profile to get started!")}>
+                                👋 Meet Wally
+                            </button>
+                            <div className="roster-grid">
+                                {STUDENTS.filter(s => s.section === selectedSection).map(s => (
+                                    <div key={s.id}
+                                        className="student-card"
+                                        style={{ backgroundColor: s.color, boxShadow: `0 6px 0 rgba(0,0,0,0.3)` }}
+                                        onClick={() => {
+                                            setTargetStudent(s);
+                                            setLockMode(s.name === 'Teacher' ? 'teacher' : 'student');
+                                        }}>
+                                        <div className="card-icon">{s.icon}</div>
+                                        <div className="card-name">{s.name}</div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="footer-brand">Created by © FREEDOMAi SOLUTIONS LLC</div>
+                        </>
+                    )}
                 </div>
             </div>
         );
@@ -1319,13 +1498,40 @@ const App = () => {
 
                         {loading ? (
                             <div style={{ padding: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                <WallyAvatar state="thinking" />
+                                <WallyAvatar state="thinking" onClick={() => speak("I am thinking! One moment please.")} />
                                 <div style={{ fontSize: '1.5rem', marginTop: '20px' }}>Wally is thinking...</div>
+
+                                {/* Show tutorial button even while loading in chunk-blend mode */}
+                                {mode === 'chunk-blend' && !showChunkDemo && (
+                                    <button
+                                        className="pro-btn"
+                                        onClick={() => {
+                                            console.log('🎓 Starting tutorial from loading screen...');
+                                            setDemoStep(0);
+                                            setShowChunkDemo(true);
+                                            speak("Let me show you how Chunk and Blend works! Watch carefully.");
+                                        }}
+                                        style={{
+                                            marginTop: '20px',
+                                            background: 'linear-gradient(135deg, #f472b6 0%, #ec4899 100%)',
+                                            fontSize: '1.1rem',
+                                            padding: '12px 24px',
+                                            border: '2px solid white',
+                                            boxShadow: '0 0 15px rgba(244, 114, 182, 0.5)',
+                                            zIndex: 100
+                                        }}
+                                    >
+                                        📺 Watch Wally's Tutorial
+                                    </button>
+                                )}
                             </div>
                         ) : (
                             <>
                                 <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
-                                    <WallyAvatar state={isSpeaking ? 'speaking' : 'idle'} />
+                                    <WallyAvatar
+                                        state={isSpeaking ? 'speaking' : 'idle'}
+                                        onClick={() => speak("Hi! I am Wally. I am here to help you learn!")}
+                                    />
                                 </div>
 
                                 {mode === 'chunk-blend' && !showChunkDemo && (
@@ -1337,63 +1543,135 @@ const App = () => {
                                             setShowChunkDemo(true);
                                             speak("Let me show you how Chunk and Blend works! Watch carefully.");
                                         }}
-                                        style={{ marginBottom: '20px', background: 'linear-gradient(135deg, #f472b6 0%, #ec4899 100%)', fontSize: '1.1rem', padding: '12px 24px' }}
+                                        style={{
+                                            marginBottom: '20px',
+                                            background: 'linear-gradient(135deg, #f472b6 0%, #ec4899 100%)',
+                                            fontSize: '1.1rem',
+                                            padding: '12px 24px',
+                                            border: '2px solid white',
+                                            boxShadow: '0 0 15px rgba(244, 114, 182, 0.5)',
+                                            zIndex: 100,
+                                            position: 'relative',
+                                            marginTop: '20px'
+                                        }}
                                     >
                                         📺 Watch Wally's Tutorial
                                     </button>
                                 )}
 
                                 {showChunkDemo && mode === 'chunk-blend' ? (
-                                    <div className="glass-panel" style={{ padding: '30px', textAlign: 'center', maxWidth: '600px', margin: '0 auto' }}>
-                                        <h3 style={{ color: '#f472b6', marginBottom: '20px' }}>🎓 Chunk & Blend Tutorial</h3>
-                                        <div style={{ fontSize: '2.5rem', fontWeight: 'bold', margin: '30px 0', minHeight: '250px' }}>
-                                            {demoStep >= 1 && (
-                                                <div style={{ marginBottom: '30px' }}>
-                                                    <div style={{ color: '#94a3b8', fontSize: '1.2rem', marginBottom: '10px' }}>Step 1: Read the chunk (word family)</div>
-                                                    <div><span style={{ color: '#64748b', fontSize: '2rem' }}>___</span><span style={{ color: '#00ff9d', fontSize: '3.5rem' }}>ight</span></div>
-                                                </div>
-                                            )}
-                                            {demoStep >= 2 && (
-                                                <div style={{ marginBottom: '30px' }}>
-                                                    <div style={{ color: '#94a3b8', fontSize: '1.2rem', marginBottom: '10px' }}>Step 2: Add the beginning sound</div>
-                                                    <div><span style={{ color: '#f472b6', textDecoration: 'underline', fontSize: '3.5rem' }}>br</span><span style={{ color: '#00ff9d', fontSize: '3.5rem' }}>ight</span></div>
-                                                </div>
-                                            )}
+                                    <div className="glass-panel" style={{
+                                        position: 'fixed',
+                                        top: 0,
+                                        left: 0,
+                                        width: '100%',
+                                        height: '100vh',
+                                        boxSizing: 'border-box',
+                                        zIndex: 2000,
+                                        background: 'rgba(0, 0, 0, 0.9)',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        // justifyContent: 'center', // Removed to prevent clipping
+                                        overflowY: 'auto', // Enable scrolling
+                                        borderRadius: 0,
+                                        padding: '20px'
+                                    }}>
+                                        <div style={{
+                                            position: 'relative',
+                                            width: '100%',
+                                            maxWidth: '600px',
+                                            textAlign: 'center',
+                                            margin: 'auto', // Safe centering
+                                            padding: '40px 0' // Vertical spacing
+                                        }}>
+                                            <button
+                                                onClick={() => {
+                                                    setShowChunkDemo(false);
+                                                    setDemoStep(0);
+                                                    speak("Okay, let's practice!");
+                                                }}
+                                                style={{
+                                                    position: 'fixed',
+                                                    top: '20px',
+                                                    right: '20px',
+                                                    background: 'rgba(255,255,255,0.2)',
+                                                    border: '2px solid white',
+                                                    color: 'white',
+                                                    fontSize: '1.5rem',
+                                                    cursor: 'pointer',
+                                                    borderRadius: '50%',
+                                                    width: '50px',
+                                                    height: '50px',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    zIndex: 2001
+                                                }}
+                                            >
+                                                ✕
+                                            </button>
+                                            <h3 style={{ color: '#f472b6', marginBottom: '20px', fontSize: '2rem' }}>🎓 Chunk & Blend Tutorial</h3>
+                                            <div style={{ fontSize: '2.5rem', fontWeight: 'bold', margin: '30px 0', minHeight: '250px' }}>
+                                                {demoStep >= 1 && (
+                                                    <div style={{ marginBottom: '30px' }}>
+                                                        <div style={{ color: '#94a3b8', fontSize: '1.2rem', marginBottom: '10px' }}>Step 1: Read the chunk (word family)</div>
+                                                        <div><span style={{ color: '#64748b', fontSize: '2rem' }}>___</span><span style={{ color: '#00ff9d', fontSize: '3.5rem' }}>ight</span></div>
+                                                    </div>
+                                                )}
+                                                {demoStep >= 2 && (
+                                                    <div style={{ marginBottom: '30px' }}>
+                                                        <div style={{ color: '#94a3b8', fontSize: '1.2rem', marginBottom: '10px' }}>Step 2: Add the beginning sound</div>
+                                                        <div><span style={{ color: '#f472b6', textDecoration: 'underline', fontSize: '3.5rem' }}>br</span><span style={{ color: '#00ff9d', fontSize: '3.5rem' }}>ight</span></div>
+                                                    </div>
+                                                )}
+                                                {demoStep >= 3 && (
+                                                    <div>
+                                                        <div style={{ color: '#94a3b8', fontSize: '1.2rem', marginBottom: '10px' }}>Step 3: Blend them together!</div>
+                                                        <div style={{ color: '#10b981', fontSize: '4rem' }}>bright ✨</div>
+                                                    </div>
+                                                )}
+                                                {demoStep === 0 && (
+                                                    <div style={{ color: '#94a3b8', fontSize: '1.5rem', padding: '80px 0' }}>
+                                                        Starting tutorial...
+                                                    </div>
+                                                )}
+                                            </div>
                                             {demoStep >= 3 && (
-                                                <div>
-                                                    <div style={{ color: '#94a3b8', fontSize: '1.2rem', marginBottom: '10px' }}>Step 3: Blend them together!</div>
-                                                    <div style={{ color: '#10b981', fontSize: '4rem' }}>bright ✨</div>
-                                                </div>
-                                            )}
-                                            {demoStep === 0 && (
-                                                <div style={{ color: '#94a3b8', fontSize: '1.5rem', padding: '80px 0' }}>
-                                                    Starting tutorial...
+                                                <div style={{ marginTop: '30px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                                                    <button
+                                                        className="pro-btn"
+                                                        onClick={() => {
+                                                            console.log('✅ User clicked Got It!');
+                                                            setShowChunkDemo(false);
+                                                            setDemoStep(0);
+                                                            speak("Great! Now let's practice with real words!");
+                                                            // Start the activity if not already started or if data is invalid
+                                                            if (!challenge || !challenge.rime) {
+                                                                console.log("Loading new challenge for chunk-blend...");
+                                                                loadChallenge('chunk-blend');
+                                                            }
+                                                        }}
+                                                        style={{
+                                                            background: 'linear-gradient(135deg, #00ff9d 0%, #00ccff 100%)',
+                                                            zIndex: 102,
+                                                            position: 'relative',
+                                                            cursor: 'pointer',
+                                                            boxShadow: '0 4px 15px rgba(0, 255, 157, 0.4)'
+                                                        }}
+                                                    >
+                                                        ✅ Start Activity
+                                                    </button>
+                                                    <button
+                                                        className="pro-btn"
+                                                        onClick={() => speak("Remember: First read the chunk, then add the beginning sound, then blend them together!")}
+                                                        style={{ background: 'rgba(255, 255, 255, 0.1)' }}
+                                                    >
+                                                        🔊 Explain Again
+                                                    </button>
                                                 </div>
                                             )}
                                         </div>
-                                        {demoStep >= 3 && (
-                                            <div style={{ marginTop: '30px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
-                                                <button
-                                                    className="pro-btn"
-                                                    onClick={() => {
-                                                        console.log('✅ User clicked Got It!');
-                                                        setShowChunkDemo(false);
-                                                        setDemoStep(0);
-                                                        speak("Great! Now let's practice with real words!");
-                                                    }}
-                                                    style={{ background: 'linear-gradient(135deg, #00ff9d 0%, #00ccff 100%)' }}
-                                                >
-                                                    ✅ Got It! Let's Practice
-                                                </button>
-                                                <button
-                                                    className="pro-btn"
-                                                    onClick={() => speak("Remember: First read the chunk, then add the beginning sound, then blend them together!")}
-                                                    style={{ background: 'rgba(255, 255, 255, 0.1)' }}
-                                                >
-                                                    🔊 Explain Again
-                                                </button>
-                                            </div>
-                                        )}
                                     </div>
                                 ) : mode === 'story' || mode === 'teacher-curriculum' ? (
                                     <div className="story-box">{challenge?.starter}</div>
@@ -1511,16 +1789,18 @@ const App = () => {
                 )}
             </div>
 
-            {!['menu', 'games', 'whack-a-vowel'].includes(mode) && (
-                <div className="nav-dock">
-                    <button className="pro-btn" onClick={handlePrevious} disabled={historyIndex <= 0} style={{ opacity: historyIndex <= 0 ? 0.5 : 1 }}>⬅️ Prev</button>
-                    <button className="pro-btn" onClick={handleRestart}>🔄 Restart</button>
-                    <button className="pro-btn" onClick={() => loadChallenge(mode)}>⏭️ Skip</button>
-                    <button className="pro-btn" onClick={handleHome}>🏠 Home</button>
-                    <button className="pro-btn" onClick={handleNext}>Next ➡️</button>
-                </div>
-            )}
-        </div>
+            {
+                !['menu', 'games', 'whack-a-vowel'].includes(mode) && (
+                    <div className="nav-dock">
+                        <button className="pro-btn" onClick={handlePrevious} disabled={historyIndex <= 0} style={{ opacity: historyIndex <= 0 ? 0.5 : 1 }}>⬅️ Prev</button>
+                        <button className="pro-btn" onClick={handleRestart}>🔄 Restart</button>
+                        <button className="pro-btn" onClick={() => loadChallenge(mode)}>⏭️ Skip</button>
+                        <button className="pro-btn" onClick={handleHome}>🏠 Home</button>
+                        <button className="pro-btn" onClick={handleNext}>Next ➡️</button>
+                    </div>
+                )
+            }
+        </div >
     );
 };
 

@@ -58,5 +58,12 @@ export const OFFLINE_DATA = {
         { starter: "Phonics: Have students sort words by their vowel sounds (Short A vs Long A).", context: "Phonics / Sorting" },
         { starter: "Reading: Read 'The Cat in the Hat' and discuss the rhyming words.", context: "Reading Comprehension" },
         { starter: "Writing: Write 3 sentences about their favorite animal.", context: "Writing Practice" }
+    ],
+    "chunk-blend": [
+        { word: "bright", onset: "br", rime: "ight", context: "The sun is bright today." },
+        { word: "block", onset: "bl", rime: "ock", context: "I play with a block." },
+        { word: "stand", onset: "st", rime: "and", context: "Please stand up." },
+        { word: "truck", onset: "tr", rime: "uck", context: "The truck is big." },
+        { word: "ship", onset: "sh", rime: "ip", context: "The ship sails on the sea." }
     ]
 };

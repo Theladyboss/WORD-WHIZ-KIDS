@@ -50,7 +50,14 @@ body {
 }
 
 .centered-content {
-    justify-content: center;
+    /* justify-content: center; */
+}
+
+.centered-content > .glass-panel,
+.centered-content > .activity-container,
+.centered-content > .roster-grid {
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
 .mission-bar {
