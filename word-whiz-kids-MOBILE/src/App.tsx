@@ -178,7 +178,7 @@ function App() {
         setChallenge(null);
 
         if (!ai) {
-            alert("Debug: API Key is MISSING in the app. Did the build finish?");
+            alert("Debug v3: API Key is MISSING. Check Netlify Env Vars.");
             setFeedback("⚠️ API Key Missing on Netlify");
             setLoading(false);
             return;
@@ -191,7 +191,7 @@ function App() {
 
         try {
             const resp = await ai.models.generateContent({
-                model: 'gemini-1.5-flash-001',
+                model: 'gemini-1.5-flash',
                 contents: { role: 'user', parts: [{ text: prompt }] },
                 config: { responseMimeType: 'application/json' }
             });
@@ -200,7 +200,8 @@ function App() {
             speak(`Listen carefully. The word is ${json.word}. ${json.context}. What sound starts the word?`);
         } catch (e: any) {
             console.error("AI Error", e);
-            alert(`Debug Error: ${e.message || JSON.stringify(e)}`);
+            const keyStatus = API_KEY ? `Key starts with: ${API_KEY.substring(0, 4)}...` : "Key is undefined";
+            alert(`Debug v3 Error: ${e.message || JSON.stringify(e)}\n${keyStatus}`);
             setFeedback("Error loading. Try again.");
         } finally {
             setLoading(false);
@@ -212,7 +213,7 @@ function App() {
         if (answer === challenge.missing) {
             setFeedback('Correct! 🎉');
             speak("That is correct! Great job!");
-            setGamesUnlocked(true); // Unlock games after success
+            setGamesUnlocked(true);
             setTimeout(() => {
                 fetchChallengeData('digraph');
             }, 2000);
@@ -222,7 +223,6 @@ function App() {
         }
     };
 
-    // Whack-a-Vowel Logic
     const startWhackGame = () => {
         setScore(0);
         setTimeLeft(30);
