@@ -178,7 +178,7 @@ function App() {
         setChallenge(null);
 
         if (!ai) {
-            setFeedback("Error: API Key missing.");
+            setFeedback("⚠️ API Key Missing on Netlify");
             setLoading(false);
             return;
         }
