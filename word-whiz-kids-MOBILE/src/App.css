@@ -134,47 +134,15 @@ body {
     background: rgba(0, 0, 0, 0.95);
     backdrop-filter: blur(10px);
     display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: 20px;
-}
-
-.pinpad-content {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
-    padding: 24px;
-    width: 100%;
-    max-width: 320px;
-}
-
-.pin-display {
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 12px;
-    padding: 16px;
-    margin: 16px 0;
-    padding: 24px;
-    text-align: center;
-}
-
-.challenge-text-mobile {
-    font-size: 32px;
-    font-weight: 700;
-    margin: 20px 0;
-    color: #00ff9d;
-}
-
-.answer-input-mobile {
-    background: rgba(0, 0, 0, 0.3);
-    border: 2px solid rgba(0, 255, 157, 0.3);
-    border-radius: 12px;
     padding: 16px;
     font-size: 20px;
     color: #ffffff;
     width: 100%;
     text-align: center;
-    margin: 20px 0;
+    margin: 0;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
 }
 
 .answer-input-mobile:focus {
@@ -254,4 +222,64 @@ body {
     .challenge-text-mobile {
         font-size: 24px;
     }
+}
+
+/* PIN Pad Specific Styles */
+.pinpad-content {
+    background: #1a1a2e;
+    padding: 24px;
+    border-radius: 24px;
+    width: 100%;
+    max-width: 320px;
+    margin: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.pin-display {
+    font-size: 32px;
+    letter-spacing: 8px;
+    margin-bottom: 24px;
+    font-family: monospace;
+    color: #00ff9d;
+    height: 40px;
+}
+
+.pin-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.pin-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 24px;
+    font-weight: 600;
+    border-radius: 50%;
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin: 0 auto;
+}
+
+.pin-btn:active {
+    background: rgba(0, 255, 157, 0.2);
+    transform: scale(0.95);
+}
+
+.close-pin-btn {
+    background: transparent;
+    border: none;
+    color: #ef4444;
+    font-size: 16px;
+    margin-top: 10px;
+    cursor: pointer;
+    text-decoration: underline;
 }

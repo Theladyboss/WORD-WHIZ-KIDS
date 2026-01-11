@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { GoogleGenAI, Modality } from '@google/genai';
 import { dataManager } from './services/DataManager';
-
 import './App.css';
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
@@ -180,6 +179,11 @@ function App() {
             }
         } catch (e) {
             console.error('TTS failed:', e);
+            // Fallback to browser TTS
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.onend = () => setIsSpeaking(false);
+            window.speechSynthesis.speak(utterance);
+            return;
         }
         setIsSpeaking(false);
     };
@@ -237,19 +241,40 @@ function App() {
             <div className="mobile-app">
                 <div className="mobile-header">
                     <div className="app-title-mobile">🦉 WORD WHIZ KIDS</div>
+                    <button
+                        className="mobile-btn"
+                        onClick={() => {
+                            const newLang = language === 'en' ? 'es' : 'en';
+                            setLanguage(newLang);
+                            speak(newLang === 'es' ? "¡Hola! Modo Español Activado." : "Hello! English Mode Activated.");
+                        }}
+                        style={{
+                            background: 'none',
+                            border: 'none',
+                            fontSize: '24px',
+                            padding: '0',
+                            cursor: 'pointer',
+                            marginBottom: 0,
+                            minHeight: 'auto',
+                            width: 'auto',
+                            boxShadow: 'none'
+                        }}
+                    >
+                        {language === 'en' ? '🦉' : '🇪🇸'}
+                    </button>
                 </div>
 
                 <div className="mobile-content">
                     <h2 style={{ textAlign: 'center', margin: '20px 0', fontSize: '20px', fontWeight: 600 }}>
-                        Select Your Profile
+                        {language === 'en' ? 'Select Your Profile' : 'Selecciona Tu Perfil'}
                     </h2>
 
                     <button
                         className="mobile-btn"
-                        onClick={() => speak('Hi! I am Wally, your AI learning companion!')}
+                        onClick={() => speak(language === 'en' ? 'Hi! I am Wally, your AI learning companion!' : '¡Hola! Soy Wally, tu compañero de aprendizaje!')}
                         style={{ marginBottom: '20px' }}
                     >
-                        👋 Meet Wally
+                        👋 {language === 'en' ? 'Meet Wally' : 'Conoce a Wally'}
                     </button>
 
                     <div className="mobile-roster-grid">
@@ -275,7 +300,9 @@ function App() {
                 {showPinPad && targetStudent && (
                     <div className="mobile-pinpad">
                         <div className="pinpad-content">
-                            <h3 style={{ textAlign: 'center', margin: 0 }}>Enter PIN for {targetStudent.name}</h3>
+                            <h3 style={{ textAlign: 'center', margin: '0 0 20px 0' }}>
+                                {language === 'en' ? 'Enter PIN for' : 'Ingresar PIN para'} {targetStudent.name}
+                            </h3>
                             <div className="pin-display">
                                 {enteredPin.split('').map(() => '●').join(' ') || '_ _ _ _'}
                             </div>
@@ -285,8 +312,8 @@ function App() {
                                         {num}
                                     </button>
                                 ))}
-                                <button className="pin-btn" onClick={handlePinClear} style={{ fontSize: '16px', fontWeight: 600 }}>
-                                    Clear
+                                <button className="pin-btn" onClick={handlePinClear} style={{ fontSize: '16px', fontWeight: 600, background: '#ef4444' }}>
+                                    {language === 'en' ? 'Clear' : 'Borrar'}
                                 </button>
                                 <button className="pin-btn" onClick={() => handlePinEnter('0')}>
                                     0
@@ -295,14 +322,20 @@ function App() {
                                     className="pin-btn"
                                     onClick={handlePinSubmit}
                                     style={{
-                                        background: enteredPin.length === 4 ? 'rgba(16, 185, 129, 0.3)' : 'rgba(255, 255, 255, 0.1)',
+                                        background: enteredPin.length === 4 ? '#10b981' : 'rgba(255, 255, 255, 0.1)',
                                         borderColor: enteredPin.length === 4 ? '#10b981' : 'rgba(255, 255, 255, 0.2)',
-                                        color: enteredPin.length === 4 ? '#10b981' : '#ffffff'
+                                        color: '#ffffff'
                                     }}
                                 >
                                     ✓
                                 </button>
                             </div>
+                            <button
+                                className="close-pin-btn"
+                                onClick={() => setShowPinPad(false)}
+                            >
+                                {language === 'en' ? 'Cancel' : 'Cancelar'}
+                            </button>
                         </div>
                     </div>
                 )}
@@ -310,8 +343,48 @@ function App() {
         );
     }
 
+    // Activity View
+    if (mode !== 'menu') {
+        return (
+            <div className="mobile-app">
+                <div className="mobile-header">
+                    <div className="app-title-mobile">🦉 WORD WHIZ KIDS</div>
+                    <button
+                        className="mobile-btn"
+                        onClick={() => setMode('menu')}
+                        style={{
+                            background: 'none',
+                            border: 'none',
+                            fontSize: '24px',
+                            padding: '0',
+                            cursor: 'pointer',
+                            marginBottom: 0,
+                            minHeight: 'auto',
+                            width: 'auto',
+                            boxShadow: 'none'
+                        }}
+                    >
+                        🏠
+                    </button>
+                </div>
+                <div className="mobile-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                    <h2 style={{ textAlign: 'center' }}>
+                        {mode === 'digraph' ? 'Digraph Detective' :
+                            mode === 'spell' ? 'Word Builder' :
+                                mode === 'syllable' ? 'Syllable Savvy' : 'Story Spark'}
+                    </h2>
+                    <p style={{ textAlign: 'center', color: '#a0a0a0' }}>
+                        {language === 'en' ? 'Coming Soon to Mobile!' : '¡Próximamente en Móvil!'}
+                    </p>
+                    <button className="mobile-btn" onClick={() => setMode('menu')} style={{ marginTop: '20px' }}>
+                        {language === 'en' ? 'Back to Menu' : 'Volver al Menú'}
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     // Main Menu
-    console.log(mode);
     return (
         <div className="mobile-app">
             <div className="mobile-header">
@@ -330,7 +403,10 @@ function App() {
                             fontSize: '24px',
                             padding: '0',
                             cursor: 'pointer',
-                            marginBottom: 0
+                            marginBottom: 0,
+                            minHeight: 'auto',
+                            width: 'auto',
+                            boxShadow: 'none'
                         }}
                     >
                         {language === 'en' ? '🦉' : '🇪🇸'}
@@ -345,7 +421,7 @@ function App() {
                         }}
                         onClick={handleHome}
                     >
-                        {student.name} →
+                        {student?.name} →
                     </button>
                 </div>
             </div>
