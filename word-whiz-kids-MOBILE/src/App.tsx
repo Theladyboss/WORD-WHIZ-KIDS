@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { GoogleGenAI, Modality } from '@google/genai';
 import { dataManager } from './services/DataManager';
 import './App.css';
@@ -158,6 +158,108 @@ function App() {
     const [mode, setMode] = useState<string>('menu');
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [language, setLanguage] = useState<'en' | 'es'>('en');
+
+    // Game State
+    const [challenge, setChallenge] = useState<any>(null);
+    const [loading, setLoading] = useState(false);
+    const [feedback, setFeedback] = useState('');
+    const [gamesUnlocked, setGamesUnlocked] = useState(false);
+    const [score, setScore] = useState(0);
+
+    // Whack-a-Vowel State
+    const [whackGrid, setWhackGrid] = useState<string[]>(Array(9).fill(''));
+    const [activeWhack, setActiveWhack] = useState<number | null>(null);
+    const [timeLeft, setTimeLeft] = useState(30);
+    const [timerActive, setTimerActive] = useState(false);
+
+    const fetchChallengeData = async (selectedMode: string) => {
+        setLoading(true);
+        setFeedback('');
+        setChallenge(null);
+
+        const prompt = `Generate a phonics challenge for 2nd graders.
+        Mode: ${selectedMode}
+        Output JSON only: { "word": "ship", "missing": "sh", "phoneme": "sh", "context": "The ship sails on the sea.", "options": ["sh", "ch", "th", "wh"] }
+        Ensure options are relevant digraphs.`;
+
+        try {
+            const resp = await ai.models.generateContent({
+                model: 'gemini-1.5-flash',
+                contents: { role: 'user', parts: [{ text: prompt }] },
+                config: { responseMimeType: 'application/json' }
+            });
+            const json = JSON.parse(resp.text || "{}");
+            setChallenge(json);
+            speak(`Listen carefully. The word is ${json.word}. ${json.context}. What sound starts the word?`);
+        } catch (e) {
+            console.error("AI Error", e);
+            setFeedback("Error loading. Try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const checkAnswer = (answer: string) => {
+        if (!challenge) return;
+        if (answer === challenge.missing) {
+            setFeedback('Correct! 🎉');
+            speak("That is correct! Great job!");
+            setGamesUnlocked(true); // Unlock games after success
+            setTimeout(() => {
+                fetchChallengeData('digraph');
+            }, 2000);
+        } else {
+            setFeedback('Try again!');
+            speak(`Not quite. The word is ${challenge.word}.`);
+        }
+    };
+
+    // Whack-a-Vowel Logic
+    const startWhackGame = () => {
+        setScore(0);
+        setTimeLeft(30);
+        setTimerActive(true);
+        setWhackGrid(Array(9).fill(''));
+    };
+
+    useEffect(() => {
+        if (!timerActive) return;
+        const timer = setInterval(() => {
+            setTimeLeft(t => {
+                if (t <= 1) {
+                    setTimerActive(false);
+                    return 0;
+                }
+                return t - 1;
+            });
+        }, 1000);
+
+        const mole = setInterval(() => {
+            const letters = "AEIOU";
+            const char = letters[Math.floor(Math.random() * letters.length)];
+            const pos = Math.floor(Math.random() * 9);
+            setActiveWhack(pos);
+            setWhackGrid(prev => {
+                const newGrid = [...prev];
+                newGrid[pos] = char;
+                return newGrid;
+            });
+
+            setTimeout(() => {
+                setActiveWhack(null);
+                setWhackGrid(prev => {
+                    const newGrid = [...prev];
+                    newGrid[pos] = '';
+                    return newGrid;
+                });
+            }, 800);
+        }, 1000);
+
+        return () => {
+            clearInterval(timer);
+            clearInterval(mole);
+        };
+    }, [timerActive]);
 
     const speak = async (text: string) => {
         setIsSpeaking(true);
@@ -351,7 +453,10 @@ function App() {
                     <div className="app-title-mobile">🦉 WORD WHIZ KIDS</div>
                     <button
                         className="mobile-btn"
-                        onClick={() => setMode('menu')}
+                        onClick={() => {
+                            setMode('menu');
+                            setTimerActive(false);
+                        }}
                         style={{
                             background: 'none',
                             border: 'none',
@@ -367,18 +472,91 @@ function App() {
                         🏠
                     </button>
                 </div>
-                <div className="mobile-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                    <h2 style={{ textAlign: 'center' }}>
-                        {mode === 'digraph' ? 'Digraph Detective' :
-                            mode === 'spell' ? 'Word Builder' :
-                                mode === 'syllable' ? 'Syllable Savvy' : 'Story Spark'}
-                    </h2>
-                    <p style={{ textAlign: 'center', color: '#a0a0a0' }}>
-                        {language === 'en' ? 'Coming Soon to Mobile!' : '¡Próximamente en Móvil!'}
-                    </p>
-                    <button className="mobile-btn" onClick={() => setMode('menu')} style={{ marginTop: '20px' }}>
-                        {language === 'en' ? 'Back to Menu' : 'Volver al Menú'}
-                    </button>
+
+                <div className="mobile-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+                    {mode === 'digraph' && (
+                        <>
+                            <h2 style={{ textAlign: 'center', color: '#00ff9d' }}>Digraph Detective 🔍</h2>
+
+                            {!challenge && !loading && (
+                                <button className="mobile-btn" onClick={() => fetchChallengeData('digraph')} style={{ background: '#3b82f6', marginTop: '40px' }}>
+                                    Start Game
+                                </button>
+                            )}
+
+                            {loading && <div className="wally-mobile" style={{ fontSize: '48px', animation: 'bounce 1s infinite' }}>🦉</div>}
+
+                            {challenge && (
+                                <>
+                                    <div style={{ fontSize: '48px', fontWeight: 'bold', margin: '20px 0', letterSpacing: '4px' }}>
+                                        {challenge.word.replace(challenge.missing, '_'.repeat(challenge.missing.length))}
+                                    </div>
+
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', width: '100%' }}>
+                                        {['sh', 'ch', 'th', 'wh', 'ph', 'ck', 'ng'].map(d => (
+                                            <button
+                                                key={d}
+                                                className="mobile-btn"
+                                                onClick={() => checkAnswer(d)}
+                                                style={{ fontSize: '24px', padding: '15px' }}
+                                            >
+                                                {d}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    <div style={{ marginTop: '20px', fontSize: '18px', color: feedback.includes('Correct') ? '#10b981' : '#ef4444' }}>
+                                        {feedback}
+                                    </div>
+                                </>
+                            )}
+                        </>
+                    )}
+
+                    {mode === 'games' && (
+                        <>
+                            <h2 style={{ textAlign: 'center', color: '#f093fb' }}>Game Room 🎮</h2>
+                            <p style={{ textAlign: 'center' }}>Score: {score} | Time: {timeLeft}s</p>
+
+                            {!timerActive ? (
+                                <button className="mobile-btn" onClick={startWhackGame} style={{ background: '#ec4899', marginTop: '20px' }}>
+                                    Start Whack-a-Vowel
+                                </button>
+                            ) : (
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginTop: '20px' }}>
+                                    {whackGrid.map((char, i) => (
+                                        <div key={i}
+                                            onClick={() => {
+                                                if (i === activeWhack) {
+                                                    setScore(s => s + 10);
+                                                    setActiveWhack(null);
+                                                }
+                                            }}
+                                            style={{
+                                                width: '80px',
+                                                height: '80px',
+                                                background: i === activeWhack ? '#f472b6' : 'rgba(255,255,255,0.1)',
+                                                borderRadius: '12px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                fontSize: '32px',
+                                                cursor: 'pointer'
+                                            }}>
+                                            {i === activeWhack ? char : ''}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </>
+                    )}
+
+                    {mode !== 'digraph' && mode !== 'games' && (
+                        <>
+                            <h2 style={{ textAlign: 'center' }}>Coming Soon!</h2>
+                            <p style={{ textAlign: 'center', color: '#a0a0a0' }}>This activity is being built.</p>
+                        </>
+                    )}
                 </div>
             </div>
         );
@@ -436,6 +614,15 @@ function App() {
                         <div style={{ fontSize: '24px', marginBottom: '4px' }}>🔍</div>
                         {language === 'en' ? 'Digraph Detective' : 'Detective de Dígrafos'}
                     </button>
+
+                    <button className="mobile-btn"
+                        onClick={() => setMode('games')}
+                        style={{ background: gamesUnlocked ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' : '#334155', opacity: gamesUnlocked ? 1 : 0.7 }}
+                    >
+                        <div style={{ fontSize: '24px', marginBottom: '4px' }}>{gamesUnlocked ? '🎮' : '🔒'}</div>
+                        {language === 'en' ? 'Game Room' : 'Sala de Juegos'}
+                    </button>
+
                     <button className="mobile-btn" onClick={() => setMode('spell')}>
                         <div style={{ fontSize: '24px', marginBottom: '4px' }}>📝</div>
                         {language === 'en' ? 'Word Builder' : 'Constructor de Palabras'}
