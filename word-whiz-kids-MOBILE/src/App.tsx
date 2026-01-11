@@ -178,6 +178,7 @@ function App() {
         setChallenge(null);
 
         if (!ai) {
+            alert("Debug: API Key is MISSING in the app. Did the build finish?");
             setFeedback("⚠️ API Key Missing on Netlify");
             setLoading(false);
             return;
@@ -197,8 +198,9 @@ function App() {
             const json = JSON.parse(resp.text || "{}");
             setChallenge(json);
             speak(`Listen carefully. The word is ${json.word}. ${json.context}. What sound starts the word?`);
-        } catch (e) {
+        } catch (e: any) {
             console.error("AI Error", e);
+            alert(`Debug Error: ${e.message || JSON.stringify(e)}`);
             setFeedback("Error loading. Try again.");
         } finally {
             setLoading(false);
