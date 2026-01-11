@@ -191,7 +191,7 @@ function App() {
 
         try {
             const resp = await ai.models.generateContent({
-                model: 'gemini-1.5-flash',
+                model: 'gemini-2.0-flash-exp',
                 contents: { role: 'user', parts: [{ text: prompt }] },
                 config: { responseMimeType: 'application/json' }
             });
@@ -273,7 +273,7 @@ function App() {
         setIsSpeaking(true);
         try {
             const resp = await ai.models.generateContent({
-                model: 'gemini-1.5-flash-001',
+                model: 'gemini-2.0-flash-exp',
                 contents: { role: 'user', parts: [{ text: text }] },
                 config: {
                     responseModalities: [Modality.AUDIO],
