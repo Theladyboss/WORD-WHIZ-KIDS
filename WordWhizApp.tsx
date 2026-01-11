@@ -5,6 +5,7 @@ import { createRoot } from "react-dom/client";
 import { GoogleGenAI, Modality } from "@google/genai";
 import { OFFLINE_DATA } from "./offlineData";
 import { AssessmentSystem } from "./AssessmentSystem";
+import { dataManager } from "./services/DataManager";
 import "./WordWhiz.css";
 
 // --- Configuration ---
@@ -1046,6 +1047,12 @@ const App = () => {
         }
 
         if (isCorrect) {
+            // Save Progress
+            if (student && challenge) {
+                const wordToSave = challenge.word || challenge.starter || "unknown";
+                dataManager.updateProgress(student.pin, mode as any, wordToSave);
+            }
+
             setCuudoos(c => c + 10);
             setStreak(s => {
                 const newStreak = s + 1;
