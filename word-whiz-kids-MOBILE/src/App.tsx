@@ -1,6 +1,7 @@
 /// <reference types="vite/client" />
 import { useState } from 'react';
 import { GoogleGenAI, Modality } from '@google/genai';
+import { dataManager } from './services/DataManager';
 
 import './App.css';
 
@@ -198,6 +199,9 @@ function App() {
     const handlePinSubmit = () => {
         if (enteredPin.length === 4) {
             if (targetStudent && enteredPin === targetStudent.pin) {
+                // Initialize Data
+                dataManager.initStudent(targetStudent.pin, targetStudent.name);
+
                 setStudent(targetStudent);
                 setShowPinPad(false);
                 setTargetStudent(null);
