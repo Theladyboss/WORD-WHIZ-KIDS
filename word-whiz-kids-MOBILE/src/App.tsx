@@ -510,12 +510,16 @@ function App() {
                                             </button>
                                         ))}
                                     </div>
-
-                                    <div style={{ marginTop: '20px', fontSize: '18px', color: feedback.includes('Correct') ? '#10b981' : '#ef4444' }}>
-                                        {feedback}
-                                    </div>
                                 </>
                             )}
+
+                            <div style={{ marginTop: '20px', fontSize: '18px', color: feedback.includes('Correct') ? '#10b981' : '#ef4444', textAlign: 'center' }}>
+                                {feedback}
+                            </div>
+
+                            <div style={{ marginTop: '10px', fontSize: '12px', color: '#64748b' }}>
+                                API Key Status: {API_KEY ? 'Present ✅' : 'Missing ❌'}
+                            </div>
                         </>
                     )}
 
