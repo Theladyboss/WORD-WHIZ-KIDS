@@ -195,7 +195,18 @@ function App() {
                 contents: { role: 'user', parts: [{ text: prompt }] },
                 config: { responseMimeType: 'application/json' }
             });
+
+            // Debug logging
+            console.log("API Response:", resp);
+            alert(`Debug v4: Got response! Text length: ${resp.text?.length || 0}`);
+
             const json = JSON.parse(resp.text || "{}");
+            console.log("Parsed JSON:", json);
+
+            if (!json.word) {
+                alert(`Debug v4: JSON missing 'word' field. Keys: ${Object.keys(json).join(', ')}`);
+            }
+
             setChallenge(json);
             speak(`Listen carefully. The word is ${json.word}. ${json.context}. What sound starts the word?`);
         } catch (e: any) {
