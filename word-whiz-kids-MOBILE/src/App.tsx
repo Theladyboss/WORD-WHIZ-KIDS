@@ -177,6 +177,12 @@ function App() {
         setFeedback('');
         setChallenge(null);
 
+        if (!ai) {
+            setFeedback("Error: API Key missing.");
+            setLoading(false);
+            return;
+        }
+
         const prompt = `Generate a phonics challenge for 2nd graders.
         Mode: ${selectedMode}
         Output JSON only: { "word": "ship", "missing": "sh", "phoneme": "sh", "context": "The ship sails on the sea.", "options": ["sh", "ch", "th", "wh"] }
@@ -480,7 +486,7 @@ function App() {
 
                             {!challenge && !loading && (
                                 <button className="mobile-btn" onClick={() => fetchChallengeData('digraph')} style={{ background: '#3b82f6', marginTop: '40px' }}>
-                                    Start Game
+                                    Start Task
                                 </button>
                             )}
 
