@@ -201,7 +201,7 @@ function App() {
     };
 
     const handlePinSubmit = () => {
-        if (enteredPin.length === 4) {
+        if (enteredPin.length >= 3) {
             if (targetStudent && enteredPin === targetStudent.pin) {
                 // Initialize Data
                 dataManager.initStudent(targetStudent.pin, targetStudent.name);
@@ -322,8 +322,8 @@ function App() {
                                     className="pin-btn"
                                     onClick={handlePinSubmit}
                                     style={{
-                                        background: enteredPin.length === 4 ? '#10b981' : 'rgba(255, 255, 255, 0.1)',
-                                        borderColor: enteredPin.length === 4 ? '#10b981' : 'rgba(255, 255, 255, 0.2)',
+                                        background: enteredPin.length >= 3 ? '#10b981' : 'rgba(255, 255, 255, 0.1)',
+                                        borderColor: enteredPin.length >= 3 ? '#10b981' : 'rgba(255, 255, 255, 0.2)',
                                         color: '#ffffff'
                                     }}
                                 >
