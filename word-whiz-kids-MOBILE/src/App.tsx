@@ -1,21 +1,8 @@
 /// <reference types="vite/client" />
 import { useState, useEffect } from 'react';
-import { GoogleGenAI } from '@google/genai';
 import { dataManager } from './services/DataManager';
 import { OFFLINE_DATA } from './offlineData';
 import './App.css';
-
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
-
-try {
-    if (API_KEY) {
-        new GoogleGenAI({ apiKey: API_KEY });
-    } else {
-        console.warn('Gemini API Key is missing');
-    }
-} catch (e) {
-    console.error('Failed to initialize Gemini AI', e);
-}
 
 // Audio cleanup - track current sources to prevent stuck audio
 let currentAudioSource: AudioBufferSourceNode | null = null;
