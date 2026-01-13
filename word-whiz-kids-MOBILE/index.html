@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/owl.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>WORD WHIZ KIDS - Mobile</title>
   <style>
@@ -42,6 +42,45 @@
       min-height: 100vh;
     }
   </style>
+  <style>
+    #error-display {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      color: red;
+      z-index: 9999;
+      padding: 20px;
+      overflow: auto;
+      font-family: monospace;
+      white-space: pre-wrap;
+    }
+  </style>
+  <script>
+    window.onerror = function (message, source, lineno, colno, error) {
+      var errorDisplay = document.getElementById('error-display');
+      if (!errorDisplay) {
+        errorDisplay = document.createElement('div');
+        errorDisplay.id = 'error-display';
+        document.body.appendChild(errorDisplay);
+      }
+      errorDisplay.style.display = 'block';
+      errorDisplay.innerHTML += 'Error: ' + message + '\nSource: ' + source + '\nLine: ' + lineno + '\n\n';
+    };
+    window.addEventListener('unhandledrejection', function (event) {
+      var errorDisplay = document.getElementById('error-display');
+      if (!errorDisplay) {
+        errorDisplay = document.createElement('div');
+        errorDisplay.id = 'error-display';
+        document.body.appendChild(errorDisplay);
+      }
+      errorDisplay.style.display = 'block';
+      errorDisplay.innerHTML += 'Promise Rejection: ' + event.reason + '\n\n';
+    });
+  </script>
 </head>
 
 <body>
