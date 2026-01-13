@@ -244,34 +244,39 @@ function App() {
 
                 console.log('Selected item:', randomItem);
 
-                if (selectedMode === 'digraph') {
-                    const challenge = {
-                        word: randomItem.word,
-                        missing: randomItem.missing,
-                        phoneme: randomItem.phoneme,
-                        context: randomItem.context,
-                        options: ['sh', 'ch', 'th', 'wh', 'ph', 'ck', 'ng']
-                    };
-                    setChallenge(challenge);
-                    speak(`Listen carefully. The word is ${challenge.word}. ${challenge.context}. What sound is missing?`);
-                } else if (selectedMode === 'spell') {
-                    setChallenge(randomItem);
-                    speak(`Hey, listen to this! ${randomItem.context}. Can you spell that word for me?`);
-                } else if (selectedMode === 'syllable') {
-                    setChallenge(randomItem);
-                    speak(`Let's clap it out! How many syllables are in ${randomItem.word}?`);
-                } else if (selectedMode === 'story') {
-                    setChallenge(randomItem);
-                    speak(`Time for a story! ${randomItem.starter}. What happens next?`);
-                } else if (selectedMode === 'vowel-sort') {
-                    setChallenge(randomItem);
-                    speak(`Listen to this word: ${randomItem.word}. Is the vowel short, long, or r-controlled?`);
-                } else if (selectedMode === 'r-controlled') {
-                    setChallenge(randomItem);
-                    speak(`Here's a word for you: ${randomItem.word}. Does it have an R-controlled vowel?`);
-                } else if (selectedMode === 'n-controlled') {
-                    setChallenge(randomItem);
-                    speak(`Listen carefully: ${randomItem.word}. Does it have an N-controlled vowel?`);
+                try {
+                    if (selectedMode === 'digraph') {
+                        const challenge = {
+                            word: randomItem.word,
+                            missing: randomItem.missing,
+                            phoneme: randomItem.phoneme,
+                            context: randomItem.context,
+                            options: ['sh', 'ch', 'th', 'wh', 'ph', 'ck', 'ng']
+                        };
+                        setChallenge(challenge);
+                        speak(`Listen carefully. The word is ${challenge.word}. ${challenge.context}. What sound is missing?`);
+                    } else if (selectedMode === 'spell') {
+                        setChallenge(randomItem);
+                        speak(`Hey, listen to this! ${randomItem.context}. Can you spell that word for me?`);
+                    } else if (selectedMode === 'syllable') {
+                        setChallenge(randomItem);
+                        speak(`Let's clap it out! How many syllables are in ${randomItem.word}?`);
+                    } else if (selectedMode === 'story') {
+                        setChallenge(randomItem);
+                        speak(`Time for a story! ${randomItem.starter}. What happens next?`);
+                    } else if (selectedMode === 'vowel-sort') {
+                        setChallenge(randomItem);
+                        speak(`Listen to this word: ${randomItem.word}. Is the vowel short, long, or r-controlled?`);
+                    } else if (selectedMode === 'r-controlled') {
+                        setChallenge(randomItem);
+                        speak(`Here's a word for you: ${randomItem.word}. Does it have an R-controlled vowel?`);
+                    } else if (selectedMode === 'n-controlled') {
+                        setChallenge(randomItem);
+                        speak(`Listen carefully: ${randomItem.word}. Does it have an N-controlled vowel?`);
+                    }
+                } catch (innerError: any) {
+                    console.error("Error setting challenge or speaking:", innerError);
+                    setFeedback("Error starting task. Please try again.");
                 }
                 setLoading(false);
             };
