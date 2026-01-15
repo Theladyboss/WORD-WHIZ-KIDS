@@ -662,7 +662,7 @@ function App() {
         return (
             <div className="mobile-app">
                 <div className="mobile-header">
-                    <div className="app-title-mobile">🦉 WORD WHIZ KIDS</div>
+                    <div className="app-title-mobile">🦉 WORD WHIZ KIDS v1.1</div>
                     <button
                         className="mobile-btn"
                         onClick={() => {
