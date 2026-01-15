@@ -208,20 +208,6 @@ const ClassSelection = ({ onSelect, language }: { onSelect: (section: string) =>
                 {language === 'en' ? 'SELECT YOUR CLASS' : 'SELECCIONA TU CLASE'}
             </h2>
             <div className="teacher-grid">
-                {sections.map((section, index) => (
-                    <div
-                        key={section}
-                        className={`teacher-card ${getTheme(index)}`}
-                        onClick={() => section && onSelect(section)}
-                    >
-                        <div className="teacher-icon">🏫</div>
-                        <div className="teacher-name">
-                            {SECTION_NAMES[section!] || 'Teacher'}
-                        </div>
-                        <div className="teacher-section">Section: {section}</div>
-                    </div>
-                ))}
-
                 {/* Pre-K Card */}
                 <div className="teacher-card card-theme-pink" onClick={() => onSelect('Pre-K')} style={{ '--card-color-1': '#ec4899', '--card-color-2': '#f472b6' } as React.CSSProperties}>
                     <div className="teacher-icon">🎨</div>
@@ -249,6 +235,20 @@ const ClassSelection = ({ onSelect, language }: { onSelect: (section: string) =>
                     <div className="teacher-name">3rd Grade</div>
                     <div className="teacher-section">Grade 3</div>
                 </div>
+
+                {sections.map((section, index) => (
+                    <div
+                        key={section}
+                        className={`teacher-card ${getTheme(index)}`}
+                        onClick={() => section && onSelect(section)}
+                    >
+                        <div className="teacher-icon">🏫</div>
+                        <div className="teacher-name">
+                            {SECTION_NAMES[section!] || 'Teacher'}
+                        </div>
+                        <div className="teacher-section">Section: {section}</div>
+                    </div>
+                ))}
 
                 {/* Guest Portal Card */}
                 <div className="teacher-card card-theme-cyan" onClick={() => onSelect('Guest')} style={{ '--card-color-1': '#06b6d4', '--card-color-2': '#22d3ee' } as React.CSSProperties}>
@@ -662,7 +662,7 @@ function App() {
         return (
             <div className="mobile-app">
                 <div className="mobile-header">
-                    <div className="app-title-mobile">🦉 WORD WHIZ KIDS v1.1</div>
+                    <div className="app-title-mobile">🦉 WORD WHIZ KIDS v1.2</div>
                     <button
                         className="mobile-btn"
                         onClick={() => {
