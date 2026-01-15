@@ -53,9 +53,9 @@ body {
     /* justify-content: center; */
 }
 
-.centered-content > .glass-panel,
-.centered-content > .activity-container,
-.centered-content > .roster-grid {
+.centered-content>.glass-panel,
+.centered-content>.activity-container,
+.centered-content>.roster-grid {
     margin-top: auto;
     margin-bottom: auto;
 }
@@ -270,7 +270,7 @@ body {
 .wally-circle {
     background: #475569;
     border: 4px solid white;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
 }
 
 .wally-wrapper.speaking .wally-circle {
@@ -284,13 +284,27 @@ body {
 }
 
 @keyframes pulse-speak {
-    from { transform: scale(1); box-shadow: 0 0 0 rgba(59, 130, 246, 0); }
-    to { transform: scale(1.1); box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
+    from {
+        transform: scale(1);
+        box-shadow: 0 0 0 rgba(59, 130, 246, 0);
+    }
+
+    to {
+        transform: scale(1.1);
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+    }
 }
 
 @keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
 }
 
 .voice-waves {
@@ -315,12 +329,141 @@ body {
     animation: wave-ripple 1.5s infinite linear;
 }
 
-.wave.w1 { animation-delay: 0s; }
-.wave.w2 { animation-delay: 0.5s; }
-.wave.w3 { animation-delay: 1s; }
-
-@keyframes wave-ripple {
-    0% { width: 100%; height: 100%; opacity: 0.8; }
-    100% { width: 200%; height: 200%; opacity: 0; }
+.wave.w1 {
+    animation-delay: 0s;
 }
 
+.wave.w2 {
+    animation-delay: 0.5s;
+}
+
+.wave.w3 {
+    animation-delay: 1s;
+}
+
+@keyframes wave-ripple {
+    0% {
+        width: 100%;
+        height: 100%;
+        opacity: 0.8;
+    }
+
+    100% {
+        width: 200%;
+        height: 200%;
+        opacity: 0;
+    }
+}
+
+
+/* Vibrant Teacher Profile Styles */
+.vibrant-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    background: linear-gradient(to right, #60a5fa, #a78bfa, #f472b6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 4px 12px rgba(96, 165, 250, 0.3);
+    margin-bottom: 40px;
+}
+
+.teacher-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    width: 100%;
+    padding: 20px;
+}
+
+.teacher-card {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.teacher-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--card-color-1), var(--card-color-2));
+    opacity: 0.8;
+}
+
+.teacher-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    background: rgba(30, 41, 59, 0.8);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    border-color: var(--card-color-1);
+}
+
+.teacher-card:hover .teacher-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.teacher-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    transition: transform 0.3s ease;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+.teacher-name {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #f8fafc;
+    margin-bottom: 8px;
+}
+
+.teacher-section {
+    font-size: 1rem;
+    color: #94a3b8;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 6px 12px;
+    border-radius: 20px;
+}
+
+/* Specific Card Themes */
+.card-theme-blue {
+    --card-color-1: #3b82f6;
+    --card-color-2: #60a5fa;
+}
+
+.card-theme-purple {
+    --card-color-1: #8b5cf6;
+    --card-color-2: #a78bfa;
+}
+
+.card-theme-pink {
+    --card-color-1: #ec4899;
+    --card-color-2: #f472b6;
+}
+
+.card-theme-green {
+    --card-color-1: #10b981;
+    --card-color-2: #34d399;
+}
+
+.card-theme-orange {
+    --card-color-1: #f97316;
+    --card-color-2: #fbbf24;
+}
+
+.card-theme-cyan {
+    --card-color-1: #06b6d4;
+    --card-color-2: #22d3ee;
+}

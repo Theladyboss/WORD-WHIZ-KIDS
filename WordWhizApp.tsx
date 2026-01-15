@@ -6,6 +6,7 @@ import { GoogleGenAI, Modality } from "@google/genai";
 import { OFFLINE_DATA } from "./offlineData";
 import { AssessmentSystem } from "./AssessmentSystem";
 import { dataManager } from "./services/DataManager";
+import { StudentProfileBuilder } from "./services/StudentProfileBuilder";
 import "./WordWhiz.css";
 
 // --- Configuration ---
@@ -220,9 +221,15 @@ const STUDENTS = [
     { id: 75, name: "Ryan B.", icon: "⚽", color: "#8b5cf6", pin: "2514", section: "92200-25" },
     { id: 84, name: "Zyaire T.", icon: "🛹", color: "#64748b", pin: "2515", section: "92200-25" },
 
-    // Staff
+    // Staff & Guest
     { id: 900, name: "Teacher", icon: "🎓", color: "#d946ef", pin: "2001", section: "Staff" },
-    { id: 901, name: "Guest", icon: "👤", color: "#22c55e", pin: "1234", section: "Staff" },
+    { id: 901, name: "Guest", icon: "👤", color: "#22c55e", pin: "1234", section: "Guest" },
+
+    // New Grade Levels
+    { id: 902, name: "1st Grade Guest", icon: "🍎", color: "#f97316", pin: "1001", section: "1st-Grade" },
+    { id: 903, name: "Kinder Guest", icon: "🧸", color: "#10b981", pin: "0001", section: "Kindergarten" },
+    { id: 904, name: "Pre-K Guest", icon: "🎨", color: "#ec4899", pin: "0000", section: "Pre-K" },
+    { id: 905, name: "3rd Grade Guest", icon: "📚", color: "#3b82f6", pin: "3001", section: "3rd-Grade" },
 ];
 
 const UNIT_WORDS: { [key: number]: string[] } = {
@@ -363,65 +370,116 @@ const SECTION_NAMES: { [key: string]: string } = {
     '92200-24': 'Ms. Sidamon',
     '92200-25': 'Ms. Fletcher',
     '92200-26': 'Ms. Jugasan',
+    '1st-Grade': '1st Grade Educators',
+    'Kindergarten': 'Kindergarten',
+    'Pre-K': 'Pre-K / Early Learners',
+    '3rd-Grade': '3rd Grade Educators',
+    'Guest': 'Guest Portal',
+    'Staff': 'Staff Portal',
 };
 
 const ClassSelection = ({ onSelect, language }: { onSelect: (section: string) => void, language: 'en' | 'es' }) => {
     const sections = Array.from(new Set(STUDENTS.map(s => s.section)))
-        .filter(s => s !== 'Staff')
+        .filter(s => s !== 'Staff' && s !== 'Guest' && s !== '1st-Grade' && s !== 'Kindergarten' && s !== 'Pre-K' && s !== '3rd-Grade')
         .sort((a, b) => {
-            // Sort by the number after the hyphen (e.g. 92200-21 -> 21)
             const numA = parseInt(a.split('-')[1] || '999');
             const numB = parseInt(b.split('-')[1] || '999');
             return numA - numB;
         });
 
+    // Helper to assign themes cyclically
+    const getTheme = (index: number) => {
+        const themes = ['card-theme-blue', 'card-theme-purple', 'card-theme-pink', 'card-theme-green', 'card-theme-orange', 'card-theme-cyan'];
+        return themes[index % themes.length];
+    };
+
     return (
-        <div className="glass-panel" style={{ maxWidth: '900px', width: '100%', textAlign: 'center' }}>
-            <h2 style={{ marginBottom: '30px', color: '#94a3b8', fontSize: '2rem' }}>
+        <div className="glass-panel" style={{ maxWidth: '1100px', width: '95%', textAlign: 'center', background: 'rgba(15, 23, 42, 0.4)', border: 'none', boxShadow: 'none' }}>
+            <h2 className="vibrant-title">
                 {language === 'en' ? 'SELECT YOUR CLASS' : 'SELECCIONA TU CLASE'}
             </h2>
-            <div className="menu-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px' }}>
-                {sections.map(section => (
-                    <button
+            <div className="teacher-grid">
+                {sections.map((section, index) => (
+                    <div
                         key={section}
-                        className="pro-btn"
+                        className={`teacher-card ${getTheme(index)}`}
                         onClick={() => onSelect(section)}
-                        style={{
-                            background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
-                            border: '1px solid #475569',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            padding: '20px',
-                            height: 'auto'
-                        }}
                     >
-                        <span style={{ fontSize: '3rem', marginBottom: '10px' }}>🏫</span>
-                        <span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#f8fafc', marginBottom: '5px' }}>
+                        <div className="teacher-icon">🏫</div>
+                        <div className="teacher-name">
                             {SECTION_NAMES[section] || 'Teacher'}
-                        </span>
-                        <span style={{ fontSize: '1rem', color: '#94a3b8' }}>Section: {section}</span>
-                    </button>
+                        </div>
+                        <div className="teacher-section">Section: {section}</div>
+                    </div>
                 ))}
-                <button
-                    className="pro-btn"
-                    onClick={() => onSelect('Staff')}
-                    style={{
-                        background: 'linear-gradient(135deg, #334155 0%, #475569 100%)',
-                        border: '1px solid #64748b',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        padding: '20px',
-                        height: 'auto'
-                    }}
+
+                {/* Pre-K Card */}
+                <div
+                    className="teacher-card card-theme-pink"
+                    onClick={() => onSelect('Pre-K')}
+                    style={{ '--card-color-1': '#ec4899', '--card-color-2': '#f472b6' } as React.CSSProperties}
                 >
-                    <span style={{ fontSize: '3rem', marginBottom: '10px' }}>🎓</span>
-                    <span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#e2e8f0', marginBottom: '5px' }}>
-                        {language === 'en' ? 'Staff & Guest' : 'Personal e Invitados'}
-                    </span>
-                    <span style={{ fontSize: '1rem', color: '#94a3b8' }}>{language === 'en' ? 'Admin Access' : 'Acceso Admin'}</span>
-                </button>
+                    <div className="teacher-icon">🎨</div>
+                    <div className="teacher-name">Pre-K</div>
+                    <div className="teacher-section">Early Learners</div>
+                </div>
+
+                {/* Kindergarten Card */}
+                <div
+                    className="teacher-card card-theme-green"
+                    onClick={() => onSelect('Kindergarten')}
+                    style={{ '--card-color-1': '#10b981', '--card-color-2': '#34d399' } as React.CSSProperties}
+                >
+                    <div className="teacher-icon">🧸</div>
+                    <div className="teacher-name">Kindergarten</div>
+                    <div className="teacher-section">Kinder</div>
+                </div>
+
+                {/* 1st Grade Card */}
+                <div
+                    className="teacher-card card-theme-orange"
+                    onClick={() => onSelect('1st-Grade')}
+                    style={{ '--card-color-1': '#f97316', '--card-color-2': '#fbbf24' } as React.CSSProperties}
+                >
+                    <div className="teacher-icon">🍎</div>
+                    <div className="teacher-name">1st Grade Educators</div>
+                    <div className="teacher-section">Grade 1</div>
+                </div>
+
+                {/* 3rd Grade Card */}
+                <div
+                    className="teacher-card card-theme-blue"
+                    onClick={() => onSelect('3rd-Grade')}
+                    style={{ '--card-color-1': '#3b82f6', '--card-color-2': '#60a5fa' } as React.CSSProperties}
+                >
+                    <div className="teacher-icon">📚</div>
+                    <div className="teacher-name">3rd Grade Educators</div>
+                    <div className="teacher-section">Grade 3</div>
+                </div>
+
+                {/* Guest Portal Card */}
+                <div
+                    className="teacher-card card-theme-cyan"
+                    onClick={() => onSelect('Guest')}
+                    style={{ '--card-color-1': '#06b6d4', '--card-color-2': '#22d3ee' } as React.CSSProperties}
+                >
+                    <div className="teacher-icon">👤</div>
+                    <div className="teacher-name">Guest Portal</div>
+                    <div className="teacher-section">Guest Access</div>
+                </div>
+
+                {/* Staff Portal Card */}
+                <div
+                    className="teacher-card card-theme-purple"
+                    onClick={() => onSelect('Staff')}
+                    style={{ '--card-color-1': '#6366f1', '--card-color-2': '#8b5cf6' } as React.CSSProperties}
+                >
+                    <div className="teacher-icon">🎓</div>
+                    <div className="teacher-name">
+                        {language === 'en' ? 'Staff Portal' : 'Portal Personal'}
+                    </div>
+                    <div className="teacher-section">{language === 'en' ? 'Admin Access' : 'Acceso Admin'}</div>
+                </div>
             </div>
         </div>
     );
@@ -436,17 +494,12 @@ const TeacherChat = ({ onClose }: { onClose: () => void }) => {
         if (!input.trim()) return;
         const newMsgs = [...msgs, { role: 'user' as const, text: input }];
         setMsgs(newMsgs);
-        setInput("");
+        setInput('');
         setLoading(true);
         try {
             const resp = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
-                contents: `You are an expert Special Education Teacher and Maryland Curriculum Specialist for 2nd Grade. 
-                Your goal is to provide targeted teaching strategies, IEP accommodation ideas, and specific interventions for struggling readers.
-                Always reference specific Maryland College and Career-Ready Standards (MCCRS) where applicable.
-                
-                History: ${JSON.stringify(newMsgs)}. 
-                User: ${input}`
+                model: 'gemini-2.0-flash-exp',
+                contents: newMsgs.map(m => ({ role: m.role, parts: [{ text: m.text }] }))
             });
             setMsgs([...newMsgs, { role: 'ai', text: resp.text || "I'm not sure, sorry!" }]);
         } catch (e) { setMsgs([...newMsgs, { role: 'ai', text: "Error connecting to AI." }]); }
@@ -667,128 +720,149 @@ const App = () => {
         setTimer(minutes * 60);
         setSessionSetup(true);
         playSound('magic');
-        speak(`Welcome back, ${student.name}! Let's have fun learning for ${minutes} minutes.`);
+        speak(`Welcome back, ${student.name} !Let's have fun learning for ${minutes} minutes.`);
     };
 
     const speak = async (text: string, priority: 'high' | 'normal' = 'normal') => {
         setIsSpeaking(true);
-        // 1. Try to resume AudioContext (needed for any web audio)
-        speechConfig: {
-            voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Aoede' } }
+
+        // Stop any existing audio
+        if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
         }
-    }
-});
 
-const audioData = resp.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-if (audioData) {
-    console.log("Gemini TTS success, playing audio...");
-    await playPCM(audioData, () => setIsSpeaking(false));
-    return;
-} else {
-    console.warn("Gemini TTS returned no audio data.");
-}
+        try {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.9; // Slightly slower for clarity
+            utterance.pitch = 1.05; // Slightly higher pitch
+            utterance.volume = 1.0;
+            utterance.onend = () => setIsSpeaking(false);
+            utterance.onerror = () => setIsSpeaking(false);
+
+            // Voice Selection: Prefer British Female
+            const voices = window.speechSynthesis.getVoices();
+            if (voices.length > 0) {
+                const voice = voices.find(v =>
+                    (v.lang.includes('GB') || v.lang.includes('UK')) &&
+                    v.name.toLowerCase().includes('female')
+                ) ||
+                    voices.find(v => v.lang.includes('GB') || v.lang.includes('UK')) ||
+                    voices.find(v => v.name.toLowerCase().includes('female')) ||
+                    voices.find(v => v.lang.startsWith('en'));
+
+                if (voice) {
+                    utterance.voice = voice;
+                    console.log("Selected voice:", voice.name);
+                }
+            }
+
+            window.speechSynthesis.speak(utterance);
         } catch (e) {
-    console.error("❌ Gemini TTS FAILED - Using fallback voice instead of Aoede:", e);
-    console.error("Error details:", JSON.stringify(e));
-}
-
-// 3. Fallback if Gemini fails
-fallbackToBrowserTTS(text);
+            console.error("Speech error:", e);
+            setIsSpeaking(false);
+        }
     };
 
-const fallbackToBrowserTTS = (text: string) => {
-    console.log("Using Browser TTS");
-    try {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 1.0;
-        utterance.pitch = 1.1;
-        utterance.onend = () => setIsSpeaking(false);
+    const fallbackToBrowserTTS = (text: string) => {
+        console.log("Using Browser TTS");
+        try {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 1.0;
+            utterance.pitch = 1.1;
+            utterance.onend = () => setIsSpeaking(false);
 
-        const voices = window.speechSynthesis.getVoices();
-        // Prioritize friendly/female voices
-        const preferredVoice =
-            voices.find(v => v.name.includes("Google US English")) ||
-            voices.find(v => v.name.includes("Samantha")) ||
-            voices.find(v => v.name.includes("Zira")) ||
-            voices.find(v => v.lang.startsWith("en") && v.name.includes("Female")) ||
-            voices.find(v => v.lang.startsWith("en"));
+            const voices = window.speechSynthesis.getVoices();
+            // Prioritize friendly/female voices
+            const preferredVoice =
+                voices.find(v => v.name.includes("Google US English")) ||
+                voices.find(v => v.name.includes("Samantha")) ||
+                voices.find(v => v.name.includes("Zira")) ||
+                voices.find(v => v.lang.startsWith("en") && v.name.includes("Female")) ||
+                voices.find(v => v.lang.startsWith("en"));
 
-        if (preferredVoice) utterance.voice = preferredVoice;
-        window.speechSynthesis.speak(utterance);
-    } catch (e) {
-        console.error("Browser TTS failed:", e);
-        setIsSpeaking(false);
-    }
-};
-
-const [usedWords, setUsedWords] = useState<Set<string>>(new Set());
-const [questionCount, setQuestionCount] = useState(0);
-
-const fetchChallengeData = async (selectedMode: string) => {
-    // Check for offline status
-    if (!navigator.onLine) {
-        console.log("Offline mode active. Using fallback data.");
-        const dataList = (OFFLINE_DATA as any)[selectedMode];
-        if (dataList && dataList.length > 0) {
-            const randomItem = dataList[Math.floor(Math.random() * dataList.length)];
-            return { ...randomItem };
+            if (preferredVoice) utterance.voice = preferredVoice;
+            window.speechSynthesis.speak(utterance);
+        } catch (e) {
+            console.error("Browser TTS failed:", e);
+            setIsSpeaking(false);
         }
-        return { word: "Offline", context: "You are offline. Please reconnect." };
-    }
+    };
 
-    let prompt = "";
-    const langInstruction = language === 'es' ? "Generate the content in Spanish." : "";
-    const excludeList = Array.from(usedWords).join(", ");
+    const [usedWords, setUsedWords] = useState<Set<string>>(new Set());
+    const [questionCount, setQuestionCount] = useState(0);
 
-    if (selectedMode === 'digraph') {
-        prompt = `Generate a digraph challenge for a 2nd grader named ${student.name}. ${langInstruction}
+    const fetchChallengeData = async (selectedMode: string) => {
+        // Check for offline status
+        if (!navigator.onLine) {
+            console.log("Offline mode active. Using fallback data.");
+            const dataList = (OFFLINE_DATA as any)[selectedMode];
+            if (dataList && dataList.length > 0) {
+                const randomItem = dataList[Math.floor(Math.random() * dataList.length)];
+                return { ...randomItem };
+            }
+            return { word: "Offline", context: "You are offline. Please reconnect." };
+        }
+
+        let prompt = "";
+        const langInstruction = language === 'es' ? "Generate the content in Spanish." : "";
+        const excludeList = Array.from(usedWords).join(", ");
+
+        // Grade Level Logic
+        let gradeLevel = "2nd grader";
+        if (student.section === '1st-Grade') gradeLevel = "1st grader";
+        if (student.section === 'Kindergarten') gradeLevel = "Kindergarten student";
+        if (student.section === 'Pre-K') gradeLevel = "Pre-Schooler (keep it very simple)";
+        if (student.section === '3rd-Grade') gradeLevel = "3rd grader (make it slightly challenging)";
+
+        if (selectedMode === 'digraph') {
+            prompt = `Generate a digraph challenge for a ${gradeLevel} named ${student.name}. ${langInstruction}
             Pick a word with 'sh', 'ch', 'th', or 'wh'.
             Do NOT use these words: ${excludeList}.
             Do NOT ask about syllables. Focus ONLY on the missing sound.
             Return JSON: { "word": "string", "missing": "string", "context": "sentence using the word", "phoneme": "the sound (e.g. sh)" }.`;
-    } else if (selectedMode === 'spell') {
-        prompt = `Generate a spelling word for a 2nd grader named ${student.name}. ${langInstruction}
+        } else if (selectedMode === 'spell') {
+            prompt = `Generate a spelling word for a ${gradeLevel} named ${student.name}. ${langInstruction}
             Do NOT use these words: ${excludeList}.
             Return JSON: { "word": "string", "context": "sentence" }.`;
-    } else if (selectedMode === 'unit-spelling') {
-        const words = UNIT_WORDS[unit] || UNIT_WORDS[1];
-        const available = words.filter(w => !usedWords.has(w));
-        const word = available.length > 0 ? available[Math.floor(Math.random() * available.length)] : words[Math.floor(Math.random() * words.length)];
-        prompt = `Generate a sentence for a 2nd grader using the spelling word "${word}". ${langInstruction}
+        } else if (selectedMode === 'unit-spelling') {
+            const words = UNIT_WORDS[unit] || UNIT_WORDS[1];
+            const available = words.filter(w => !usedWords.has(w));
+            const word = available.length > 0 ? available[Math.floor(Math.random() * available.length)] : words[Math.floor(Math.random() * words.length)];
+            prompt = `Generate a sentence for a ${gradeLevel} using the spelling word "${word}". ${langInstruction}
             Return JSON: { "word": "${word}", "context": "sentence using the word" }.`;
-    } else if (selectedMode === 'syllable') {
-        prompt = `Generate a challenge about 2nd Grade syllable types (Open, Closed, VCE). ${langInstruction}
+        } else if (selectedMode === 'syllable') {
+            prompt = `Generate a challenge about ${gradeLevel} syllable types (Open, Closed, VCE). ${langInstruction}
             Focus on breaking words into syllables. Do NOT use these words: ${excludeList}.
             Return JSON: { "word": "string", "syllables": ["syl", "la", "ble"], "count": number, "context": "sentence using the word", "type": "VCE, Open, or Closed" }.`;
-    } else if (selectedMode === 'schwa') {
-        prompt = `Generate a challenge focusing on the Schwa sound. ${langInstruction}
+        } else if (selectedMode === 'schwa') {
+            prompt = `Generate a challenge focusing on the Schwa sound appropriate for a ${gradeLevel}. ${langInstruction}
             Do NOT use these words: ${excludeList}.
             Return JSON: { "word": "string", "syllables": ["syl", "la", "ble"], "count": number, "context": "sentence using the word", "type": "Schwa" }.`;
-    } else if (selectedMode === 'vce') {
-        prompt = `Generate a challenge focusing on Vowel-Consonant-E (VCE) words. ${langInstruction}
+        } else if (selectedMode === 'vce') {
+            prompt = `Generate a challenge focusing on Vowel-Consonant-E (VCE) words for a ${gradeLevel}. ${langInstruction}
             Do NOT use these words: ${excludeList}.
             Return JSON: { "word": "string", "syllables": ["syl", "la", "ble"], "count": number, "context": "sentence using the word", "type": "VCE" }.`;
-    } else if (selectedMode === 'contractions') {
-        prompt = `Generate a contraction challenge. ${langInstruction}
+        } else if (selectedMode === 'contractions') {
+            prompt = `Generate a contraction challenge for a ${gradeLevel}. ${langInstruction}
             Do NOT use these words: ${excludeList}.
             Return JSON: { "word": "string (e.g. do not)", "contraction": "string (e.g. don't)", "context": "sentence using the contraction" }.`;
-    } else if (selectedMode === 'dictation') {
-        prompt = `Generate a simple 2nd grade sentence for dictation. ${langInstruction}
+        } else if (selectedMode === 'dictation') {
+            prompt = `Generate a simple ${gradeLevel} sentence for dictation. ${langInstruction}
             Return JSON: { "sentence": "string" }.`;
-    } else if (selectedMode === 'story') {
-        prompt = `Write a 2-sentence story starter about ${student.name}. ${langInstruction}
+        } else if (selectedMode === 'story') {
+            prompt = `Write a 2-sentence story starter about ${student.name} suitable for a ${gradeLevel}. ${langInstruction}
             Return JSON: { "starter": "string" }.`;
-    } else if (selectedMode === 'teacher-curriculum') {
-        prompt = `You are a Maryland 2nd Grade Special Education Specialist. Suggest a targeted 5-minute intervention activity for a student with reading difficulties.
+        } else if (selectedMode === 'teacher-curriculum') {
+            prompt = `You are a Special Education Specialist. Suggest a targeted 5-minute intervention activity for a ${gradeLevel} with reading difficulties.
             Include:
             1. The Activity Description
             2. Specific IEP Accommodations/Modifications
-            3. The Maryland College and Career-Ready Standard (MCCRS) addressed.
+            3. The Standard addressed.
             ${langInstruction}
-            Return JSON: { "starter": "Activity Description + Accommodations", "context": "MCCRS Standard" }.`;
-    } else if (selectedMode === 'chunk-blend') {
-        prompt = `Generate a word chunking exercise for a 2nd grader who struggles with phonics.
+            Return JSON: { "starter": "Activity Description + Accommodations", "context": "Standard" }.`;
+        } else if (selectedMode === 'chunk-blend') {
+            prompt = `Generate a word chunking exercise for a ${gradeLevel} who struggles with phonics.
             Use onset-rime instruction method with common word families like: -ight, -ing, -ank, -ump, -ink, -ack, -ell,  -est, -ate, -ock.
             Do NOT use these words: ${excludeList}.
             ${langInstruction}
@@ -799,995 +873,1039 @@ const fetchChallengeData = async (selectedMode: string) => {
                 "context": "sentence using the word"
             }.
             Example: { "word": "bright", "onset": "br", "rime": "ight", "context": "The sun is bright today." }`;
-    }
-
-    try {
-        const aiCall = ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: prompt,
-            config: { responseMimeType: 'application/json' }
-        });
-
-        const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("AI Timeout")), 8000));
-
-        const resp: any = await Promise.race([aiCall, timeout]);
-        const json = JSON.parse(resp.text || "{}");
-
-        // Add to used words if valid
-        if (json.word) {
-            setUsedWords(prev => new Set(prev).add(json.word));
         }
 
-        return json;
-    } catch (e) {
-        console.error("AI Error, falling back to offline data", e);
-        // Fallback logic...
-        const dataList = (OFFLINE_DATA as any)[selectedMode];
-        if (dataList && dataList.length > 0) {
-            return dataList[Math.floor(Math.random() * dataList.length)];
+        try {
+            const aiCall = ai.models.generateContent({
+                model: 'gemini-2.5-flash',
+                contents: prompt,
+                config: { responseMimeType: 'application/json' }
+            });
+
+            const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("AI Timeout")), 8000));
+
+            const resp: any = await Promise.race([aiCall, timeout]);
+            const json = JSON.parse(resp.text || "{}");
+
+            // Add to used words if valid
+            if (json.word) {
+                setUsedWords(prev => new Set(prev).add(json.word));
+            }
+
+            return json;
+        } catch (e) {
+            console.error("AI Error, falling back to offline data", e);
+            // Fallback logic...
+            const dataList = (OFFLINE_DATA as any)[selectedMode];
+            if (dataList && dataList.length > 0) {
+                return dataList[Math.floor(Math.random() * dataList.length)];
+            }
+            return { word: "Error", context: "Could not generate content." };
         }
-        return { word: "Error", context: "Could not generate content." };
-    }
-};
+    };
 
-const fetchNext = async (m: string) => {
-    // Pre-fetching disabled for stability
-    // try {
-    //     const data = await fetchChallengeData(m);
-    //     setNextChallenge({ mode: m, data });
-    // } catch (e) { console.error("Background fetch failed", e); }
-};
+    const fetchNext = async (m: string) => {
+        // Pre-fetching disabled for stability
+        // try {
+        //     const data = await fetchChallengeData(m);
+        //     setNextChallenge({ mode: m, data });
+        // } catch (e) { console.error("Background fetch failed", e); }
+    };
 
-const [activityKey, setActivityKey] = useState(0); // Force re-render key
+    const [activityKey, setActivityKey] = useState(0); // Force re-render key
 
-const loadChallenge = async (selectedMode: string) => {
-    // Check for level completion (10 questions)
-    if (questionCount >= 10) {
-        setModalData({ msg: "🎉 Level Complete! +30 Bonus Points! Going to Game Room...", type: 'success' });
-        setCuudoos(c => c + 30);
-        playSound('win');
-        speak(`Amazing job ${student.name}! You finished the level. Let's play some games!`);
-        setTimeout(() => {
-            setMode('games');
-            setGamesUnlocked(true);
-        }, 4000);
-        return;
-    }
-
-    setLoading(true);
-    setChallenge(null);
-    setModalData(null);
-    setActivityKey(k => k + 1); // Force new activity instance
-    setQuestionCount(c => c + 1); // Increment count
-    setChunkStep(0); // Reset chunk step for new word
-
-    try {
-        if (!ai) throw new Error("AI not initialized. Check API Key.");
-
-        let data;
-        // Use pre-fetched data if available and matches mode
-        if (nextChallenge && nextChallenge.mode === selectedMode) {
-            data = nextChallenge.data;
-            setNextChallenge(null); // Clear used data
-        } else {
-            data = await fetchChallengeData(selectedMode);
+    const loadChallenge = async (selectedMode: string) => {
+        // Check for level completion (10 questions)
+        if (questionCount >= 10) {
+            setModalData({ msg: "🎉 Level Complete! +30 Bonus Points! Going to Game Room...", type: 'success' });
+            setCuudoos(c => c + 30);
+            playSound('win');
+            speak(`Amazing job ${student.name}! You finished the level. Let's play some games!`);
+            setTimeout(() => {
+                setMode('games');
+                setGamesUnlocked(true);
+            }, 4000);
+            return;
         }
 
-        // Validate data
-        if (!data || !data.word) {
-            console.warn("Invalid data received, retrying...", data);
-            data = await fetchChallengeData(selectedMode);
-        }
-        if (!data || !data.word) throw new Error("Could not generate valid challenge data.");
+        setLoading(true);
+        setChallenge(null);
+        setModalData(null);
+        setActivityKey(k => k + 1); // Force new activity instance
+        setQuestionCount(c => c + 1); // Increment count
+        setChunkStep(0); // Reset chunk step for new word
 
-        // Specific validation for Digraphs
-        if (selectedMode === 'digraph') {
-            if (!data.missing || !data.word.toLowerCase().includes(data.missing.toLowerCase())) {
-                console.warn("Invalid digraph data (missing sound mismatch), retrying...", data);
-                // Try to infer missing if possible, or fetch new
-                const commonDigraphs = ['sh', 'ch', 'th', 'wh', 'ph', 'ck', 'ng'];
-                const found = commonDigraphs.find(d => data.word.toLowerCase().includes(d));
-                if (found) {
-                    data.missing = found;
-                } else {
-                    data = await fetchChallengeData(selectedMode);
+        try {
+            if (!ai) throw new Error("AI not initialized. Check API Key.");
+
+            let data;
+            // Use pre-fetched data if available and matches mode
+            if (nextChallenge && nextChallenge.mode === selectedMode) {
+                data = nextChallenge.data;
+                setNextChallenge(null); // Clear used data
+            } else {
+                data = await fetchChallengeData(selectedMode);
+            }
+
+            // Validate data
+            if (!data || !data.word) {
+                console.warn("Invalid data received, retrying...", data);
+                data = await fetchChallengeData(selectedMode);
+            }
+            if (!data || !data.word) throw new Error("Could not generate valid challenge data.");
+
+            // Specific validation for Digraphs
+            if (selectedMode === 'digraph') {
+                if (!data.missing || !data.word.toLowerCase().includes(data.missing.toLowerCase())) {
+                    console.warn("Invalid digraph data (missing sound mismatch), retrying...", data);
+                    // Try to infer missing if possible, or fetch new
+                    const commonDigraphs = ['sh', 'ch', 'th', 'wh', 'ph', 'ck', 'ng'];
+                    const found = commonDigraphs.find(d => data.word.toLowerCase().includes(d));
+                    if (found) {
+                        data.missing = found;
+                    } else {
+                        data = await fetchChallengeData(selectedMode);
+                    }
                 }
             }
-        }
 
-        setChallenge(data);
+            setChallenge(data);
 
-        // Robust history update
-        const newHistory = [...history.slice(0, historyIndex + 1), data];
-        setHistory(newHistory);
-        setHistoryIndex(newHistory.length - 1);
+            // Robust history update
+            const newHistory = [...history.slice(0, historyIndex + 1), data];
+            setHistory(newHistory);
+            setHistoryIndex(newHistory.length - 1);
 
-        setAttempts(0); // Reset attempts
-        setLoading(false); // Show UI immediately!
+            setAttempts(0); // Reset attempts
+            setLoading(false); // Show UI immediately!
 
-        if (selectedMode === 'digraph') {
-            // Deterministically calculate position
-            const missing = data.missing || "";
-            const isEnd = data.word.toLowerCase().endsWith(missing.toLowerCase());
-            const question = isEnd
-                ? `What sound ends the word ${data.word}?`
-                : `What sound starts the word ${data.word}?`;
+            if (selectedMode === 'digraph') {
+                // Deterministically calculate position
+                const missing = data.missing || "";
+                const isEnd = data.word.toLowerCase().endsWith(missing.toLowerCase());
+                const question = isEnd
+                    ? `What sound ends the word ${data.word}?`
+                    : `What sound starts the word ${data.word}?`;
 
-            // Safety: Ensure we don't accidentally ask about syllables
-            if (question.includes("syllable")) {
-                console.warn("Detected syllable question in digraph mode, correcting...");
-                speak(`Okay ${student.name}. Listen carefully. The word is ${data.word}. ${data.context}. What sound is missing?`);
-            } else {
-                speak(`Okay ${student.name}. Listen carefully. The word is ${data.word}. ${data.context}. ${question}`);
+                // Safety: Ensure we don't accidentally ask about syllables
+                if (question.includes("syllable")) {
+                    console.warn("Detected syllable question in digraph mode, correcting...");
+                    speak(`Okay ${student.name}. Listen carefully. The word is ${data.word}. ${data.context}. What sound is missing?`);
+                } else {
+                    speak(`Okay ${student.name}. Listen carefully. The word is ${data.word}. ${data.context}. ${question}`);
+                }
+            } else if (selectedMode === 'spell' || selectedMode === 'unit-spelling') {
+                speak(`Spell the word ${data.word}. ${data.context}`);
+            } else if (selectedMode === 'syllable' || selectedMode === 'schwa' || selectedMode === 'vce') {
+                setSyllableStep(0);
+                speak(`How many syllables do you hear in the word ${data.word}? ${data.context}`);
+            } else if (selectedMode === 'contractions') {
+                speak(`What is the contraction for ${data.word}?`);
+            } else if (selectedMode === 'dictation') {
+                speak(`Write this sentence: ${data.sentence}`);
+            } else if (selectedMode === 'story') {
+                speak(data.starter + " What happens next?");
+            } else if (selectedMode === 'teacher-curriculum') {
+                speak(`Here is a curriculum idea: ${data.starter}`);
             }
-        } else if (selectedMode === 'spell' || selectedMode === 'unit-spelling') {
-            speak(`Spell the word ${data.word}. ${data.context}`);
-        } else if (selectedMode === 'syllable' || selectedMode === 'schwa' || selectedMode === 'vce') {
-            setSyllableStep(0);
-            speak(`How many syllables do you hear in the word ${data.word}? ${data.context}`);
-        } else if (selectedMode === 'contractions') {
-            speak(`What is the contraction for ${data.word}?`);
-        } else if (selectedMode === 'dictation') {
-            speak(`Write this sentence: ${data.sentence}`);
-        } else if (selectedMode === 'story') {
-            speak(data.starter + " What happens next?");
-        } else if (selectedMode === 'teacher-curriculum') {
-            speak(`Here is a curriculum idea: ${data.starter}`);
+
+            // Trigger background fetch for the next one
+            fetchNext(selectedMode);
+
+        } catch (e: any) {
+            console.error(e);
+            setModalData({ msg: `Connection failed: ${e.message || "Unknown error"}`, type: 'error' });
+            // Don't reset mode, let them retry
+            setLoading(false); // Ensure loading is off on error
         }
+    };
 
-        // Trigger background fetch for the next one
-        fetchNext(selectedMode);
+    const checkAnswer = (input: string) => {
+        const normalizedInput = input.toLowerCase().replace('.', '').trim();
+        let isCorrect = false;
+        let specificFeedback = "";
 
-    } catch (e: any) {
-        console.error(e);
-        setModalData({ msg: `Connection failed: ${e.message || "Unknown error"}`, type: 'error' });
-        // Don't reset mode, let them retry
-        setLoading(false); // Ensure loading is off on error
-    }
-};
-
-const checkAnswer = (input: string) => {
-    const normalizedInput = input.toLowerCase().replace('.', '').trim();
-    let isCorrect = false;
-    let specificFeedback = "";
-
-    if (mode === 'digraph') {
-        const target = challenge.missing.toLowerCase();
-        const fullWord = challenge.word.toLowerCase();
-        if (normalizedInput.includes(target) || normalizedInput.includes(fullWord)) {
-            isCorrect = true;
-        } else {
-            specificFeedback = `Not quite. The word was "${challenge.word}". We are looking for the "${challenge.phoneme}" sound.`;
-        }
-    } else if (mode === 'spell' || mode === 'unit-spelling') {
-        const target = challenge.word.toLowerCase();
-        if (normalizedInput.includes(target)) {
-            isCorrect = true;
-        } else {
-            specificFeedback = `Good try. The word was "${challenge.word}".`;
-        }
-    } else if (mode === 'syllable' || mode === 'schwa' || mode === 'vce') {
-        if (syllableStep === 0) {
-            // Check syllable count
-            if (parseInt(normalizedInput) === challenge.count) {
-                setSyllableStep(1);
-                playSound('pop');
-                speak("That's right! Now spell the first syllable.");
-                return; // Don't trigger full success yet
-            } else {
-                specificFeedback = `Not quite. Listen to the word: ${challenge.word}. How many syllables do you hear?`;
-            }
-        } else {
-            // Check specific syllable
-            if (!challenge.syllables) {
-                // Fallback if AI didn't provide syllables
+        if (mode === 'digraph') {
+            const target = challenge.missing.toLowerCase();
+            const fullWord = challenge.word.toLowerCase();
+            if (normalizedInput.includes(target) || normalizedInput.includes(fullWord)) {
                 isCorrect = true;
             } else {
-                const currentSylIndex = syllableStep - 1;
-                const targetSyl = challenge.syllables[currentSylIndex].toLowerCase();
-                if (normalizedInput === targetSyl) {
-                    if (currentSylIndex + 1 === challenge.syllables.length) {
-                        isCorrect = true; // All syllables done!
-                    } else {
-                        setSyllableStep(s => s + 1);
-                        playSound('pop');
-                        speak("Good! Now spell the next syllable.");
-                        return; // Don't trigger full success yet
-                    }
+                specificFeedback = `Not quite. The word was "${challenge.word}". We are looking for the "${challenge.phoneme}" sound.`;
+            }
+        } else if (mode === 'spell' || mode === 'unit-spelling') {
+            const target = challenge.word.toLowerCase();
+            if (normalizedInput.includes(target)) {
+                isCorrect = true;
+            } else {
+                specificFeedback = `Good try. The word was "${challenge.word}".`;
+            }
+        } else if (mode === 'syllable' || mode === 'schwa' || mode === 'vce') {
+            if (syllableStep === 0) {
+                // Check syllable count
+                if (parseInt(normalizedInput) === challenge.count) {
+                    setSyllableStep(1);
+                    playSound('pop');
+                    speak("That's right! Now spell the first syllable.");
+                    return; // Don't trigger full success yet
                 } else {
-                    specificFeedback = `Try again. Spell the ${currentSylIndex === 0 ? 'first' : 'next'} syllable.`;
+                    specificFeedback = `Not quite. Listen to the word: ${challenge.word}. How many syllables do you hear?`;
+                }
+            } else {
+                // Check specific syllable
+                if (!challenge.syllables) {
+                    // Fallback if AI didn't provide syllables
+                    isCorrect = true;
+                } else {
+                    const currentSylIndex = syllableStep - 1;
+                    const targetSyl = challenge.syllables[currentSylIndex].toLowerCase();
+                    if (normalizedInput === targetSyl) {
+                        if (currentSylIndex + 1 === challenge.syllables.length) {
+                            isCorrect = true; // All syllables done!
+                        } else {
+                            setSyllableStep(s => s + 1);
+                            playSound('pop');
+                            speak("Good! Now spell the next syllable.");
+                            return; // Don't trigger full success yet
+                        }
+                    } else {
+                        specificFeedback = `Try again. Spell the ${currentSylIndex === 0 ? 'first' : 'next'} syllable.`;
+                    }
                 }
             }
-        }
-    } else if (mode === 'contractions') {
-        if (normalizedInput.includes(challenge.contraction.toLowerCase())) isCorrect = true;
-        else specificFeedback = `The contraction is ${challenge.contraction}.`;
-    } else if (mode === 'dictation') {
-        if (normalizedInput === challenge.sentence.toLowerCase().replace('.', '').trim()) isCorrect = true;
-        else specificFeedback = `Close! The sentence was: ${challenge.sentence}`;
-    } else {
-        isCorrect = true;
-    }
-
-    // Save Assessment Result
-    if (mode !== 'teacher-curriculum' && mode !== 'story') {
-        AssessmentSystem.saveResult({
-            studentId: student.id,
-            studentName: student.name,
-            mode: mode,
-            question: challenge.word || challenge.sentence || challenge.starter || "Unknown",
-            isCorrect: isCorrect,
-            attempts: attempts + 1,
-            score: isCorrect ? (attempts === 0 ? 10 : 5) : 0
-        });
-
-        // Update Live Status
-        AssessmentSystem.updateStatus(student.name, mode, isCorrect ? "Completed Question (Correct)" : "Attempting Question");
-    }
-
-    if (isCorrect) {
-        // Save Progress
-        if (student && challenge) {
-            const wordToSave = challenge.word || challenge.starter || "unknown";
-            dataManager.updateProgress(student.pin, mode as any, wordToSave);
-        }
-
-        setCuudoos(c => c + 10);
-        setStreak(s => {
-            const newStreak = s + 1;
-            if (newStreak >= 3 && !gamesUnlocked) {
-                setGamesUnlocked(true);
-                setModalData({ msg: "🎉 You unlocked the Game Room! 🎮", type: 'success' });
-            }
-            return newStreak;
-        });
-        setModalData({ msg: "Excellent work! +10 Cuudoos!", type: 'success' });
-        playSound('win');
-        setShowConfetti(true);
-        setTimeout(() => setShowConfetti(false), 3000);
-
-        // Dynamic Positive Feedback
-        const positivePhrases = [
-            `Great job ${student.name}! That is correct.`,
-            `You are a star, ${student.name}!`,
-            `Way to go! You got it right!`,
-            `Awesome sauce! Keep it up, ${student.name}!`,
-            `You are super smart, ${student.name}!`,
-            `Correct! You are on fire today!`,
-            `Bingo! You nailed it, ${student.name}!`
-        ];
-        const randomPositive = positivePhrases[Math.floor(Math.random() * positivePhrases.length)];
-        speak(randomPositive, 'high');
-    } else {
-        setStreak(0);
-        setAttempts(a => a + 1);
-        setModalData({ msg: specificFeedback || "Good try, give it another go!", type: 'error' });
-        playSound('error');
-
-        // Dynamic Encouraging Feedback
-        const encouragingPhrases = [
-            `Good try, ${student.name}. Give it another go!`,
-            `Not quite, but you are getting closer!`,
-            `Oops, try again! You can do this, ${student.name}.`,
-            `Almost there! Let's try one more time.`,
-            `Don't give up, ${student.name}! Try again.`
-        ];
-        const randomEncouraging = encouragingPhrases[Math.floor(Math.random() * encouragingPhrases.length)];
-
-        speak(specificFeedback || randomEncouraging, 'high');
-        const newIndex = historyIndex - 1;
-        setHistoryIndex(newIndex);
-        setChallenge(history[newIndex]);
-    }
-};
-
-const handlePrevious = () => {
-    if (historyIndex > 0) {
-        const newIndex = historyIndex - 1;
-        setHistoryIndex(newIndex);
-        setChallenge(history[newIndex]);
-    }
-};
-
-const handleNext = () => {
-    if (historyIndex < history.length - 1) {
-        const newIndex = historyIndex + 1;
-        setHistoryIndex(newIndex);
-        setChallenge(history[newIndex]);
-    } else {
-        // Force load new challenge
-        console.log("Loading next challenge...");
-        loadChallenge(mode);
-    }
-};
-
-const handleModeSelect = (m: any) => {
-    setMode(m);
-    setQuestionCount(0);
-    setUsedWords(new Set());
-    setChunkStep(0); // Reset chunk step for new mode
-    setShowChunkDemo(false); // Ensure tutorial is hidden initially
-
-    // Track Status
-    if (student) {
-        AssessmentSystem.updateStatus(student.name, m, "Started Activity");
-    }
-
-    loadChallenge(m);
-};
-
-const handleRestart = () => {
-    if (challenge) {
-        setRestartTrigger(prev => prev + 1);
-        const textToSpeak = mode === 'story' ? challenge.starter : challenge.context;
-        if (textToSpeak) {
-            speak(textToSpeak);
+        } else if (mode === 'contractions') {
+            if (normalizedInput.includes(challenge.contraction.toLowerCase())) isCorrect = true;
+            else specificFeedback = `The contraction is ${challenge.contraction}.`;
+        } else if (mode === 'dictation') {
+            if (normalizedInput === challenge.sentence.toLowerCase().replace('.', '').trim()) isCorrect = true;
+            else specificFeedback = `Close! The sentence was: ${challenge.sentence}`;
         } else {
-            console.warn("No context to speak for restart");
+            isCorrect = true;
         }
-    }
-};
 
-const formatTime = (s: number) => {
-    const m = Math.floor(s / 60);
-    const sec = s % 60;
-    return `${m}:${sec < 10 ? '0' : ''}${sec}`;
-};
+        // Save Assessment Result
+        if (mode !== 'teacher-curriculum' && mode !== 'story') {
+            AssessmentSystem.saveResult({
+                studentId: student.id,
+                studentName: student.name,
+                mode: mode,
+                question: challenge.word || challenge.sentence || challenge.starter || "Unknown",
+                isCorrect: isCorrect,
+                attempts: attempts + 1,
+                score: isCorrect ? (attempts === 0 ? 10 : 5) : 0
+            });
 
-const generateGreeting = async (name: string) => {
-    try {
-        const prompt = `You are Wally, a warm, energetic, and encouraging AI learning companion for 2nd graders.
-            Generate a short, 1-sentence greeting for a student named ${name}.
-            It should be motivational, exciting, and make them feel special.
-            Example: "Hi ${name}! I'm so happy to see you, let's learn something amazing today!"
-            Example: "Welcome back ${name}! You are going to do great things today!"
+            // Update Live Status
+            AssessmentSystem.updateStatus(student.name, mode, isCorrect ? "Completed Question (Correct)" : "Attempting Question");
+        }
+
+        if (isCorrect) {
+            // Save Progress
+            if (student && challenge) {
+                const wordToSave = challenge.word || challenge.starter || "unknown";
+                dataManager.updateProgress(student.pin, mode as any, wordToSave);
+            }
+
+            setCuudoos(c => c + 10);
+            setStreak(s => {
+                const newStreak = s + 1;
+                if (newStreak >= 3 && !gamesUnlocked) {
+                    setGamesUnlocked(true);
+                    setModalData({ msg: "🎉 You unlocked the Game Room! 🎮", type: 'success' });
+                }
+                return newStreak;
+            });
+            setModalData({ msg: "Excellent work! +10 Cuudoos!", type: 'success' });
+            playSound('win');
+            setShowConfetti(true);
+            setTimeout(() => setShowConfetti(false), 3000);
+
+            // Dynamic Positive Feedback
+            const positivePhrases = [
+                `Great job ${student.name}! That is correct.`,
+                `You are a star, ${student.name}!`,
+                `Way to go! You got it right!`,
+                `Awesome sauce! Keep it up, ${student.name}!`,
+                `You are super smart, ${student.name}!`,
+                `Correct! You are on fire today!`,
+                `Bingo! You nailed it, ${student.name}!`
+            ];
+            const randomPositive = positivePhrases[Math.floor(Math.random() * positivePhrases.length)];
+            speak(randomPositive, 'high');
+
+            // AI Adaptive Praise (Async)
+            if (ai && student) {
+                (async () => {
+                    try {
+                        const prompt = `The student ${student.name} just got the word "${challenge.word}" correct.
+                        Context: They have a streak of ${streak + 1}.
+                        Generate a very short (1 sentence) specific praise.
+                        Example: "You mastered the 'sh' sound!" or "That was a tricky one, good job!"`;
+
+                        const result = await ai.models.generateContent({
+                            model: 'gemini-1.5-flash',
+                            contents: [{ role: 'user', parts: [{ text: prompt }] }],
+                        });
+                        const text = result.text;
+                        if (text) setTimeout(() => speak(text), 2000); // Delay slightly to not overlap
+                    } catch (e) { console.error(e); }
+                })();
+            }
+
+        } else {
+            setStreak(0);
+            setAttempts(a => a + 1);
+            setModalData({ msg: specificFeedback || "Good try, give it another go!", type: 'error' });
+            playSound('error');
+
+            // Dynamic Encouraging Feedback
+            const encouragingPhrases = [
+                `Good try, ${student.name}. Give it another go!`,
+                `Not quite, but you are getting closer!`,
+                `Oops, try again! You can do this, ${student.name}.`,
+                `Almost there! Let's try one more time.`,
+                `Don't give up, ${student.name}! Try again.`
+            ];
+            const randomEncouraging = encouragingPhrases[Math.floor(Math.random() * encouragingPhrases.length)];
+
+            speak(specificFeedback || randomEncouraging, 'high');
+
+            // AI Adaptive Hint (Async)
+            if (ai && student) {
+                (async () => {
+                    try {
+                        const prompt = `The student ${student.name} got "${challenge.word}" wrong.
+                        They typed: "${input}".
+                        Target was: "${challenge.word}".
+                        Generate a very short (1 sentence) encouraging hint.
+                        Use phrases like "Take your time, ${student.name}" or "Slow down and sound it out".
+                        If they have gotten it right before, say "Like you did before".`;
+
+                        const result = await ai.models.generateContent({
+                            model: 'gemini-1.5-flash',
+                            contents: [{ role: 'user', parts: [{ text: prompt }] }],
+                        });
+                        const text = result.text;
+                        if (text) setTimeout(() => speak(text), 3000); // Delay to let immediate feedback finish
+                    } catch (e) { console.error(e); }
+                })();
+            }
+
+            const newIndex = historyIndex - 1;
+            setHistoryIndex(newIndex);
+            setChallenge(history[newIndex]);
+        }
+    };
+
+    const handlePrevious = () => {
+        if (historyIndex > 0) {
+            const newIndex = historyIndex - 1;
+            setHistoryIndex(newIndex);
+            setChallenge(history[newIndex]);
+        }
+    };
+
+    const handleNext = () => {
+        if (historyIndex < history.length - 1) {
+            const newIndex = historyIndex + 1;
+            setHistoryIndex(newIndex);
+            setChallenge(history[newIndex]);
+        } else {
+            // Force load new challenge
+            console.log("Loading next challenge...");
+            loadChallenge(mode);
+        }
+    };
+
+    const handleModeSelect = (m: any) => {
+        setMode(m);
+        setQuestionCount(0);
+        setUsedWords(new Set());
+        setChunkStep(0); // Reset chunk step for new mode
+        setShowChunkDemo(false); // Ensure tutorial is hidden initially
+
+        // Track Status
+        if (student) {
+            AssessmentSystem.updateStatus(student.name, m, "Started Activity");
+        }
+
+        loadChallenge(m);
+    };
+
+    const handleRestart = () => {
+        if (challenge) {
+            setRestartTrigger(prev => prev + 1);
+            const textToSpeak = mode === 'story' ? challenge.starter : challenge.context;
+            if (textToSpeak) {
+                speak(textToSpeak);
+            } else {
+                console.warn("No context to speak for restart");
+            }
+        }
+    };
+
+    const formatTime = (s: number) => {
+        const m = Math.floor(s / 60);
+        const sec = s % 60;
+        return `${m}:${sec < 10 ? '0' : ''}${sec}`;
+    };
+
+    const generateGreeting = async (name: string, pin: string) => {
+        try {
+            const context = StudentProfileBuilder.getStudentContext(name, pin);
+            const prompt = `You are Wally, a warm, energetic, and encouraging AI learning companion for 2nd graders.
+            The student is ${name}.
+            Context: ${context}.
+            Generate a short, 1-sentence greeting.
+            It should be motivational, exciting, and make them feel special based on their context.
+            If they have high accuracy, praise them. If they struggled, encourage them.
             Keep it under 20 words.`;
 
-        const resp = await ai.models.generateContent({
-            model: 'gemini-1.5-flash',
-            contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        });
-        const text = resp.text || `Hi ${name}! I am Wally. Let's have fun learning.`;
-        speak(text);
-    } catch (e) {
-        speak(`Hi, ${name}. I am Wally. Let's have fun learning.`);
-    }
-};
+            const resp = await ai.models.generateContent({
+                model: 'gemini-1.5-flash',
+                contents: [{ role: 'user', parts: [{ text: prompt }] }],
+            });
+            const text = resp.text || `Hi ${name}! I am Wally. Let's have fun learning.`;
+            speak(text);
+        } catch (e) {
+            speak(`Hi, ${name}. I am Wally. Let's have fun learning.`);
+        }
+    };
 
-const handlePinUnlock = (pin: string) => {
-    // Ensure both are strings for comparison
-    if (targetStudent && String(pin) === String(targetStudent.pin)) {
-        setStudent(targetStudent);
+    const handlePinUnlock = (pin: string) => {
+        // Ensure both are strings for comparison
+        if (targetStudent && String(pin) === String(targetStudent.pin)) {
+            setStudent(targetStudent);
+            setLockMode('none');
+            playSound('pop');
+
+            // Trigger greeting after state update
+            setTimeout(() => {
+                if (targetStudent.name !== 'Teacher') {
+                    generateGreeting(targetStudent.name, targetStudent.pin);
+                } else {
+                    speak("Welcome back, Teacher. I am ready to assist you.");
+                }
+            }, 500);
+        } else {
+            playSound('error');
+            alert("Incorrect PIN. Please try again.");
+        }
+    };
+
+    const handleHome = () => {
+        speak("See You Soon and Happy Learning Panther Scholar!");
+        setStudent(null);
+        setMode('menu');
+        setChallenge(null);
+        setHistory([]);
+        setHistoryIndex(-1);
+        setShowTeacherChat(false);
+        setSessionSetup(false);
+        setTimer(0);
+        setStreak(0);
+        setCuudoos(0);
+        setGamesUnlocked(false);
+        setAttempts(0);
         setLockMode('none');
-        playSound('pop');
+        setSelectedSection(null);
+    };
 
-        // Trigger greeting after state update
-        setTimeout(() => {
-            if (targetStudent.name !== 'Teacher') {
-                generateGreeting(targetStudent.name);
-            } else {
-                speak("Welcome back, Teacher. I am ready to assist you.");
-            }
-        }, 500);
-    } else {
-        playSound('error');
-        alert("Incorrect PIN. Please try again.");
-    }
-};
-
-const handleHome = () => {
-    speak("See You Soon and Happy Learning Panther Scholar!");
-    setStudent(null);
-    setMode('menu');
-    setChallenge(null);
-    setHistory([]);
-    setHistoryIndex(-1);
-    setShowTeacherChat(false);
-    setSessionSetup(false);
-    setTimer(0);
-    setStreak(0);
-    setCuudoos(0);
-    setGamesUnlocked(false);
-    setAttempts(0);
-    setLockMode('none');
-    setSelectedSection(null);
-};
-
-// --- Roster View ---
-if (!student) {
-    return (
-        <div className="main-stage">
-            <div className="top-bar">
-                <div className="app-title">WORD WHIZ KIDS</div>
-                <button
-                    className="pro-btn"
-                    onClick={() => {
-                        const newLang = language === 'en' ? 'es' : 'en';
-                        setLanguage(newLang);
-                        speak(newLang === 'es' ? "¡Hola! Modo Español Activado." : "Hello! English Mode Activated.");
-                    }}
-                    style={{ borderRadius: '50%', width: '70px', height: '70px', padding: 0, fontSize: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                >
-                    {language === 'en' ? '🦉' : '🇪🇸'}
-                </button>
-            </div>
-            {lockMode !== 'none' && (
-                <PinPad
-                    title={`Enter PIN for ${targetStudent?.name}`}
-                    onUnlock={handlePinUnlock}
-                    onClose={() => setLockMode('none')}
-                />
-            )}
-            <div className="scrollable-content centered-content">
-                {!selectedSection ? (
-                    <ClassSelection onSelect={setSelectedSection} language={language} />
-                ) : (
-                    <>
-                        <div className="mission-bar" style={{ marginTop: '20px', marginBottom: '20px', flex: '0 0 auto', display: 'flex', alignItems: 'center', gap: '20px' }}>
-                            <button className="pro-btn" style={{ padding: '5px 15px', fontSize: '0.8rem' }} onClick={() => setSelectedSection(null)}>⬅ Classes</button>
-                            <span>SELECT YOUR PROFILE</span>
-                        </div>
-                        <button className="pro-btn" style={{ marginBottom: '20px', fontSize: '1rem', padding: '10px 20px' }} onClick={() => speak("Hi! I am Wally, your AI learning companion. Select your profile to get started!")}>
-                            👋 Meet Wally
-                        </button>
-                        <div className="roster-grid">
-                            {STUDENTS.filter(s => s.section === selectedSection).map(s => (
-                                <div key={s.id}
-                                    className="student-card"
-                                    style={{ backgroundColor: s.color, boxShadow: `0 6px 0 rgba(0,0,0,0.3)` }}
-                                    onClick={() => {
-                                        setTargetStudent(s);
-                                        setLockMode(s.name === 'Teacher' ? 'teacher' : 'student');
-                                    }}>
-                                    <div className="card-icon">{s.icon}</div>
-                                    <div className="card-name">{s.name}</div>
-                                </div>
-                            ))}
-                        </div>
-                        <div className="footer-brand">Created by © FREEDOMAi SOLUTIONS LLC</div>
-                    </>
-                )}
-            </div>
-        </div>
-    );
-}
-
-// --- Timer Selection View ---
-if (student && !sessionSetup) {
-    return (
-        <div className="main-stage">
-            <div className="top-bar">
-                <div className="app-title">WORD WHIZ KIDS</div>
-                <button className="pro-btn" onClick={handleHome} style={{ padding: '5px 15px', fontSize: '0.8rem' }}>Change Profile</button>
-            </div>
-            <div className="scrollable-content centered-content">
-                <div className="glass-panel" style={{ maxWidth: '500px', width: '90%', textAlign: 'center' }}>
-                    <div style={{ fontSize: '4rem', marginBottom: '20px' }}>⏱️</div>
-                    <h2 style={{ fontSize: '1.5rem', marginBottom: '10px', color: '#e2e8f0' }}>Hi {student.name}!</h2>
-                    <p style={{ fontSize: '1.1rem', color: '#94a3b8', marginBottom: '30px' }}>How long do you want to play today?</p>
-
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                        <button className="pro-btn active" onClick={() => handleSessionStart(20)} style={{ fontSize: '1.3rem', padding: '20px' }}>
-                            20 Minutes
-                        </button>
-                        <button className="pro-btn btn-accent" onClick={() => handleSessionStart(30)} style={{ fontSize: '1.3rem', padding: '20px' }}>
-                            30 Minutes
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-// --- Main Activity View ---
-return (
-    <div className="main-stage">
-        {showConfetti && Array(20).fill(0).map((_, i) => <div key={i} className="confetti" style={{ left: `${Math.random() * 100}%`, background: ['#f00', '#0f0', '#00f'][i % 3], animationDuration: `${2 + Math.random()}s` }} />)}
-
-        <div className="top-bar">
-            <div className="app-title" onClick={handleHome} style={{ cursor: 'pointer' }}>WORD WHIZ KIDS</div>
-            <button className="pro-btn" style={{ padding: '5px 15px', fontSize: '0.8rem', marginRight: '10px' }} onClick={() => setLanguage(l => l === 'en' ? 'es' : 'en')}>{language === 'en' ? '🇪🇸 ES' : '🇺🇸 EN'}</button>
-            <div className="mission-bar">Mission: {student.name}</div>
-            <div className="stats-box">
-                <div className="stat-item">⏱️ {formatTime(timer)}</div>
-                <div className="stat-item">🏆 {cuudoos}</div>
-            </div>
-        </div>
-
-        {showTeacherChat && <TeacherChat onClose={() => setShowTeacherChat(false)} />}
-        {modalData && (
-            <FeedbackModal
-                message={modalData.msg}
-                type={modalData.type}
-                onClose={() => setModalData(null)}
-                onContinue={() => {
-                    setModalData(null);
-                    handleNext();
-                }}
-            />
-        )}
-
-        <div className="scrollable-content centered-content">
-            {mode === 'menu' ? (
-                <div className="glass-panel" style={{ maxWidth: '800px', width: '100%' }}>
-                    <h2 style={{ textAlign: 'center', marginBottom: '30px', color: '#94a3b8' }}>SELECT TRAINING MODULE</h2>
-                    <div className="menu-grid">
-                        <button className="pro-btn btn-accent" onClick={() => handleModeSelect('digraph')}>
-                            <span className="btn-icon">🔍</span> Digraph Detective
-                        </button>
-                        <button className="pro-btn" onClick={() => handleModeSelect('spell')}>
-                            <span className="btn-icon">📝</span> Word Builder
-                        </button>
-                        <button className="pro-btn" onClick={() => handleModeSelect('unit-spelling')}>
-                            <span className="btn-icon">📚</span> Unit Spelling
-                        </button>
-                        <button className="pro-btn" onClick={() => handleModeSelect('syllable')}>
-                            <span className="btn-icon">🧩</span> Syllable Savvy
-                        </button>
-                        <button className="pro-btn" onClick={() => handleModeSelect('contractions')}>
-                            <span className="btn-icon">🔗</span> Contractions
-                        </button>
-                        <button className="pro-btn" onClick={() => handleModeSelect('dictation')}>
-                            <span className="btn-icon">✍️</span> Dictation
-                        </button>
-                        <button className="pro-btn" onClick={() => handleModeSelect('schwa')}>
-                            <span className="btn-icon">ə</span> Schwa Sound
-                        </button>
-                        <button className="pro-btn" onClick={() => handleModeSelect('vce')}>
-                            <span className="btn-icon">🪄</span> Magic E (VCE)
-                        </button>
-                        <button className="pro-btn" onClick={() => handleModeSelect('story')}>
-                            <span className="btn-icon">📖</span> Story Spark
-                        </button>
-                        <button className="pro-btn" onClick={() => handleModeSelect('chunk-blend')} style={{ borderColor: '#f472b6', color: '#f472b6' }}>
-                            <span className="btn-icon">🧩</span> Chunk & Blend
-                        </button>
-                        {student.name === 'Teacher' && (
-                            <>
-                                <button className="pro-btn" style={{ borderColor: '#f59e0b', color: '#f59e0b' }} onClick={() => handleModeSelect('teacher-curriculum')}>
-                                    <span className="btn-icon">🍎</span> Curriculum Asst.
-                                </button>
-                                <button className="pro-btn" style={{ borderColor: '#3b82f6', color: '#3b82f6' }} onClick={() => setShowTeacherChat(true)}>
-                                    <span className="btn-icon">💬</span> Gemini Chat
-                                </button>
-                                <button className="pro-btn" style={{ borderColor: '#10b981', color: '#10b981' }} onClick={() => handleModeSelect('teacher-reports')}>
-                                    <span className="btn-icon">📊</span> Student Reports
-                                </button>
-                            </>
-                        )}
-                        <button className="pro-btn btn-accent"
-                            style={{
-                                background: gamesUnlocked ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' : '#334155',
-                                opacity: gamesUnlocked ? 1 : 0.7,
-                                cursor: gamesUnlocked ? 'pointer' : 'not-allowed',
-                                gridColumn: '1 / -1',
-                                justifySelf: 'center',
-                                width: '100%',
-                                maxWidth: '400px',
-                                marginTop: '20px'
-                            }}
-                            onClick={() => {
-                                if (gamesUnlocked) setMode('games');
-                                else setModalData({ msg: `Get ${3 - streak} more correct answers to unlock!`, type: 'error' });
-                            }}>
-                            <span className="btn-icon">{gamesUnlocked ? '🎮' : '🔒'}</span> Game Room
-                        </button>
-                    </div>
-
-                    {/* Unit Selector for Unit Spelling */}
-                    <div style={{ marginTop: '20px', textAlign: 'center' }}>
-                        <label style={{ color: '#94a3b8', marginRight: '10px' }}>Current Unit:</label>
-                        <select
-                            value={unit}
-                            onChange={(e) => setUnit(Number(e.target.value))}
-                            style={{ padding: '5px', borderRadius: '5px', background: '#1e293b', color: 'white', border: '1px solid #475569' }}
-                        >
-                            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map(u => <option key={u} value={u}>Unit {u}</option>)}
-                        </select>
-                    </div>
-                </div>
-            ) : mode === 'games' ? (
-                <div className="glass-panel" style={{ maxWidth: '800px', width: '100%' }}>
-                    <h2 style={{ textAlign: 'center', marginBottom: '30px', color: '#f093fb' }}>GAME ROOM 🎮</h2>
-                    <div className="menu-grid">
-                        <button className="pro-btn" style={{ borderColor: '#f472b6', color: '#f472b6' }} onClick={() => setMode('whack-a-vowel')}>
-                            <span className="btn-icon">🔨</span> Whack-a-Vowel
-                        </button>
-                        <button className="pro-btn" style={{ borderColor: '#34d399', color: '#34d399' }} onClick={() => alert("Word Ninja Coming Soon!")}>
-                            <span className="btn-icon">⚔️</span> Word Ninja
-                        </button>
-                        <button className="pro-btn" style={{ borderColor: '#60a5fa', color: '#60a5fa' }} onClick={() => alert("Memory Match Coming Soon!")}>
-                            <span className="btn-icon">🧠</span> Memory Match
-                        </button>
-                    </div>
-                    <button className="pro-btn" style={{ marginTop: '20px' }} onClick={() => setMode('menu')}>⬅️ Back to Menu</button>
-                </div>
-            ) : mode === 'teacher-reports' ? (
-                <div className="glass-panel" style={{ width: '100%', maxWidth: '900px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                        <h2>📊 Student Assessment Reports</h2>
-                        <button className="pro-btn" onClick={() => setMode('menu')} style={{ width: 'auto' }}>Close</button>
-                    </div>
-
-                    {/* Live Status Section */}
-                    <div style={{ marginBottom: '30px', padding: '15px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px' }}>
-                        <h3 style={{ marginBottom: '10px', color: '#00ff9d' }}>🟢 Live Classroom Status</h3>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '10px' }}>
-                            {Object.entries(AssessmentSystem.getAllStatuses()).map(([name, status]: [string, any]) => (
-                                <div key={name} style={{ padding: '10px', background: '#1e293b', borderRadius: '8px', borderLeft: '4px solid #3b82f6' }}>
-                                    <div style={{ fontWeight: 'bold' }}>{name}</div>
-                                    <div style={{ fontSize: '0.9rem', color: '#94a3b8' }}>{status.mode}</div>
-                                    <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{status.action}</div>
-                                    <div style={{ fontSize: '0.7rem', color: '#475569', marginTop: '5px' }}>
-                                        {Math.floor((Date.now() - status.lastActive) / 60000)}m ago
-                                    </div>
-                                </div>
-                            ))}
-                            {Object.keys(AssessmentSystem.getAllStatuses()).length === 0 && (
-                                <div style={{ color: '#94a3b8', fontStyle: 'italic' }}>No active students detected yet.</div>
-                            )}
-                        </div>
-                    </div>
-
-                    <div style={{ overflowX: 'auto' }}>
-                        <h3 style={{ marginBottom: '10px' }}>Recent Activity Log</h3>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff' }}>
-                            <thead>
-                                <tr style={{ borderBottom: '1px solid #334155' }}>
-                                    <th style={{ padding: '10px', textAlign: 'left' }}>Student</th>
-                                    <th style={{ padding: '10px', textAlign: 'left' }}>Mode</th>
-                                    <th style={{ padding: '10px', textAlign: 'left' }}>Question</th>
-                                    <th style={{ padding: '10px', textAlign: 'center' }}>Result</th>
-                                    <th style={{ padding: '10px', textAlign: 'center' }}>Score</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {AssessmentSystem.getAllRecords().length === 0 ? (
-                                    <tr><td colSpan={5} style={{ padding: '20px', textAlign: 'center', color: '#94a3b8' }}>No records found.</td></tr>
-                                ) : (
-                                    AssessmentSystem.getAllRecords().reverse().map((r, i) => (
-                                        <tr key={i} style={{ borderBottom: '1px solid #1e293b' }}>
-                                            <td style={{ padding: '10px' }}>{r.studentName}</td>
-                                            <td style={{ padding: '10px' }}>{r.mode}</td>
-                                            <td style={{ padding: '10px' }}>{r.question}</td>
-                                            <td style={{ padding: '10px', textAlign: 'center' }}>{r.isCorrect ? '✅' : '❌'}</td>
-                                            <td style={{ padding: '10px', textAlign: 'center' }}>{r.score}</td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            ) : mode === 'whack-a-vowel' ? (
-                <WhackAVowel onExit={() => setMode('games')} />
-            ) : (
-                <div className="activity-container glass-panel" key={activityKey}>
-                    <button className="retry-btn" onClick={() => loadChallenge(mode)}>
-                        <span>🔄</span> Retry
+    // --- Roster View ---
+    if (!student) {
+        return (
+            <div className="main-stage">
+                <div className="top-bar">
+                    <div className="app-title">WORD WHIZ KIDS</div>
+                    <button
+                        className="pro-btn"
+                        onClick={() => {
+                            const newLang = language === 'en' ? 'es' : 'en';
+                            setLanguage(newLang);
+                            speak(newLang === 'es' ? "¡Hola! Modo Español Activado." : "Hello! English Mode Activated.");
+                        }}
+                        style={{ borderRadius: '50%', width: '70px', height: '70px', padding: 0, fontSize: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    >
+                        {language === 'en' ? '🦉' : '🇪🇸'}
                     </button>
-
-                    <div className="mode-title">
-                        {mode === 'digraph' && 'Sound Decoding'}
-                        {mode === 'spell' && 'Spelling Mastery'}
-                        {mode === 'unit-spelling' && `Unit ${unit} Spelling`}
-                        {mode === 'contractions' && 'Contraction Action'}
-                        {mode === 'dictation' && 'Sentence Dictation'}
-                        {mode === 'story' && 'Creative Reading'}
-                        {mode === 'teacher-curriculum' && 'Teacher Assistant'}
-                        {mode === 'syllable' && 'Syllable Savvy'}
-                        {mode === 'schwa' && 'Schwa Sound'}
-                        {mode === 'vce' && 'Magic E (VCE)'}
-                        {mode === 'chunk-blend' && 'Chunk & Blend Master'}
-                    </div>
-
-                    {loading ? (
-                        <div style={{ padding: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                            <WallyAvatar state="thinking" onClick={() => speak("I am thinking! One moment please.")} />
-                            <div style={{ fontSize: '1.5rem', marginTop: '20px' }}>Wally is thinking...</div>
-
-                            {/* Show tutorial button even while loading in chunk-blend mode */}
-                            {mode === 'chunk-blend' && !showChunkDemo && (
-                                <button
-                                    className="pro-btn"
-                                    onClick={() => {
-                                        console.log('🎓 Starting tutorial from loading screen...');
-                                        setDemoStep(0);
-                                        setShowChunkDemo(true);
-                                        speak("Let me show you how Chunk and Blend works! Watch carefully.");
-                                    }}
-                                    style={{
-                                        marginTop: '20px',
-                                        background: 'linear-gradient(135deg, #f472b6 0%, #ec4899 100%)',
-                                        fontSize: '1.1rem',
-                                        padding: '12px 24px',
-                                        border: '2px solid white',
-                                        boxShadow: '0 0 15px rgba(244, 114, 182, 0.5)',
-                                        zIndex: 100
-                                    }}
-                                >
-                                    📺 Watch Wally's Tutorial
-                                </button>
-                            )}
-                        </div>
+                </div>
+                {lockMode !== 'none' && (
+                    <PinPad
+                        title={`Enter PIN for ${targetStudent?.name}`}
+                        onUnlock={handlePinUnlock}
+                        onClose={() => setLockMode('none')}
+                    />
+                )}
+                <div className="scrollable-content centered-content">
+                    {!selectedSection ? (
+                        <ClassSelection onSelect={setSelectedSection} language={language} />
                     ) : (
                         <>
-                            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
-                                <WallyAvatar
-                                    state={isSpeaking ? 'speaking' : 'idle'}
-                                    onClick={() => speak("Hi! I am Wally. I am here to help you learn!")}
-                                />
+                            <div className="mission-bar" style={{ marginTop: '20px', marginBottom: '20px', flex: '0 0 auto', display: 'flex', alignItems: 'center', gap: '20px' }}>
+                                <button className="pro-btn" style={{ padding: '5px 15px', fontSize: '0.8rem' }} onClick={() => setSelectedSection(null)}>⬅ Classes</button>
+                                <span>SELECT YOUR PROFILE</span>
                             </div>
-
-                            {mode === 'chunk-blend' && !showChunkDemo && (
-                                <button
-                                    className="pro-btn"
-                                    onClick={() => {
-                                        console.log('🎓 Starting Chunk &  Blend Tutorial...');
-                                        setDemoStep(0); // Reset to trigger animation
-                                        setShowChunkDemo(true);
-                                        speak("Let me show you how Chunk and Blend works! Watch carefully.");
-                                    }}
-                                    style={{
-                                        marginBottom: '20px',
-                                        background: 'linear-gradient(135deg, #f472b6 0%, #ec4899 100%)',
-                                        fontSize: '1.1rem',
-                                        padding: '12px 24px',
-                                        border: '2px solid white',
-                                        boxShadow: '0 0 15px rgba(244, 114, 182, 0.5)',
-                                        zIndex: 100,
-                                        position: 'relative',
-                                        marginTop: '20px'
-                                    }}
-                                >
-                                    📺 Watch Wally's Tutorial
-                                </button>
-                            )}
-
-                            {showChunkDemo && mode === 'chunk-blend' ? (
-                                <div className="glass-panel" style={{
-                                    position: 'fixed',
-                                    top: 0,
-                                    left: 0,
-                                    width: '100%',
-                                    height: '100vh',
-                                    boxSizing: 'border-box',
-                                    zIndex: 2000,
-                                    background: 'rgba(0, 0, 0, 0.9)',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    // justifyContent: 'center', // Removed to prevent clipping
-                                    overflowY: 'auto', // Enable scrolling
-                                    borderRadius: 0,
-                                    padding: '20px'
-                                }}>
-                                    <div style={{
-                                        position: 'relative',
-                                        width: '100%',
-                                        maxWidth: '600px',
-                                        textAlign: 'center',
-                                        margin: 'auto', // Safe centering
-                                        padding: '40px 0' // Vertical spacing
-                                    }}>
-                                        <button
-                                            onClick={() => {
-                                                setShowChunkDemo(false);
-                                                setDemoStep(0);
-                                                speak("Okay, let's practice!");
-                                            }}
-                                            style={{
-                                                position: 'fixed',
-                                                top: '20px',
-                                                right: '20px',
-                                                background: 'rgba(255,255,255,0.2)',
-                                                border: '2px solid white',
-                                                color: 'white',
-                                                fontSize: '1.5rem',
-                                                cursor: 'pointer',
-                                                borderRadius: '50%',
-                                                width: '50px',
-                                                height: '50px',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                zIndex: 2001
-                                            }}
-                                        >
-                                            ✕
-                                        </button>
-                                        <h3 style={{ color: '#f472b6', marginBottom: '20px', fontSize: '2rem' }}>🎓 Chunk & Blend Tutorial</h3>
-                                        <div style={{ fontSize: '2.5rem', fontWeight: 'bold', margin: '30px 0', minHeight: '250px' }}>
-                                            {demoStep >= 1 && (
-                                                <div style={{ marginBottom: '30px' }}>
-                                                    <div style={{ color: '#94a3b8', fontSize: '1.2rem', marginBottom: '10px' }}>Step 1: Read the chunk (word family)</div>
-                                                    <div><span style={{ color: '#64748b', fontSize: '2rem' }}>___</span><span style={{ color: '#00ff9d', fontSize: '3.5rem' }}>ight</span></div>
-                                                </div>
-                                            )}
-                                            {demoStep >= 2 && (
-                                                <div style={{ marginBottom: '30px' }}>
-                                                    <div style={{ color: '#94a3b8', fontSize: '1.2rem', marginBottom: '10px' }}>Step 2: Add the beginning sound</div>
-                                                    <div><span style={{ color: '#f472b6', textDecoration: 'underline', fontSize: '3.5rem' }}>br</span><span style={{ color: '#00ff9d', fontSize: '3.5rem' }}>ight</span></div>
-                                                </div>
-                                            )}
-                                            {demoStep >= 3 && (
-                                                <div>
-                                                    <div style={{ color: '#94a3b8', fontSize: '1.2rem', marginBottom: '10px' }}>Step 3: Blend them together!</div>
-                                                    <div style={{ color: '#10b981', fontSize: '4rem' }}>bright ✨</div>
-                                                </div>
-                                            )}
-                                            {demoStep === 0 && (
-                                                <div style={{ color: '#94a3b8', fontSize: '1.5rem', padding: '80px 0' }}>
-                                                    Starting tutorial...
-                                                </div>
-                                            )}
-                                        </div>
-                                        {demoStep >= 3 && (
-                                            <div style={{ marginTop: '30px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
-                                                <button
-                                                    className="pro-btn"
-                                                    onClick={() => {
-                                                        console.log('✅ User clicked Got It!');
-                                                        setShowChunkDemo(false);
-                                                        setDemoStep(0);
-                                                        speak("Great! Now let's practice with real words!");
-                                                        // Start the activity if not already started or if data is invalid
-                                                        if (!challenge || !challenge.rime) {
-                                                            console.log("Loading new challenge for chunk-blend...");
-                                                            loadChallenge('chunk-blend');
-                                                        }
-                                                    }}
-                                                    style={{
-                                                        background: 'linear-gradient(135deg, #00ff9d 0%, #00ccff 100%)',
-                                                        zIndex: 102,
-                                                        position: 'relative',
-                                                        cursor: 'pointer',
-                                                        boxShadow: '0 4px 15px rgba(0, 255, 157, 0.4)'
-                                                    }}
-                                                >
-                                                    ✅ Start Activity
-                                                </button>
-                                                <button
-                                                    className="pro-btn"
-                                                    onClick={() => speak("Remember: First read the chunk, then add the beginning sound, then blend them together!")}
-                                                    style={{ background: 'rgba(255, 255, 255, 0.1)' }}
-                                                >
-                                                    🔊 Explain Again
-                                                </button>
-                                            </div>
-                                        )}
+                            <button className="pro-btn" style={{ marginBottom: '20px', fontSize: '1rem', padding: '10px 20px' }} onClick={() => speak("Hi! I am Wally, your AI learning companion. Select your profile to get started!")}>
+                                👋 Meet Wally
+                            </button>
+                            <div className="roster-grid">
+                                {STUDENTS.filter(s => s.section === selectedSection).map(s => (
+                                    <div key={s.id}
+                                        className="student-card"
+                                        style={{ backgroundColor: s.color, boxShadow: `0 6px 0 rgba(0,0,0,0.3)` }}
+                                        onClick={() => {
+                                            setTargetStudent(s);
+                                            setLockMode(s.name === 'Teacher' ? 'teacher' : 'student');
+                                        }}>
+                                        <div className="card-icon">{s.icon}</div>
+                                        <div className="card-name">{s.name}</div>
                                     </div>
-                                </div>
-                            ) : mode === 'story' || mode === 'teacher-curriculum' ? (
-                                <div className="story-box">{challenge?.starter}</div>
-                            ) : (
-                                <div className="challenge-text" key={challenge?.word || 'loading'}>
-                                    {mode === 'digraph' && (
-                                        (() => {
-                                            if (!challenge?.word) return "Loading...";
-                                            if (!challenge.missing) return challenge.word;
-                                            try {
-                                                const regex = new RegExp(challenge.missing, 'i');
-                                                return regex.test(challenge.word)
-                                                    ? challenge.word.replace(regex, '_')
-                                                    : challenge.word;
-                                            } catch (e) { return challenge.word; }
-                                        })()
-                                    )}
-                                    {(mode === 'spell' || mode === 'unit-spelling') && (
-                                        attempts >= 3 ? challenge?.word : Array(challenge?.word?.length || 0).fill('•').join(' ')
-                                    )}
-                                    {(mode === 'syllable' || mode === 'schwa' || mode === 'vce') && (
-                                        syllableStep === 0
-                                            ? "How many syllables?"
-                                            : (
-                                                <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-                                                    {challenge?.syllables?.map((s: string, i: number) => (
-                                                        <span key={i} style={{
-                                                            textDecoration: i < syllableStep - 1 ? 'none' : 'underline',
-                                                            color: i < syllableStep - 1 ? '#4ade80' : 'white'
-                                                        }}>
-                                                            {i < syllableStep - 1 ? s : (i === syllableStep - 1 ? '???' : '...')}
-                                                        </span>
-                                                    ))}
-                                                </div>
-                                            )
-                                    )}
-                                    {mode === 'contractions' && (
-                                        attempts >= 3 ? challenge?.contraction : `${challenge?.word} -> ?`
-                                    )}
-                                    {mode === 'dictation' && "👂 Listen & Write"}
-                                    {mode === 'chunk-blend' && (
-                                        <div style={{ fontSize: '3rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-                                            {chunkStep === 0 && (
-                                                <>
-                                                    <span style={{ color: '#64748b', fontSize: '2rem' }}>___</span>
-                                                    <span style={{ color: '#00ff9d' }}>{challenge?.rime}</span>
-                                                </>
-                                            )}
-                                            {chunkStep === 1 && (
-                                                <>
-                                                    <span style={{ color: '#f472b6', textDecoration: 'underline' }}>{challenge?.onset}</span>
-                                                    <span style={{ color: '#00ff9d' }}>{challenge?.rime}</span>
-                                                </>
-                                            )}
-                                            {chunkStep >= 2 && (
-                                                <span style={{ color: '#10b981' }}>{challenge?.word}</span>
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-
-                            <div style={{ margin: '20px', color: '#94a3b8', fontSize: '1.2rem', textAlign: 'center' }}>
-                                {(mode === 'spell' || mode === 'unit-spelling' || mode === 'digraph')
-                                    ? (attempts >= 3 ? challenge?.context : challenge?.context?.replace(new RegExp(challenge?.word, 'gi'), '_____'))
-                                    : ((mode === 'syllable' || mode === 'schwa' || mode === 'vce')
-                                        ? (syllableStep === 0 ? `Word: ${challenge?.word}` : `Spell syllable ${syllableStep}`)
-                                        : (mode === 'contractions'
-                                            ? (attempts >= 3 ? challenge?.context : challenge?.context?.replace(new RegExp(challenge?.contraction, 'gi'), '_____'))
-                                            : (mode === 'dictation' ? "" :
-                                                (mode === 'chunk-blend'
-                                                    ? (chunkStep === 0 ? `Step 1: Read the chunk (word family) → "${challenge?.rime}"`
-                                                        : chunkStep === 1 ? `Step 2: Add the beginning sound → "${challenge?.onset}" + "${challenge?.rime}"`
-                                                            : `Step 3: Blend it together! Say the whole word.`)
-                                                    : challenge?.context)
-                                            )
-                                        )
-                                    )
-                                }
+                                ))}
                             </div>
-
-                            {mode === 'chunk-blend' && chunkStep < 2 && (
-                                <button
-                                    className="pro-btn"
-                                    onClick={() => {
-                                        const nextStep = chunkStep + 1;
-                                        setChunkStep(nextStep);
-                                        if (nextStep === 1) {
-                                            speak(`Great! Now let's add the beginning sound: ${challenge?.onset}`);
-                                        } else if (nextStep === 2) {
-                                            speak(`Perfect! Blend them together: ${challenge?.word}`);
-                                        }
-                                    }}
-                                    style={{ marginBottom: '20px', fontSize: '1.2rem', padding: '15px 30px' }}
-                                >
-                                    {chunkStep === 0 ? '✨ Show Beginning Sound' : '🎯 Blend It Together'}
-                                </button>
-                            )}
-
-                            {mode !== 'teacher-curriculum' && (
-                                <AnswerInput key={challenge ? (challenge.word || challenge.sentence || challenge.starter) + historyIndex + restartTrigger : 'empty'} onResult={checkAnswer} hint={mode === 'story' ? "Type the next part..." : `Type the answer...`} />
-                            )}
-                            {!challenge && !loading && (
-                                <div style={{ marginTop: '20px' }}>
-                                    <p>Something went wrong loading the question.</p>
-                                    <button className="pro-btn" onClick={() => loadChallenge(mode)}>Try Again</button>
-                                </div>
-                            )}
-                            {mode === 'teacher-curriculum' && (
-                                <button className="pro-btn" onClick={() => loadChallenge('teacher-curriculum')}>Generate Another Idea</button>
-                            )}
+                            <div className="footer-brand">Created by © FREEDOMAi SOLUTIONS LLC</div>
                         </>
                     )}
                 </div>
-            )}
-        </div>
+            </div>
+        );
+    }
 
-        {
-            !['menu', 'games', 'whack-a-vowel'].includes(mode) && (
-                <div className="nav-dock">
-                    <button className="pro-btn" onClick={handlePrevious} disabled={historyIndex <= 0} style={{ opacity: historyIndex <= 0 ? 0.5 : 1 }}>⬅️ Prev</button>
-                    <button className="pro-btn" onClick={handleRestart}>🔄 Restart</button>
-                    <button className="pro-btn" onClick={() => loadChallenge(mode)}>⏭️ Skip</button>
-                    <button className="pro-btn" onClick={handleHome}>🏠 Home</button>
-                    <button className="pro-btn" onClick={handleNext}>Next ➡️</button>
+    // --- Timer Selection View ---
+    if (student && !sessionSetup) {
+        return (
+            <div className="main-stage">
+                <div className="top-bar">
+                    <div className="app-title">WORD WHIZ KIDS</div>
+                    <button className="pro-btn" onClick={handleHome} style={{ padding: '5px 15px', fontSize: '0.8rem' }}>Change Profile</button>
                 </div>
-            )
-        }
-    </div >
-);
+                <div className="scrollable-content centered-content">
+                    <div className="glass-panel" style={{ maxWidth: '500px', width: '90%', textAlign: 'center' }}>
+                        <div style={{ fontSize: '4rem', marginBottom: '20px' }}>⏱️</div>
+                        <h2 style={{ fontSize: '1.5rem', marginBottom: '10px', color: '#e2e8f0' }}>Hi {student.name}!</h2>
+                        <p style={{ fontSize: '1.1rem', color: '#94a3b8', marginBottom: '30px' }}>How long do you want to play today?</p>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                            <button className="pro-btn active" onClick={() => handleSessionStart(20)} style={{ fontSize: '1.3rem', padding: '20px' }}>
+                                20 Minutes
+                            </button>
+                            <button className="pro-btn btn-accent" onClick={() => handleSessionStart(30)} style={{ fontSize: '1.3rem', padding: '20px' }}>
+                                30 Minutes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // --- Main Activity View ---
+    return (
+        <div className="main-stage">
+            {showConfetti && Array(20).fill(0).map((_, i) => <div key={i} className="confetti" style={{ left: `${Math.random() * 100}%`, background: ['#f00', '#0f0', '#00f'][i % 3], animationDuration: `${2 + Math.random()}s` }} />)}
+
+            <div className="top-bar">
+                <div className="app-title" onClick={handleHome} style={{ cursor: 'pointer' }}>WORD WHIZ KIDS</div>
+                <button className="pro-btn" style={{ padding: '5px 15px', fontSize: '0.8rem', marginRight: '10px' }} onClick={() => setLanguage(l => l === 'en' ? 'es' : 'en')}>{language === 'en' ? '🇪🇸 ES' : '🇺🇸 EN'}</button>
+                <div className="mission-bar">Mission: {student.name}</div>
+                <div className="stats-box">
+                    <div className="stat-item">⏱️ {formatTime(timer)}</div>
+                    <div className="stat-item">🏆 {cuudoos}</div>
+                </div>
+            </div>
+
+            {showTeacherChat && <TeacherChat onClose={() => setShowTeacherChat(false)} />}
+            {modalData && (
+                <FeedbackModal
+                    message={modalData.msg}
+                    type={modalData.type}
+                    onClose={() => setModalData(null)}
+                    onContinue={() => {
+                        setModalData(null);
+                        handleNext();
+                    }}
+                />
+            )}
+
+            <div className="scrollable-content centered-content">
+                {mode === 'menu' ? (
+                    <div className="glass-panel" style={{ maxWidth: '800px', width: '100%' }}>
+                        <h2 style={{ textAlign: 'center', marginBottom: '30px', color: '#94a3b8' }}>SELECT TRAINING MODULE</h2>
+                        <div className="menu-grid">
+                            <button className="pro-btn btn-accent" onClick={() => handleModeSelect('digraph')}>
+                                <span className="btn-icon">🔍</span> Digraph Detective
+                            </button>
+                            <button className="pro-btn" onClick={() => handleModeSelect('spell')}>
+                                <span className="btn-icon">📝</span> Word Builder
+                            </button>
+                            <button className="pro-btn" onClick={() => handleModeSelect('unit-spelling')}>
+                                <span className="btn-icon">📚</span> Unit Spelling
+                            </button>
+                            <button className="pro-btn" onClick={() => handleModeSelect('syllable')}>
+                                <span className="btn-icon">🧩</span> Syllable Savvy
+                            </button>
+                            <button className="pro-btn" onClick={() => handleModeSelect('contractions')}>
+                                <span className="btn-icon">🔗</span> Contractions
+                            </button>
+                            <button className="pro-btn" onClick={() => handleModeSelect('dictation')}>
+                                <span className="btn-icon">✍️</span> Dictation
+                            </button>
+                            <button className="pro-btn" onClick={() => handleModeSelect('schwa')}>
+                                <span className="btn-icon">ə</span> Schwa Sound
+                            </button>
+                            <button className="pro-btn" onClick={() => handleModeSelect('vce')}>
+                                <span className="btn-icon">🪄</span> Magic E (VCE)
+                            </button>
+                            <button className="pro-btn" onClick={() => handleModeSelect('story')}>
+                                <span className="btn-icon">📖</span> Story Spark
+                            </button>
+                            <button className="pro-btn" onClick={() => handleModeSelect('chunk-blend')} style={{ borderColor: '#f472b6', color: '#f472b6' }}>
+                                <span className="btn-icon">🧩</span> Chunk & Blend
+                            </button>
+                            {student.name === 'Teacher' && (
+                                <>
+                                    <button className="pro-btn" style={{ borderColor: '#f59e0b', color: '#f59e0b' }} onClick={() => handleModeSelect('teacher-curriculum')}>
+                                        <span className="btn-icon">🍎</span> Curriculum Asst.
+                                    </button>
+                                    <button className="pro-btn" style={{ borderColor: '#3b82f6', color: '#3b82f6' }} onClick={() => setShowTeacherChat(true)}>
+                                        <span className="btn-icon">💬</span> Gemini Chat
+                                    </button>
+                                    <button className="pro-btn" style={{ borderColor: '#10b981', color: '#10b981' }} onClick={() => handleModeSelect('teacher-reports')}>
+                                        <span className="btn-icon">📊</span> Student Reports
+                                    </button>
+                                </>
+                            )}
+                            <button className="pro-btn btn-accent"
+                                style={{
+                                    background: gamesUnlocked ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' : '#334155',
+                                    opacity: gamesUnlocked ? 1 : 0.7,
+                                    cursor: gamesUnlocked ? 'pointer' : 'not-allowed',
+                                    gridColumn: '1 / -1',
+                                    justifySelf: 'center',
+                                    width: '100%',
+                                    maxWidth: '400px',
+                                    marginTop: '20px'
+                                }}
+                                onClick={() => {
+                                    if (gamesUnlocked) setMode('games');
+                                    else setModalData({ msg: `Get ${3 - streak} more correct answers to unlock!`, type: 'error' });
+                                }}>
+                                <span className="btn-icon">{gamesUnlocked ? '🎮' : '🔒'}</span> Game Room
+                            </button>
+                        </div>
+
+                        {/* Unit Selector for Unit Spelling */}
+                        <div style={{ marginTop: '20px', textAlign: 'center' }}>
+                            <label style={{ color: '#94a3b8', marginRight: '10px' }}>Current Unit:</label>
+                            <select
+                                value={unit}
+                                onChange={(e) => setUnit(Number(e.target.value))}
+                                style={{ padding: '5px', borderRadius: '5px', background: '#1e293b', color: 'white', border: '1px solid #475569' }}
+                            >
+                                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map(u => <option key={u} value={u}>Unit {u}</option>)}
+                            </select>
+                        </div>
+                    </div>
+                ) : mode === 'games' ? (
+                    <div className="glass-panel" style={{ maxWidth: '800px', width: '100%' }}>
+                        <h2 style={{ textAlign: 'center', marginBottom: '30px', color: '#f093fb' }}>GAME ROOM 🎮</h2>
+                        <div className="menu-grid">
+                            <button className="pro-btn" style={{ borderColor: '#f472b6', color: '#f472b6' }} onClick={() => setMode('whack-a-vowel')}>
+                                <span className="btn-icon">🔨</span> Whack-a-Vowel
+                            </button>
+                            <button className="pro-btn" style={{ borderColor: '#34d399', color: '#34d399' }} onClick={() => alert("Word Ninja Coming Soon!")}>
+                                <span className="btn-icon">⚔️</span> Word Ninja
+                            </button>
+                            <button className="pro-btn" style={{ borderColor: '#60a5fa', color: '#60a5fa' }} onClick={() => alert("Memory Match Coming Soon!")}>
+                                <span className="btn-icon">🧠</span> Memory Match
+                            </button>
+                        </div>
+                        <button className="pro-btn" style={{ marginTop: '20px' }} onClick={() => setMode('menu')}>⬅️ Back to Menu</button>
+                    </div>
+                ) : mode === 'teacher-reports' ? (
+                    <div className="glass-panel" style={{ width: '100%', maxWidth: '900px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                            <h2>📊 Student Assessment Reports</h2>
+                            <button className="pro-btn" onClick={() => setMode('menu')} style={{ width: 'auto' }}>Close</button>
+                        </div>
+
+                        {/* Live Status Section */}
+                        <div style={{ marginBottom: '30px', padding: '15px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px' }}>
+                            <h3 style={{ marginBottom: '10px', color: '#00ff9d' }}>🟢 Live Classroom Status</h3>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '10px' }}>
+                                {Object.entries(AssessmentSystem.getAllStatuses()).map(([name, status]: [string, any]) => (
+                                    <div key={name} style={{ padding: '10px', background: '#1e293b', borderRadius: '8px', borderLeft: '4px solid #3b82f6' }}>
+                                        <div style={{ fontWeight: 'bold' }}>{name}</div>
+                                        <div style={{ fontSize: '0.9rem', color: '#94a3b8' }}>{status.mode}</div>
+                                        <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{status.action}</div>
+                                        <div style={{ fontSize: '0.7rem', color: '#475569', marginTop: '5px' }}>
+                                            {Math.floor((Date.now() - status.lastActive) / 60000)}m ago
+                                        </div>
+                                    </div>
+                                ))}
+                                {Object.keys(AssessmentSystem.getAllStatuses()).length === 0 && (
+                                    <div style={{ color: '#94a3b8', fontStyle: 'italic' }}>No active students detected yet.</div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div style={{ overflowX: 'auto' }}>
+                            <h3 style={{ marginBottom: '10px' }}>Recent Activity Log</h3>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff' }}>
+                                <thead>
+                                    <tr style={{ borderBottom: '1px solid #334155' }}>
+                                        <th style={{ padding: '10px', textAlign: 'left' }}>Student</th>
+                                        <th style={{ padding: '10px', textAlign: 'left' }}>Mode</th>
+                                        <th style={{ padding: '10px', textAlign: 'left' }}>Question</th>
+                                        <th style={{ padding: '10px', textAlign: 'center' }}>Result</th>
+                                        <th style={{ padding: '10px', textAlign: 'center' }}>Score</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {AssessmentSystem.getAllRecords().length === 0 ? (
+                                        <tr><td colSpan={5} style={{ padding: '20px', textAlign: 'center', color: '#94a3b8' }}>No records found.</td></tr>
+                                    ) : (
+                                        AssessmentSystem.getAllRecords().reverse().map((r, i) => (
+                                            <tr key={i} style={{ borderBottom: '1px solid #1e293b' }}>
+                                                <td style={{ padding: '10px' }}>{r.studentName}</td>
+                                                <td style={{ padding: '10px' }}>{r.mode}</td>
+                                                <td style={{ padding: '10px' }}>{r.question}</td>
+                                                <td style={{ padding: '10px', textAlign: 'center' }}>{r.isCorrect ? '✅' : '❌'}</td>
+                                                <td style={{ padding: '10px', textAlign: 'center' }}>{r.score}</td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                ) : mode === 'whack-a-vowel' ? (
+                    <WhackAVowel onExit={() => setMode('games')} />
+                ) : (
+                    <div className="activity-container glass-panel" key={activityKey}>
+                        <button className="retry-btn" onClick={() => loadChallenge(mode)}>
+                            <span>🔄</span> Retry
+                        </button>
+
+                        <div className="mode-title">
+                            {mode === 'digraph' && 'Sound Decoding'}
+                            {mode === 'spell' && 'Spelling Mastery'}
+                            {mode === 'unit-spelling' && `Unit ${unit} Spelling`}
+                            {mode === 'contractions' && 'Contraction Action'}
+                            {mode === 'dictation' && 'Sentence Dictation'}
+                            {mode === 'story' && 'Creative Reading'}
+                            {mode === 'teacher-curriculum' && 'Teacher Assistant'}
+                            {mode === 'syllable' && 'Syllable Savvy'}
+                            {mode === 'schwa' && 'Schwa Sound'}
+                            {mode === 'vce' && 'Magic E (VCE)'}
+                            {mode === 'chunk-blend' && 'Chunk & Blend Master'}
+                        </div>
+
+                        {loading ? (
+                            <div style={{ padding: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                <WallyAvatar state="thinking" onClick={() => speak("I am thinking! One moment please.")} />
+                                <div style={{ fontSize: '1.5rem', marginTop: '20px' }}>Wally is thinking...</div>
+
+                                {/* Show tutorial button even while loading in chunk-blend mode */}
+                                {mode === 'chunk-blend' && !showChunkDemo && (
+                                    <button
+                                        className="pro-btn"
+                                        onClick={() => {
+                                            console.log('🎓 Starting tutorial from loading screen...');
+                                            setDemoStep(0);
+                                            setShowChunkDemo(true);
+                                            speak("Let me show you how Chunk and Blend works! Watch carefully.");
+                                        }}
+                                        style={{
+                                            marginTop: '20px',
+                                            background: 'linear-gradient(135deg, #f472b6 0%, #ec4899 100%)',
+                                            fontSize: '1.1rem',
+                                            padding: '12px 24px',
+                                            border: '2px solid white',
+                                            boxShadow: '0 0 15px rgba(244, 114, 182, 0.5)',
+                                            zIndex: 100
+                                        }}
+                                    >
+                                        📺 Watch Wally's Tutorial
+                                    </button>
+                                )}
+                            </div>
+                        ) : (
+                            <>
+                                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
+                                    <WallyAvatar
+                                        state={isSpeaking ? 'speaking' : 'idle'}
+                                        onClick={() => speak("Hi! I am Wally. I am here to help you learn!")}
+                                    />
+                                </div>
+
+                                {mode === 'chunk-blend' && !showChunkDemo && (
+                                    <button
+                                        className="pro-btn"
+                                        onClick={() => {
+                                            console.log('🎓 Starting Chunk &  Blend Tutorial...');
+                                            setDemoStep(0); // Reset to trigger animation
+                                            setShowChunkDemo(true);
+                                            speak("Let me show you how Chunk and Blend works! Watch carefully.");
+                                        }}
+                                        style={{
+                                            marginBottom: '20px',
+                                            background: 'linear-gradient(135deg, #f472b6 0%, #ec4899 100%)',
+                                            fontSize: '1.1rem',
+                                            padding: '12px 24px',
+                                            border: '2px solid white',
+                                            boxShadow: '0 0 15px rgba(244, 114, 182, 0.5)',
+                                            zIndex: 100,
+                                            position: 'relative',
+                                            marginTop: '20px'
+                                        }}
+                                    >
+                                        📺 Watch Wally's Tutorial
+                                    </button>
+                                )}
+
+                                {showChunkDemo && mode === 'chunk-blend' ? (
+                                    <div className="glass-panel" style={{
+                                        position: 'fixed',
+                                        top: 0,
+                                        left: 0,
+                                        width: '100%',
+                                        height: '100vh',
+                                        boxSizing: 'border-box',
+                                        zIndex: 2000,
+                                        background: 'rgba(0, 0, 0, 0.9)',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        // justifyContent: 'center', // Removed to prevent clipping
+                                        overflowY: 'auto', // Enable scrolling
+                                        borderRadius: 0,
+                                        padding: '20px'
+                                    }}>
+                                        <div style={{
+                                            position: 'relative',
+                                            width: '100%',
+                                            maxWidth: '600px',
+                                            textAlign: 'center',
+                                            margin: 'auto', // Safe centering
+                                            padding: '40px 0' // Vertical spacing
+                                        }}>
+                                            <button
+                                                onClick={() => {
+                                                    setShowChunkDemo(false);
+                                                    setDemoStep(0);
+                                                    speak("Okay, let's practice!");
+                                                }}
+                                                style={{
+                                                    position: 'fixed',
+                                                    top: '20px',
+                                                    right: '20px',
+                                                    background: 'rgba(255,255,255,0.2)',
+                                                    border: '2px solid white',
+                                                    color: 'white',
+                                                    fontSize: '1.5rem',
+                                                    cursor: 'pointer',
+                                                    borderRadius: '50%',
+                                                    width: '50px',
+                                                    height: '50px',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    zIndex: 2001
+                                                }}
+                                            >
+                                                ✕
+                                            </button>
+                                            <h3 style={{ color: '#f472b6', marginBottom: '20px', fontSize: '2rem' }}>🎓 Chunk & Blend Tutorial</h3>
+                                            <div style={{ fontSize: '2.5rem', fontWeight: 'bold', margin: '30px 0', minHeight: '250px' }}>
+                                                {demoStep >= 1 && (
+                                                    <div style={{ marginBottom: '30px' }}>
+                                                        <div style={{ color: '#94a3b8', fontSize: '1.2rem', marginBottom: '10px' }}>Step 1: Read the chunk (word family)</div>
+                                                        <div><span style={{ color: '#64748b', fontSize: '2rem' }}>___</span><span style={{ color: '#00ff9d', fontSize: '3.5rem' }}>ight</span></div>
+                                                    </div>
+                                                )}
+                                                {demoStep >= 2 && (
+                                                    <div style={{ marginBottom: '30px' }}>
+                                                        <div style={{ color: '#94a3b8', fontSize: '1.2rem', marginBottom: '10px' }}>Step 2: Add the beginning sound</div>
+                                                        <div><span style={{ color: '#f472b6', textDecoration: 'underline', fontSize: '3.5rem' }}>br</span><span style={{ color: '#00ff9d', fontSize: '3.5rem' }}>ight</span></div>
+                                                    </div>
+                                                )}
+                                                {demoStep >= 3 && (
+                                                    <div>
+                                                        <div style={{ color: '#94a3b8', fontSize: '1.2rem', marginBottom: '10px' }}>Step 3: Blend them together!</div>
+                                                        <div style={{ color: '#10b981', fontSize: '4rem' }}>bright ✨</div>
+                                                    </div>
+                                                )}
+                                                {demoStep === 0 && (
+                                                    <div style={{ color: '#94a3b8', fontSize: '1.5rem', padding: '80px 0' }}>
+                                                        Starting tutorial...
+                                                    </div>
+                                                )}
+                                            </div>
+                                            {demoStep >= 3 && (
+                                                <div style={{ marginTop: '30px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                                                    <button
+                                                        className="pro-btn"
+                                                        onClick={() => {
+                                                            console.log('✅ User clicked Got It!');
+                                                            setShowChunkDemo(false);
+                                                            setDemoStep(0);
+                                                            speak("Great! Now let's practice with real words!");
+                                                            // Start the activity if not already started or if data is invalid
+                                                            if (!challenge || !challenge.rime) {
+                                                                console.log("Loading new challenge for chunk-blend...");
+                                                                loadChallenge('chunk-blend');
+                                                            }
+                                                        }}
+                                                        style={{
+                                                            background: 'linear-gradient(135deg, #00ff9d 0%, #00ccff 100%)',
+                                                            zIndex: 102,
+                                                            position: 'relative',
+                                                            cursor: 'pointer',
+                                                            boxShadow: '0 4px 15px rgba(0, 255, 157, 0.4)'
+                                                        }}
+                                                    >
+                                                        ✅ Start Activity
+                                                    </button>
+                                                    <button
+                                                        className="pro-btn"
+                                                        onClick={() => speak("Remember: First read the chunk, then add the beginning sound, then blend them together!")}
+                                                        style={{ background: 'rgba(255, 255, 255, 0.1)' }}
+                                                    >
+                                                        🔊 Explain Again
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ) : mode === 'story' || mode === 'teacher-curriculum' ? (
+                                    <div className="story-box">{challenge?.starter}</div>
+                                ) : (
+                                    <div className="challenge-text" key={challenge?.word || 'loading'}>
+                                        {mode === 'digraph' && (
+                                            (() => {
+                                                if (!challenge?.word) return "Loading...";
+                                                if (!challenge.missing) return challenge.word;
+                                                try {
+                                                    const regex = new RegExp(challenge.missing, 'i');
+                                                    return regex.test(challenge.word)
+                                                        ? challenge.word.replace(regex, '_')
+                                                        : challenge.word;
+                                                } catch (e) { return challenge.word; }
+                                            })()
+                                        )}
+                                        {(mode === 'spell' || mode === 'unit-spelling') && (
+                                            attempts >= 3 ? challenge?.word : Array(challenge?.word?.length || 0).fill('•').join(' ')
+                                        )}
+                                        {(mode === 'syllable' || mode === 'schwa' || mode === 'vce') && (
+                                            syllableStep === 0
+                                                ? "How many syllables?"
+                                                : (
+                                                    <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                                                        {challenge?.syllables?.map((s: string, i: number) => (
+                                                            <span key={i} style={{
+                                                                textDecoration: i < syllableStep - 1 ? 'none' : 'underline',
+                                                                color: i < syllableStep - 1 ? '#4ade80' : 'white'
+                                                            }}>
+                                                                {i < syllableStep - 1 ? s : (i === syllableStep - 1 ? '???' : '...')}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                )
+                                        )}
+                                        {mode === 'contractions' && (
+                                            attempts >= 3 ? challenge?.contraction : `${challenge?.word} -> ?`
+                                        )}
+                                        {mode === 'dictation' && "👂 Listen & Write"}
+                                        {mode === 'chunk-blend' && (
+                                            <div style={{ fontSize: '3rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                                                {chunkStep === 0 && (
+                                                    <>
+                                                        <span style={{ color: '#64748b', fontSize: '2rem' }}>___</span>
+                                                        <span style={{ color: '#00ff9d' }}>{challenge?.rime}</span>
+                                                    </>
+                                                )}
+                                                {chunkStep === 1 && (
+                                                    <>
+                                                        <span style={{ color: '#f472b6', textDecoration: 'underline' }}>{challenge?.onset}</span>
+                                                        <span style={{ color: '#00ff9d' }}>{challenge?.rime}</span>
+                                                    </>
+                                                )}
+                                                {chunkStep >= 2 && (
+                                                    <span style={{ color: '#10b981' }}>{challenge?.word}</span>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                <div style={{ margin: '20px', color: '#94a3b8', fontSize: '1.2rem', textAlign: 'center' }}>
+                                    {(mode === 'spell' || mode === 'unit-spelling' || mode === 'digraph')
+                                        ? (attempts >= 3 ? challenge?.context : challenge?.context?.replace(new RegExp(challenge?.word, 'gi'), '_____'))
+                                        : ((mode === 'syllable' || mode === 'schwa' || mode === 'vce')
+                                            ? (syllableStep === 0 ? `Word: ${challenge?.word}` : `Spell syllable ${syllableStep}`)
+                                            : (mode === 'contractions'
+                                                ? (attempts >= 3 ? challenge?.context : challenge?.context?.replace(new RegExp(challenge?.contraction, 'gi'), '_____'))
+                                                : (mode === 'dictation' ? "" :
+                                                    (mode === 'chunk-blend'
+                                                        ? (chunkStep === 0 ? `Step 1: Read the chunk (word family) → "${challenge?.rime}"`
+                                                            : chunkStep === 1 ? `Step 2: Add the beginning sound → "${challenge?.onset}" + "${challenge?.rime}"`
+                                                                : `Step 3: Blend it together! Say the whole word.`)
+                                                        : challenge?.context)
+                                                )
+                                            )
+                                        )
+                                    }
+                                </div>
+
+                                {mode === 'chunk-blend' && chunkStep < 2 && (
+                                    <button
+                                        className="pro-btn"
+                                        onClick={() => {
+                                            const nextStep = chunkStep + 1;
+                                            setChunkStep(nextStep);
+                                            if (nextStep === 1) {
+                                                speak(`Great! Now let's add the beginning sound: ${challenge?.onset}`);
+                                            } else if (nextStep === 2) {
+                                                speak(`Perfect! Blend them together: ${challenge?.word}`);
+                                            }
+                                        }}
+                                        style={{ marginBottom: '20px', fontSize: '1.2rem', padding: '15px 30px' }}
+                                    >
+                                        {chunkStep === 0 ? '✨ Show Beginning Sound' : '🎯 Blend It Together'}
+                                    </button>
+                                )}
+
+                                {mode !== 'teacher-curriculum' && (
+                                    <AnswerInput key={challenge ? (challenge.word || challenge.sentence || challenge.starter) + historyIndex + restartTrigger : 'empty'} onResult={checkAnswer} hint={mode === 'story' ? "Type the next part..." : `Type the answer...`} />
+                                )}
+                                {!challenge && !loading && (
+                                    <div style={{ marginTop: '20px' }}>
+                                        <p>Something went wrong loading the question.</p>
+                                        <button className="pro-btn" onClick={() => loadChallenge(mode)}>Try Again</button>
+                                    </div>
+                                )}
+                                {mode === 'teacher-curriculum' && (
+                                    <button className="pro-btn" onClick={() => loadChallenge('teacher-curriculum')}>Generate Another Idea</button>
+                                )}
+                            </>
+                        )}
+                    </div>
+                )}
+            </div>
+
+            {
+                !['menu', 'games', 'whack-a-vowel'].includes(mode) && (
+                    <div className="nav-dock">
+                        <button className="pro-btn" onClick={handlePrevious} disabled={historyIndex <= 0} style={{ opacity: historyIndex <= 0 ? 0.5 : 1 }}>⬅️ Prev</button>
+                        <button className="pro-btn" onClick={handleRestart}>🔄 Restart</button>
+                        <button className="pro-btn" onClick={() => loadChallenge(mode)}>⏭️ Skip</button>
+                        <button className="pro-btn" onClick={handleHome}>🏠 Home</button>
+                        <button className="pro-btn" onClick={handleNext}>Next ➡️</button>
+                    </div>
+                )
+            }
+        </div >
+    );
 };
 
 export default App;
