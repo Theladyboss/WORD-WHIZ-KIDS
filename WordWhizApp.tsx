@@ -399,20 +399,6 @@ const ClassSelection = ({ onSelect, language }: { onSelect: (section: string) =>
                 {language === 'en' ? 'SELECT YOUR CLASS' : 'SELECCIONA TU CLASE'}
             </h2>
             <div className="teacher-grid">
-                {sections.map((section, index) => (
-                    <div
-                        key={section}
-                        className={`teacher-card ${getTheme(index)}`}
-                        onClick={() => onSelect(section)}
-                    >
-                        <div className="teacher-icon">🏫</div>
-                        <div className="teacher-name">
-                            {SECTION_NAMES[section] || 'Teacher'}
-                        </div>
-                        <div className="teacher-section">Section: {section}</div>
-                    </div>
-                ))}
-
                 {/* Pre-K Card */}
                 <div
                     className="teacher-card card-theme-pink"
@@ -456,6 +442,20 @@ const ClassSelection = ({ onSelect, language }: { onSelect: (section: string) =>
                     <div className="teacher-name">3rd Grade Educators</div>
                     <div className="teacher-section">Grade 3</div>
                 </div>
+
+                {sections.map((section, index) => (
+                    <div
+                        key={section}
+                        className={`teacher-card ${getTheme(index)}`}
+                        onClick={() => onSelect(section)}
+                    >
+                        <div className="teacher-icon">🏫</div>
+                        <div className="teacher-name">
+                            {SECTION_NAMES[section] || 'Teacher'}
+                        </div>
+                        <div className="teacher-section">Section: {section}</div>
+                    </div>
+                ))}
 
                 {/* Guest Portal Card */}
                 <div
@@ -1316,7 +1316,7 @@ const App = () => {
         return (
             <div className="main-stage">
                 <div className="top-bar">
-                    <div className="app-title">WORD WHIZ KIDS v1.1</div>
+                    <div className="app-title">WORD WHIZ KIDS v1.2</div>
                     <button
                         className="pro-btn"
                         onClick={() => {
@@ -1375,7 +1375,7 @@ const App = () => {
         return (
             <div className="main-stage">
                 <div className="top-bar">
-                    <div className="app-title">WORD WHIZ KIDS v1.1</div>
+                    <div className="app-title">WORD WHIZ KIDS v1.2</div>
                     <button className="pro-btn" onClick={handleHome} style={{ padding: '5px 15px', fontSize: '0.8rem' }}>Change Profile</button>
                 </div>
                 <div className="scrollable-content centered-content">
@@ -1404,7 +1404,7 @@ const App = () => {
             {showConfetti && Array(20).fill(0).map((_, i) => <div key={i} className="confetti" style={{ left: `${Math.random() * 100}%`, background: ['#f00', '#0f0', '#00f'][i % 3], animationDuration: `${2 + Math.random()}s` }} />)}
 
             <div className="top-bar">
-                <div className="app-title" onClick={handleHome} style={{ cursor: 'pointer' }}>WORD WHIZ KIDS v1.1</div>
+                <div className="app-title" onClick={handleHome} style={{ cursor: 'pointer' }}>WORD WHIZ KIDS v1.2</div>
                 <button className="pro-btn" style={{ padding: '5px 15px', fontSize: '0.8rem', marginRight: '10px' }} onClick={() => setLanguage(l => l === 'en' ? 'es' : 'en')}>{language === 'en' ? '🇪🇸 ES' : '🇺🇸 EN'}</button>
                 <div className="mission-bar">Mission: {student.name}</div>
                 <div className="stats-box">
