@@ -283,3 +283,112 @@ body {
     cursor: pointer;
     text-decoration: underline;
 }
+
+/* --- NEW STYLES FOR CLASS SELECTION --- */
+
+.vibrant-title {
+    font-size: 1.8rem;
+    /* Slightly smaller for mobile */
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: linear-gradient(to right, #60a5fa, #a78bfa, #f472b6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 4px 12px rgba(96, 165, 250, 0.3);
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.teacher-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    /* Smaller min-width for mobile */
+    gap: 15px;
+    width: 100%;
+    padding: 10px;
+}
+
+.teacher-card {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 20px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.teacher-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--card-color-1), var(--card-color-2));
+    opacity: 0.8;
+}
+
+.teacher-card:active {
+    transform: scale(0.98);
+}
+
+.teacher-icon {
+    font-size: 3rem;
+    margin-bottom: 10px;
+}
+
+.teacher-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #f8fafc;
+    margin-bottom: 4px;
+    text-align: center;
+}
+
+.teacher-section {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 4px 8px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+/* Specific Card Themes */
+.card-theme-blue {
+    --card-color-1: #3b82f6;
+    --card-color-2: #60a5fa;
+}
+
+.card-theme-purple {
+    --card-color-1: #8b5cf6;
+    --card-color-2: #a78bfa;
+}
+
+.card-theme-pink {
+    --card-color-1: #ec4899;
+    --card-color-2: #f472b6;
+}
+
+.card-theme-green {
+    --card-color-1: #10b981;
+    --card-color-2: #34d399;
+}
+
+.card-theme-orange {
+    --card-color-1: #f97316;
+    --card-color-2: #fbbf24;
+}
+
+.card-theme-cyan {
+    --card-color-1: #06b6d4;
+    --card-color-2: #22d3ee;
+}
