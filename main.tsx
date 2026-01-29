@@ -1,6 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import WordWhizApp from './WordWhizApp';
+import FreedomAi from './FreedomAi';
 
 // Force unregister service workers to clear old cache
 if ('serviceWorker' in navigator) {
@@ -17,7 +17,7 @@ if (container) {
     const root = createRoot(container);
     root.render(
         <React.StrictMode>
-            <WordWhizApp />
+            <FreedomAi />
         </React.StrictMode>
     );
 }

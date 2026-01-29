@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import { Shield, Globe, DollarSign, Terminal, Cpu, Eye, Linkedin, Mic, Activity, Lock, Zap } from 'lucide-react';
+import LexaChat from './src/components/LexaChat';
 import './FreedomAi.css';
 
 // Dynamic AI Logo Component
@@ -108,16 +109,16 @@ function FreedomAi() {
                         <BrandName />
                     </div>
                     <div className="nav-links">
-                        <a href="#mission" className="nav-link">Mission</a>
-                        <a href="#solutions" className="nav-link">Solutions</a>
-                        <a href="#intelligence" className="nav-link">Intelligence</a>
+                        <a href="#story" className="nav-link">My Story</a>
+                        <a href="#workshop" className="nav-link">The Workshop</a>
                         <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             className="btn btn-secret-agent"
                             style={{ padding: '0.5rem 1.5rem', fontSize: '0.8rem' }}
+                            onClick={() => document.getElementById('waitlist')?.scrollIntoView({ behavior: 'smooth' })}
                         >
-                            <Shield size={14} style={{ marginRight: '5px' }} /> ACCESS PORTAL
+                            <Shield size={14} style={{ marginRight: '5px' }} /> JOIN WAITLIST
                         </motion.button>
                     </div>
                 </div>
@@ -144,8 +145,9 @@ function FreedomAi() {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
                         >
-                            The Clandestine Ally <br />
-                            <span className="text-gradient">Your Business Needs</span>
+                            Stop Drowning. <br />
+                            <span className="text-gradient">Start Building.</span> <br />
+                            Your AI Co-Pilot is Ready.
                         </motion.h1>
 
                         <motion.p
@@ -154,7 +156,7 @@ function FreedomAi() {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
                         >
-                            A stealthy fusion of cutting-edge generative <BrandName /> and strategic innovation, poised to infiltrate and elevate your most critical processes.
+                            I'm an educator, travel agency owner, and AI entrepreneur managing it all without losing my mind. I'll show you the exact AI system that lets me do the work of three people - so you can too.
                         </motion.p>
 
                         <motion.div
@@ -167,8 +169,9 @@ function FreedomAi() {
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 className="btn btn-secret-agent"
+                                onClick={() => document.getElementById('waitlist')?.scrollIntoView({ behavior: 'smooth' })}
                             >
-                                <Shield size={18} /> YOUR SECRET AGENT
+                                <Shield size={18} /> JOIN THE WAITLIST
                             </motion.button>
                             <motion.a
                                 href="https://www.linkedin.com/in/freedomaisolutions/"
@@ -191,8 +194,8 @@ function FreedomAi() {
                 </div>
             </section>
 
-            {/* Mission Briefing Section */}
-            <section id="mission" className="features">
+            {/* Story Section */}
+            <section id="story" className="features">
                 <div className="container">
                     <motion.div
                         className="glass-panel"
@@ -220,51 +223,59 @@ function FreedomAi() {
                                 }}>
                                     <Activity size={28} />
                                 </div>
-                                <h2 className="section-title" style={{ fontSize: '2.5rem', margin: 0 }}>Mission Briefing</h2>
+                                <h2 className="section-title" style={{ fontSize: '2.5rem', margin: 0 }}>The Real Story</h2>
                             </div>
                         </div>
-                        <p style={{ fontSize: '1.3rem', lineHeight: '1.8', color: '#e0e0e0', maxWidth: '900px', position: 'relative', zIndex: 1 }}>
-                            As your secret agent, we operate in the shadows of complexity, decoding challenges and unleashing <BrandName />-driven solutions that catalyze transformation, amplify creativity, and supercharge growth. With <BrandName /> as your covert partner, your organization gains an unparalleled advantage.
-                        </p>
+                        <div style={{ fontSize: '1.2rem', lineHeight: '1.8', color: '#e0e0e0', maxWidth: '900px', position: 'relative', zIndex: 1 }}>
+                            <p style={{ marginBottom: '1.5rem' }}>
+                                I get it. You're building something while working full-time. You're juggling clients, kids, certifications, content creation, and trying to stay sane. You can't afford to hire help, and you're one crisis away from burnout.
+                            </p>
+                            <p style={{ marginBottom: '1.5rem' }}>
+                                I was there six months ago. Then I built an AI system that became my virtual team. Now I manage a teaching career, a travel business, and an AI company without working 80-hour weeks.
+                            </p>
+                            <p>
+                                I'm not selling theory. I'm sharing exactly what works - because I live it every day.
+                            </p>
+                        </div>
                     </motion.div>
                 </div>
             </section>
 
-            {/* Solutions Section */}
-            <section id="solutions" className="features">
+            {/* Workshop Section */}
+            <section id="workshop" className="features">
                 <div className="container">
                     <div className="section-header">
-                        <h2 className="section-title">Operational Capabilities</h2>
+                        <h2 className="section-title">The AI Co-Pilot System</h2>
                         <p className="section-desc">
-                            Advanced weaponry for the modern financial battlefield.
+                            A 4-week workshop launching March 2025.
                         </p>
                     </div>
 
                     <div className="features-grid">
                         <FeatureCard
                             icon={<Eye />}
-                            title="Shadow Operations"
-                            desc="Operate in the shadows of complexity, decoding challenges before they become threats."
+                            title="Communication Command Center"
+                            desc="Automate email, client follow-ups, and social media content pipelines."
                             delay={0}
                         />
                         <FeatureCard
                             icon={<Cpu />}
-                            title="Generative Fusion"
-                            desc="A stealthy fusion of cutting-edge generative AI and strategic innovation."
+                            title="Business Operations Autopilot"
+                            desc="Streamline proposals, invoices, and project management."
                             delay={0.2}
                         />
                         <FeatureCard
                             icon={<DollarSign />}
-                            title="Growth Catalyst"
-                            desc="Unleash AI-driven solutions that catalyze transformation and supercharge growth."
+                            title="Personal Intelligence System"
+                            desc="Track learning, research competitors, and make better decisions faster."
                             delay={0.4}
                         />
                     </div>
                 </div>
             </section>
 
-            {/* Lexa / Voice Interaction Demo Section */}
-            <section id="intelligence" className="features" style={{ paddingBottom: '12rem' }}>
+            {/* Waitlist Section */}
+            <section id="waitlist" className="features" style={{ paddingBottom: '12rem' }}>
                 <div className="container" style={{ textAlign: 'center' }}>
                     <motion.div
                         initial={{ opacity: 0, scale: 0.8, y: 50 }}
@@ -293,8 +304,8 @@ function FreedomAi() {
                         }} />
 
                         <div style={{ zIndex: 1, marginBottom: '2.5rem' }}>
-                            <h3 style={{ fontSize: '2rem', marginBottom: '0.5rem', fontWeight: 700 }}>Talk to Lexa</h3>
-                            <p style={{ color: 'var(--color-text-muted)', fontSize: '1.1rem' }}>Your <BrandName /> Strategic Advisor</p>
+                            <h3 style={{ fontSize: '2rem', marginBottom: '0.5rem', fontWeight: 700 }}>Join the Waitlist</h3>
+                            <p style={{ color: 'var(--color-text-muted)', fontSize: '1.1rem' }}>Be the first to build your system.</p>
                         </div>
 
                         <motion.div
@@ -308,11 +319,9 @@ function FreedomAi() {
                                 justifyContent: 'center',
                                 boxShadow: '0 0 40px var(--color-primary-glow)',
                                 zIndex: 1,
-                                cursor: 'pointer',
+                                marginBottom: '2rem',
                                 position: 'relative'
                             }}
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.95 }}
                             animate={{ boxShadow: ['0 0 20px rgba(43, 188, 154, 0.4)', '0 0 50px rgba(43, 188, 154, 0.8)', '0 0 20px rgba(43, 188, 154, 0.4)'] }}
                             transition={{ duration: 3, repeat: Infinity }}
                         >
@@ -320,32 +329,33 @@ function FreedomAi() {
                             <Mic size={40} color="white" />
                         </motion.div>
 
-                        <div style={{
-                            marginTop: '2.5rem',
-                            display: 'flex',
-                            gap: '6px',
-                            height: '40px',
-                            alignItems: 'center',
-                            zIndex: 1
-                        }}>
-                            {[1, 2, 3, 4, 5, 6, 7].map(i => (
-                                <motion.div
-                                    key={i}
-                                    animate={{ height: [10, 35, 10], opacity: [0.5, 1, 0.5] }}
-                                    transition={{
-                                        duration: 1.2,
-                                        repeat: Infinity,
-                                        delay: i * 0.15,
-                                        ease: "easeInOut"
-                                    }}
-                                    style={{
-                                        width: '6px',
-                                        background: i % 2 === 0 ? 'var(--color-green)' : 'var(--color-blue)',
-                                        borderRadius: '3px',
-                                        boxShadow: '0 0 10px rgba(255,255,255,0.2)'
-                                    }}
-                                />
-                            ))}
+                        {/* Email Form */}
+                        <div style={{ zIndex: 1, width: '100%', maxWidth: '400px', display: 'flex', gap: '10px', flexDirection: 'column' }}>
+                            <input
+                                type="email"
+                                placeholder="Enter your email address"
+                                style={{
+                                    padding: '1rem',
+                                    borderRadius: '8px',
+                                    border: '1px solid rgba(255,255,255,0.2)',
+                                    background: 'rgba(0,0,0,0.3)',
+                                    color: 'white',
+                                    fontSize: '1rem',
+                                    outline: 'none'
+                                }}
+                            />
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                className="btn btn-secret-agent"
+                                style={{ justifyContent: 'center', width: '100%' }}
+                                onClick={() => alert("You're on the list! (This is a demo)")}
+                            >
+                                JOIN WAITLIST
+                            </motion.button>
+                            <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '0.5rem' }}>
+                                Launching March 2025. No spam, just freedom.
+                            </p>
                         </div>
                     </motion.div>
                 </div>
@@ -370,6 +380,7 @@ function FreedomAi() {
                     </div>
                 </div>
             </footer>
+            <LexaChat />
         </div>
     );
 }

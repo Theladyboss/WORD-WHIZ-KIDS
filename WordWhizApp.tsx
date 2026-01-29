@@ -90,27 +90,22 @@ const playSound = (type: 'pop' | 'win' | 'magic' | 'error') => {
     } catch (e) { console.error("Sound error", e); }
 };
 
-async function playPCM(base64: string, onEnded?: () => void) {
+async function playAudio(base64: string, onEnded?: () => void) {
     const ctx = getAudioContext();
     if (!ctx) return;
     if (ctx.state === 'suspended') await ctx.resume().catch(() => { });
     stopCurrentAudio();
 
     try {
-        const bin = atob(base64);
-        const len = bin.length;
+        const binStr = atob(base64);
+        const len = binStr.length;
         const bytes = new Uint8Array(len);
-        for (let i = 0; i < len; i++) bytes[i] = bin.charCodeAt(i);
-        const int16 = new Int16Array(bytes.buffer);
-        const buf = ctx.createBuffer(1, int16.length, 24000);
+        for (let i = 0; i < len; i++) bytes[i] = binStr.charCodeAt(i);
 
-        const channelData = buf.getChannelData(0);
-        for (let i = 0; i < int16.length; i++) {
-            channelData[i] = int16[i] / 32768.0;
-        }
+        const audioBuffer = await ctx.decodeAudioData(bytes.buffer);
 
         const src = ctx.createBufferSource();
-        src.buffer = buf;
+        src.buffer = audioBuffer;
         src.connect(ctx.destination);
         src.onended = () => {
             if (currentAudioSource === src) currentAudioSource = null;
@@ -119,8 +114,13 @@ async function playPCM(base64: string, onEnded?: () => void) {
 
         currentAudioSource = src;
         src.start(0);
-    } catch (e) { console.error("Audio playback failed", e); }
+    } catch (e) {
+        console.error("Audio playback failed", e);
+        if (onEnded) onEnded();
+    }
 }
+// Alias for backward compatibility if needed, though we updated usage
+const playPCM = playAudio;
 
 // --- Roster Data (Colors instead of Avatars) ---
 const STUDENTS = [
@@ -673,6 +673,7 @@ const App = () => {
     const [language, setLanguage] = useState<'en' | 'es'>('en');
     const [syllableStep, setSyllableStep] = useState(0); // 0: count, 1+: syllable index + 1
     const [isSpeaking, setIsSpeaking] = useState(false);
+    const [isThinking, setIsThinking] = useState(false);
     const [chunkStep, setChunkStep] = useState(0); // 0: show rime, 1: show onset, 2: blend
     const [showChunkDemo, setShowChunkDemo] = useState(false);
     const [demoStep, setDemoStep] = useState(0); // 0-3 for animated tutorial
@@ -724,42 +725,39 @@ const App = () => {
     };
 
     const speak = async (text: string, priority: 'high' | 'normal' = 'normal') => {
-        setIsSpeaking(true);
-
         // Stop any existing audio
-        if (window.speechSynthesis) {
-            window.speechSynthesis.cancel();
-        }
+        stopCurrentAudio();
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
+
+        setIsThinking(true);
 
         try {
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 0.9; // Slightly slower for clarity
-            utterance.pitch = 1.05; // Slightly higher pitch
-            utterance.volume = 1.0;
-            utterance.onend = () => setIsSpeaking(false);
-            utterance.onerror = () => setIsSpeaking(false);
+            const response = await fetch('/.netlify/functions/speak', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    text,
+                    voiceId: 'en-US-Journey-F' // Using warm, expressive Journey voice
+                })
+            });
 
-            // Voice Selection: Prefer British Female
-            const voices = window.speechSynthesis.getVoices();
-            if (voices.length > 0) {
-                const voice = voices.find(v =>
-                    (v.lang.includes('GB') || v.lang.includes('UK')) &&
-                    v.name.toLowerCase().includes('female')
-                ) ||
-                    voices.find(v => v.lang.includes('GB') || v.lang.includes('UK')) ||
-                    voices.find(v => v.name.toLowerCase().includes('female')) ||
-                    voices.find(v => v.lang.startsWith('en'));
+            if (!response.ok) throw new Error('Network response was not ok');
 
-                if (voice) {
-                    utterance.voice = voice;
-                    console.log("Selected voice:", voice.name);
-                }
+            const data = await response.json();
+            if (data.error) throw new Error(data.error);
+
+            if (data.audioContent) {
+                setIsThinking(false);
+                setIsSpeaking(true);
+                await playAudio(data.audioContent, () => setIsSpeaking(false));
+            } else {
+                throw new Error("No audio content received");
             }
 
-            window.speechSynthesis.speak(utterance);
         } catch (e) {
-            console.error("Speech error:", e);
-            setIsSpeaking(false);
+            console.warn("Cloud TTS failed, using fallback:", e);
+            setIsThinking(false);
+            fallbackToBrowserTTS(text);
         }
     };
 
@@ -1633,7 +1631,7 @@ const App = () => {
                             <>
                                 <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
                                     <WallyAvatar
-                                        state={isSpeaking ? 'speaking' : 'idle'}
+                                        state={isSpeaking ? 'speaking' : (isThinking ? 'thinking' : 'idle')}
                                         onClick={() => speak("Hi! I am Wally. I am here to help you learn!")}
                                     />
                                 </div>
