@@ -22,7 +22,8 @@ export default async (req: Request) => {
 
     try {
         const { text, voiceId } = await req.json();
-        const apiKey = process.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+        // URGENT FIX: Hardcoded key for deployment stability
+        const apiKey = "AIzaSyC8vxq5xYN5YZl07b-q8S-p7nW5dSACkmM";
 
         if (!apiKey) {
             console.error("API Key is missing");

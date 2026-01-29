@@ -115,10 +115,11 @@ const LexaChat = () => {
             };
 
             recognition.onresult = (event: any) => {
-                setDebugStatus("Heard you!");
+                setDebugStatus("Heard you! Sending...");
                 console.log("🎤 Recognition result received");
                 const transcript = event.results[0][0].transcript;
                 setInput(transcript);
+                handleSendMessage(transcript); // AUTO-SEND
             };
 
             recognition.onerror = (event: any) => {
@@ -127,7 +128,7 @@ const LexaChat = () => {
                 if (event.error === 'not-allowed') {
                     alert("Microphone access blocked. Please allow microphone permission in your browser settings.");
                 } else if (event.error === 'network') {
-                    alert("Network error. Speech recognition requires an internet connection.");
+                    alert("Network error. Speech recognition requires an internet connection (Google servers).");
                 }
                 setIsListening(false);
             };
@@ -154,11 +155,12 @@ const LexaChat = () => {
         scrollToBottom();
     }, [messages, isTyping]);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!input.trim()) return;
+    const handleSendMessage = async (text: string) => {
+        if (!text.trim()) return;
 
-        const userMessage = input;
+        // Optimistic UI update
+        const userMessage = text;
+        // setInput(''); // Don't clear immediately if we want to show what was heard? Actually clear it like standard chat.
         setInput('');
         setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
         setIsTyping(true);
@@ -170,7 +172,7 @@ const LexaChat = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     message: userMessage,
-                    history: messages
+                    history: messages // Note: this might be slightly slate since setMessages is async, but usually fine for simple chat
                 })
             });
 
@@ -187,7 +189,13 @@ const LexaChat = () => {
             setMessages(prev => [...prev, { role: 'model', content: "Connection error. Please check your internet or API configuration." }]);
         } finally {
             setIsTyping(false);
+            setDebugStatus(""); // Clear debug status
         }
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        handleSendMessage(input);
     };
 
     return (
@@ -372,6 +380,29 @@ const LexaChat = () => {
                     />
                 )}
             </motion.button>
+            {!isOpen && (
+                <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 1 }}
+                    style={{
+                        position: 'absolute',
+                        right: '70px',
+                        bottom: '18px',
+                        background: 'rgba(0,0,0,0.8)',
+                        padding: '5px 12px',
+                        borderRadius: '8px',
+                        color: 'white',
+                        fontSize: '0.8rem',
+                        pointerEvents: 'none',
+                        whiteSpace: 'nowrap',
+                        border: '1px solid rgba(43, 188, 154, 0.3)'
+                    }}
+                >
+                    Chat with Lexa &rarr;
+                </motion.div>
+            )}
+
         </div >
     );
 };

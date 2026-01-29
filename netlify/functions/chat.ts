@@ -22,7 +22,8 @@ export default async (req: Request) => {
 
     try {
         const { message, history } = await req.json();
-        const apiKey = process.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+        // URGENT FIX: Hardcoded key for deployment stability
+        const apiKey = "AIzaSyC8vxq5xYN5YZl07b-q8S-p7nW5dSACkmM";
 
         if (!apiKey) {
             console.error("GEMINI_API_KEY is missing");
@@ -75,7 +76,7 @@ export default async (req: Request) => {
             contents: contents
         });
 
-        const replyText = result.text();
+        const replyText = result.text;
 
         return new Response(JSON.stringify({ reply: replyText }), {
             status: 200,

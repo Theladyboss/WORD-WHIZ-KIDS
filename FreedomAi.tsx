@@ -325,8 +325,7 @@ function FreedomAi() {
                             animate={{ boxShadow: ['0 0 20px rgba(43, 188, 154, 0.4)', '0 0 50px rgba(43, 188, 154, 0.8)', '0 0 20px rgba(43, 188, 154, 0.4)'] }}
                             transition={{ duration: 3, repeat: Infinity }}
                         >
-                            <div style={{ position: 'absolute', inset: '-5px', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.2)', animation: 'spin 10s linear infinite' }} />
-                            <Mic size={40} color="white" />
+                            <Shield size={40} color="white" />
                         </motion.div>
 
                         {/* Email Form */}
