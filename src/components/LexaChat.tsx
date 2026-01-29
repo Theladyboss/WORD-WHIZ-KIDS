@@ -57,6 +57,7 @@ const LexaChat = () => {
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const [isListening, setIsListening] = useState(false);
+    const [debugStatus, setDebugStatus] = useState(""); // Visual debug
     const [isMuted, setIsMuted] = useState(false);
     const [isSpeaking, setIsSpeaking] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -89,8 +90,11 @@ const LexaChat = () => {
     }, [isOpen]);
 
     const startListening = () => {
+        setDebugStatus("Clicked...");
         console.log("🎤 startListening called");
+
         if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            setDebugStatus("Error: Not Supported");
             console.error("❌ Speech recognition NOT supported");
             alert("Speech recognition is not supported in this browser. Please use Chrome or Edge.");
             return;
@@ -105,17 +109,20 @@ const LexaChat = () => {
             recognition.maxAlternatives = 1;
 
             recognition.onstart = () => {
+                setDebugStatus("Listening...");
                 console.log("🎤 Recognition started");
                 setIsListening(true);
             };
 
             recognition.onresult = (event: any) => {
+                setDebugStatus("Heard you!");
                 console.log("🎤 Recognition result received");
                 const transcript = event.results[0][0].transcript;
                 setInput(transcript);
             };
 
             recognition.onerror = (event: any) => {
+                setDebugStatus(`Error: ${event.error}`);
                 console.error("🎤 Speech recognition error:", event.error);
                 if (event.error === 'not-allowed') {
                     alert("Microphone access blocked. Please allow microphone permission in your browser settings.");
@@ -126,12 +133,14 @@ const LexaChat = () => {
             };
 
             recognition.onend = () => {
+                if (debugStatus === "Listening...") setDebugStatus("Stopped");
                 console.log("🎤 Recognition ended");
                 setIsListening(false);
             };
 
             recognition.start();
         } catch (e) {
+            setDebugStatus(`Crash: ${e}`);
             console.error("🎤 Failed to initialize SpeechRecognition:", e);
             alert("Failed to start microphone: " + e);
         }
@@ -287,22 +296,25 @@ const LexaChat = () => {
                                     outline: 'none'
                                 }}
                             />
-                            <button type="button" onClick={startListening} style={{
-                                background: isListening ? '#ef4444' : 'rgba(255,255,255,0.1)',
-                                border: 'none',
-                                width: '40px',
-                                height: '40px',
-                                borderRadius: '50%',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                cursor: 'pointer',
-                                color: 'white',
-                                transition: 'all 0.2s',
-                                animation: isListening ? 'pulse 1.5s infinite' : 'none'
-                            }}>
-                                <Mic size={18} />
-                            </button>
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                <button type="button" onClick={startListening} style={{
+                                    background: isListening ? '#ef4444' : 'rgba(255,255,255,0.1)',
+                                    border: 'none',
+                                    width: '40px',
+                                    height: '40px',
+                                    borderRadius: '50%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    cursor: 'pointer',
+                                    color: 'white',
+                                    transition: 'all 0.2s',
+                                    animation: isListening ? 'pulse 1.5s infinite' : 'none'
+                                }}>
+                                    <Mic size={18} />
+                                </button>
+                                {debugStatus && <span style={{ fontSize: '0.6rem', color: '#ef4444', marginTop: '2px', whiteSpace: 'nowrap' }}>{debugStatus}</span>}
+                            </div>
                             <button type="submit" disabled={!input.trim()} style={{
                                 background: input.trim() ? 'var(--color-green)' : 'rgba(255,255,255,0.1)',
                                 border: 'none',
