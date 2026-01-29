@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
-import { Shield, Globe, DollarSign, Terminal, Cpu, Eye, Linkedin, Mic, Activity, Lock, Zap } from 'lucide-react';
+import { Shield, Globe, DollarSign, Terminal, Cpu, Eye, Linkedin, Mic, Activity, Lock, Zap, MessageSquare } from 'lucide-react';
 import LexaChat from './src/components/LexaChat';
 import './FreedomAi.css';
 
@@ -77,6 +77,7 @@ const BrandName = ({ size = "normal" }: { size?: "normal" | "large" }) => (
 
 function FreedomAi() {
     const [scrolled, setScrolled] = useState(false);
+    const [isLexaOpen, setIsLexaOpen] = useState(false);
     const { scrollY } = useScroll();
 
     // Parallax and transformation effects
@@ -173,17 +174,15 @@ function FreedomAi() {
                             >
                                 <Shield size={18} /> JOIN THE WAITLIST
                             </motion.button>
-                            <motion.a
-                                href="https://www.linkedin.com/in/freedomaisolutions/"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="btn btn-secondary"
-                                style={{ textDecoration: 'none' }}
-                                whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.1)" }}
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
+                                className="btn btn-secret-agent"
+                                onClick={() => setIsLexaOpen(true)}
+                                style={{ background: 'linear-gradient(135deg, #0088d4, #2bbc9a)', border: 'none' }}
                             >
-                                <Linkedin size={18} /> Connect
-                            </motion.a>
+                                <MessageSquare size={18} style={{ marginRight: '8px' }} /> TALK TO LEXA
+                            </motion.button>
                         </motion.div>
                     </motion.div>
                 </div>
@@ -308,7 +307,8 @@ function FreedomAi() {
                             <p style={{ color: 'var(--color-text-muted)', fontSize: '1.1rem' }}>Be the first to build your system.</p>
                         </div>
 
-                        <motion.div
+                        <motion.button
+                            onClick={() => setIsLexaOpen(true)}
                             style={{
                                 width: '90px',
                                 height: '90px',
@@ -320,13 +320,18 @@ function FreedomAi() {
                                 boxShadow: '0 0 40px var(--color-primary-glow)',
                                 zIndex: 1,
                                 marginBottom: '2rem',
-                                position: 'relative'
+                                position: 'relative',
+                                border: 'none',
+                                cursor: 'pointer'
                             }}
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
                             animate={{ boxShadow: ['0 0 20px rgba(43, 188, 154, 0.4)', '0 0 50px rgba(43, 188, 154, 0.8)', '0 0 20px rgba(43, 188, 154, 0.4)'] }}
                             transition={{ duration: 3, repeat: Infinity }}
                         >
-                            <Shield size={40} color="white" />
-                        </motion.div>
+                            <div style={{ position: 'absolute', inset: '-5px', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.2)', animation: 'spin 10s linear infinite' }} />
+                            <Mic size={40} color="white" />
+                        </motion.button>
 
                         {/* Email Form */}
                         <div style={{ zIndex: 1, width: '100%', maxWidth: '400px', display: 'flex', gap: '10px', flexDirection: 'column' }}>
@@ -379,7 +384,7 @@ function FreedomAi() {
                     </div>
                 </div>
             </footer>
-            <LexaChat />
+            <LexaChat isOpen={isLexaOpen} onToggle={setIsLexaOpen} />
         </div>
     );
 }

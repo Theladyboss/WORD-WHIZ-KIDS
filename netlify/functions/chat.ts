@@ -1,5 +1,5 @@
 
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI } from "@google/genai"; // Keep for types if needed, or remove. Actually remove to save size.
 
 const CORS_HEADERS = {
     "Access-Control-Allow-Origin": "*",
@@ -33,50 +33,45 @@ export default async (req: Request) => {
             });
         }
 
-        const ai = new GoogleGenAI({ apiKey });
-
         const systemPrompt = `You are Lexa, the AI Co-Pilot for FreedomAi Solutions.
     Your mission is to help overwhelmed solopreneurs, educators, and multi-hyphenates understand how AI can save them time and sanity.
 
-    Tone: Extremely friendly, patient, warm, and professional. Think of yourself as a kind, tech-savvy guide who loves helping people.
+    Tone: Extremely friendly, patient, warm, and professional.
     
     Key Instructions:
-    - ALWAYS be patient and encouraging. Never make the user feel rushed or tech-illiterate.
-    - If asked to introduce yourself, do so warmly.
-    - FreedomAi helps people build "AI Co-Pilot Systems".
-    - Mentions the 4-week workshop launching in March 2025 (Communication Command Center, Business Operations Autopilot, Personal Intelligence System).
-    - Guide users gently towards joining the waitlist if they seem interested.
-    - Keep responses concise (under 3 paragraphs) to ensure they are easy to listen to as speech.
-    - END EVERY RESPONSE WITH A RELEVANT QUESTION to keep the dialogue flowing. Do not let the conversation stall.`;
+    - ALWAYS be patient.
+    - Mention the 4-week workshop launching March 2025.
+    - Responses must be SHORT (under 3 sentences) for voice.
+    - END EVERY RESPONSE WITH A RELEVANT QUESTION.`;
 
-        // Construct conversation history for the new SDK
-        // We inject the system prompt as the first user message (followed by an acknowledgment) to prime the model
-        // This is a robust way to handle system instructions in stateless stateless REST usage if the 'systemInstruction' param is tricky
-        const contents = [
-            {
-                role: 'user',
-                parts: [{ text: "System Instruction: " + systemPrompt }]
-            },
-            {
-                role: 'model',
-                parts: [{ text: "Understood! I am Lexa, your friendly AI Co-Pilot. How can I help you today?" }]
-            },
-            ...(history || []).map((msg: any) => ({
-                role: msg.role === 'user' ? 'user' : 'model',
-                parts: [{ text: msg.content }]
-            })),
-            {
-                role: 'user',
-                parts: [{ text: message }]
-            }
-        ];
-
-        const result = await ai.models.generateContent({
-            model: 'gemini-1.5-flash',
-            contents: contents
+        // Direct REST API call
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [
+                    { role: "user", parts: [{ text: "System Instruction: " + systemPrompt }] },
+                    { role: "model", parts: [{ text: "Understood. I'm Lexa. How can I help?" }] },
+                    ...(history || []).map((msg: any) => ({
+                        role: msg.role === 'user' ? 'user' : 'model',
+                        parts: [{ text: msg.content }]
+                    })),
+                    { role: "user", parts: [{ text: message }] }
+                ]
+            })
         });
 
-        const replyText = result.text;
+        const data = await response.json();
+
+        if (data.error) {
+            console.error("Gemini API Error:", data.error);
+            return new Response(JSON.stringify({ error: data.error.message }), {
+                status: 500,
+                headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
+            });
+        }
+
+        const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm having trouble thinking right now.";
 
         return new Response(JSON.stringify({ reply: replyText }), {
             status: 200,

@@ -49,8 +49,25 @@ interface Message {
     content: string;
 }
 
-const LexaChat = () => {
-    const [isOpen, setIsOpen] = useState(false);
+interface LexaChatProps {
+    isOpen?: boolean;
+    onToggle?: (isOpen: boolean) => void;
+}
+
+const LexaChat = ({ isOpen: externalIsOpen, onToggle: externalOnToggle }: LexaChatProps = {}) => {
+    const [internalIsOpen, setInternalIsOpen] = useState(false);
+
+    // Use external state if provided, otherwise internal
+    const isControlled = externalIsOpen !== undefined && externalOnToggle !== undefined;
+    const isOpen = isControlled ? externalIsOpen : internalIsOpen;
+    const setIsOpen = (value: boolean) => {
+        if (isControlled) {
+            externalOnToggle(value);
+        } else {
+            setInternalIsOpen(value);
+        }
+    };
+
     const [messages, setMessages] = useState<Message[]>([
         { role: 'model', content: "Hello! I'm Lexa, your AI Co-Pilot. How can I help you build your freedom today?" }
     ]);
@@ -81,11 +98,17 @@ const LexaChat = () => {
         }
     };
 
-    // Auto-speak welcome message when opened first time
+    // Auto-speak welcome message & START LISTENING when opened
     useEffect(() => {
-        if (isOpen && messages.length === 1 && !isMuted) {
-            // Small delay to ensure smooth entry
-            setTimeout(() => speak(messages[0].content), 500);
+        if (isOpen) {
+            // Speak welcome if it's the first message
+            if (messages.length === 1 && !isMuted) {
+                setTimeout(() => speak(messages[0].content), 500);
+            }
+            // Auto-start listening after a short delay to allow UI to settle
+            setTimeout(() => {
+                startListening();
+            }, 800);
         }
     }, [isOpen]);
 
@@ -343,66 +366,7 @@ const LexaChat = () => {
                 )}
             </AnimatePresence>
 
-            {/* Floating Orb Button */}
-            <motion.button
-                onClick={() => setIsOpen(!isOpen)}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                style={{
-                    width: '60px',
-                    height: '60px',
-                    borderRadius: '50%',
-                    background: 'linear-gradient(135deg, var(--color-green), var(--color-blue))',
-                    border: 'none',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    boxShadow: '0 0 20px var(--color-primary-glow)',
-                    position: 'relative',
-                    zIndex: 1001
-                }}
-            >
-                {isOpen ? <X size={24} color="white" /> : <MessageSquare size={24} color="white" />}
-
-                {/* Pulse Effect */}
-                {!isOpen && (
-                    <motion.div
-                        style={{
-                            position: 'absolute',
-                            inset: -5,
-                            borderRadius: '50%',
-                            border: '2px solid var(--color-green)',
-                            opacity: 0.5
-                        }}
-                        animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0, 0.5] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                    />
-                )}
-            </motion.button>
-            {!isOpen && (
-                <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 1 }}
-                    style={{
-                        position: 'absolute',
-                        right: '70px',
-                        bottom: '18px',
-                        background: 'rgba(0,0,0,0.8)',
-                        padding: '5px 12px',
-                        borderRadius: '8px',
-                        color: 'white',
-                        fontSize: '0.8rem',
-                        pointerEvents: 'none',
-                        whiteSpace: 'nowrap',
-                        border: '1px solid rgba(43, 188, 154, 0.3)'
-                    }}
-                >
-                    Chat with Lexa &rarr;
-                </motion.div>
-            )}
-
+            {/* Floating Orb Button REMOVED */}
         </div >
     );
 };
