@@ -89,34 +89,52 @@ const LexaChat = () => {
     }, [isOpen]);
 
     const startListening = () => {
+        console.log("🎤 startListening called");
         if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-            alert("Speech recognition is not supported in this browser.");
+            console.error("❌ Speech recognition NOT supported");
+            alert("Speech recognition is not supported in this browser. Please use Chrome or Edge.");
             return;
         }
 
-        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-        const recognition = new SpeechRecognition();
+        try {
+            const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
 
-        recognition.lang = 'en-US';
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
 
-        recognition.onstart = () => setIsListening(true);
+            recognition.onstart = () => {
+                console.log("🎤 Recognition started");
+                setIsListening(true);
+            };
 
-        recognition.onresult = (event: any) => {
-            const transcript = event.results[0][0].transcript;
-            setInput(transcript);
-            // Optional: Auto-submit? Let's leave it as input for now so they can edit.
-        };
+            recognition.onresult = (event: any) => {
+                console.log("🎤 Recognition result received");
+                const transcript = event.results[0][0].transcript;
+                setInput(transcript);
+            };
 
-        recognition.onerror = (event: any) => {
-            console.error("Speech recognition error", event.error);
-            setIsListening(false);
-        };
+            recognition.onerror = (event: any) => {
+                console.error("🎤 Speech recognition error:", event.error);
+                if (event.error === 'not-allowed') {
+                    alert("Microphone access blocked. Please allow microphone permission in your browser settings.");
+                } else if (event.error === 'network') {
+                    alert("Network error. Speech recognition requires an internet connection.");
+                }
+                setIsListening(false);
+            };
 
-        recognition.onend = () => setIsListening(false);
+            recognition.onend = () => {
+                console.log("🎤 Recognition ended");
+                setIsListening(false);
+            };
 
-        recognition.start();
+            recognition.start();
+        } catch (e) {
+            console.error("🎤 Failed to initialize SpeechRecognition:", e);
+            alert("Failed to start microphone: " + e);
+        }
     };
 
     const scrollToBottom = () => {
