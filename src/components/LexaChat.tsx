@@ -191,7 +191,7 @@ const LexaChat = () => {
     };
 
     return (
-        <div style={{ position: 'fixed', bottom: '30px', right: '30px', zIndex: 1000 }}>
+        <div style={{ position: 'fixed', bottom: '30px', right: '30px', zIndex: 9999 }}>
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
